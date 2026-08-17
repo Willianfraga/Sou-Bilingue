@@ -1,7 +1,15 @@
+import Link from "next/link";
+
 // Esta rota ("/") vai virar a página de vendas pública — destino real do QR Code
 // do panfleto, com a apresentação do produto e os 3 planos (ver seção 12 do
 // escopo: QR → página de vendas → cadastro → /checkout → acesso liberado).
 // Por enquanto é só uma tela de status, sem conteúdo de venda real.
+const interfaces = [
+  { href: "/aluno", label: "Interface do aluno" },
+  { href: "/responsavel", label: "Interface do responsável" },
+  { href: "/admin", label: "Interface do criador" },
+];
+
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-6 px-6 py-16">
@@ -27,6 +35,21 @@ export default function Home() {
         cadastro e o <code className="rounded bg-neutral-100 px-1 py-0.5">/checkout</code>{" "}
         são etapas separadas depois da escolha do plano.
       </p>
+
+      <div className="mt-4 rounded-lg border border-dashed border-neutral-300 p-4">
+        <p className="mb-3 font-mono text-xs uppercase tracking-widest text-neutral-400">
+          Atalhos de dev — remover quando existir login de verdade
+        </p>
+        <ul className="flex flex-col gap-2">
+          {interfaces.map((item) => (
+            <li key={item.href}>
+              <Link href={item.href} className="text-sm text-teal-700 underline">
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </main>
   );
 }

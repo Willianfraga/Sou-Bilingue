@@ -21,6 +21,11 @@ humana em etapa nenhuma.** O trabalho manual do dono do produto é só divulgaç
 emissão de certificado têm que rodar sozinhos desde o primeiro aluno — não é
 aceitável nenhum fluxo que dependa de alguém do time apertar um botão por aluno.
 
+**Ordem de construção (não é ordem de escopo):** página de vendas e checkout
+(seção 12 do escopo) ficam para depois. A construção atual foca nas 3 interfaces do
+aplicativo (aluno, responsável, criador) — primeiro o esqueleto de navegação de cada
+uma, com telas vazias, depois o conteúdo de cada tela.
+
 Este arquivo existe justamente para o problema que gerou sua criação: numa sessão
 anterior, o projeto só existia como uma conversa e um artifact — sem pasta, sem
 `CLAUDE.md`, sem commit — e ficou difícil de encontrar depois. Sempre que uma decisão
