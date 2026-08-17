@@ -67,10 +67,16 @@ beta do certificado.
 
 ## 03 · As três interfaces
 
+Antes das três interfaces "logadas", existe um funil público que não exige conta:
+**página de vendas → cadastro → checkout → acesso liberado.** É pra onde o QR Code
+do panfleto leva — não direto pro cadastro. Detalhe completo do funil na seção 12.
+
 **Interface do aluno** — estudar e conquistar o certificado do mês:
-- Chega pelo QR Code do panfleto (ou por link direto), já com a origem e o cupom da
-  escola identificados automaticamente
-- Escolhe idioma (dos 5) e sotaque regional, faz teste de nível e escolhe o plano —
+- Chega pelo QR Code do panfleto (ou por link direto) na página de vendas pública,
+  já com a origem e o cupom da escola identificados automaticamente
+- Na página de vendas, vê a apresentação do produto e os 3 planos, e escolhe um pra
+  seguir pro cadastro
+- No cadastro, escolhe idioma (dos 5) e sotaque regional, faz teste de nível —
   sozinho se maior de idade, com aprovação do responsável se menor
 - No checkout, o cupom de desconto da escola (se veio de um QR) já aparece
   aplicado na primeira mensalidade; também dá pra digitar um cupom manualmente
@@ -184,6 +190,12 @@ de risco:
   como decisão pragmática — ver `CLAUDE.md`.)*
 - **Backend:** Node/NestJS + Postgres + Redis (streak/gamificação) + fila (BullMQ)
   para gerar/assinar certificados em lote.
+- **Página de vendas:** pública, sem autenticação — é o destino real do QR Code,
+  não o cadastro. Apresenta o produto e os 3 planos, já com a origem/cupom da
+  escola identificados pela URL.
+- **Checkout:** etapa própria depois do cadastro — resumo do pedido, cupom
+  aplicado (ou campo pra digitar), escolha de método de pagamento, confirmação
+  automática. Acesso à plataforma só libera depois da confirmação do pagamento.
 - **Pagamento:** gateway **Asaas** — cobrança recorrente mensal (Pix, cartão,
   boleto), confirmação automática por webhook, cupom de desconto aplicado só na
   primeira fatura da assinatura.
@@ -210,14 +222,15 @@ de risco:
 ## 08 · Roteiro por fases
 
 - **Fase 1 — MVP 100% automatizado.** Sem piloto manual, sem revisão humana em
-  etapa nenhuma. App do aluno + painel de acompanhamento do criador. 1 idioma
-  inicial, já com sotaque regional escolhível, cápsulas de cultura, cenários reais
-  de conversa, lembrete no horário exato, portfólio exportável em PDF e resumo
-  semanal ao responsável. Cadastro self-service, QR Code rastreável por escola com
-  cupom embutido, pagamento automático via Asaas, validação de aula e emissão de
-  certificado automáticas desde o aluno #1. Prospecção de parceria com escolas em
-  paralelo. Antes da primeira divulicação real, rodar o fluxo ponta a ponta com
-  conta de teste pelo menos uma vez.
+  etapa nenhuma. Página de vendas pública + cadastro + checkout + app do aluno +
+  painel de acompanhamento do criador. 1 idioma inicial, já com sotaque regional
+  escolhível, cápsulas de cultura, cenários reais de conversa, lembrete no horário
+  exato, portfólio exportável em PDF e resumo semanal ao responsável. QR Code
+  rastreável por escola com cupom embutido leva pra página de vendas; checkout com
+  pagamento automático via Asaas; validação de aula e emissão de certificado
+  automáticas desde o aluno #1. Prospecção de parceria com escolas em paralelo.
+  Antes da primeira divulgação real, rodar o funil inteiro (venda → cadastro →
+  checkout → acesso) com conta de teste pelo menos uma vez.
 - **Fase 2 — Expansão de idiomas.** Dos 5 idiomas planejados, priorizar o segundo
   pela demanda real observada na Fase 1 — não por ordem de preferência. O gancho
   cultural do Mandarim (seção 10) não muda essa ordem. Candidatos além dos 5:
@@ -243,6 +256,9 @@ de risco:
 - ✓ Pagamento via Asaas — cobrança recorrente automática
 - ✓ Aquisição por QR Code rastreável por escola/leva, com cupom de desconto da
   mesma escola embutido no link, válido só na primeira mensalidade
+- ✓ Página de vendas pública + checkout — o QR leva pra uma página de vendas, não
+  direto pro cadastro; checkout é etapa própria, com pagamento via Asaas e acesso
+  liberado só depois da confirmação
 
 **Em aberto:**
 - ○ Regra concreta de dificuldade adaptativa e correção que explica o porquê (seção
@@ -306,21 +322,31 @@ aprendeu. Três frentes resolvem isso, sem depender de recompensa:
 > porquê. É o que decide se o aluno sai falando melhor de verdade ou só acumulou
 > tela — e o que protege a credibilidade do certificado no fim do mês.
 
-## 12 · Cupons e aquisição por escola
+## 12 · Do QR ao acesso liberado
 
-Mecanismo único que resolve rastreio de origem e desconto ao mesmo tempo:
+O funil inteiro, do panfleto até o aluno logado na plataforma — sem nenhuma etapa
+manual no meio:
 
-1. O criador cadastra um cupom no painel — nome livre (normalmente o nome da
-   escola), percentual/valor de desconto, e a regra fixa "só na primeira
-   mensalidade".
-2. O criador gera um QR Code para aquela escola/leva de panfleto — o link já leva o
-   código do cupom embutido.
-3. A pessoa escaneia o QR no panfleto, cai direto no cadastro com o cupom já
-   aplicado — não digita nada.
-4. No painel do criador, cada cadastro mostra de qual QR/escola/cupom ele veio, sem
-   nenhum trabalho manual de rastreio.
-5. A partir da segunda mensalidade, a cobrança automática via Asaas volta ao valor
-   cheio do plano.
+1. **Cadastro do cupom** — o criador cadastra um cupom no painel: nome livre
+   (normalmente o nome da escola), percentual/valor de desconto, e a regra fixa "só
+   na primeira mensalidade".
+2. **Geração do QR** — o criador gera um QR Code para aquela escola/leva de
+   panfleto; o link já leva o código do cupom embutido.
+3. **Página de vendas** — a pessoa escaneia o QR no panfleto e cai numa página de
+   vendas pública (sem login), com a apresentação do produto e os 3 planos — não
+   direto no cadastro. O cupom da escola já está identificado pela URL.
+4. **Escolha do plano** — a pessoa escolhe um dos 3 planos na página de vendas e
+   segue pro cadastro.
+5. **Cadastro** — dados do aluno (e do responsável, se menor, com o consentimento
+   LGPD); escolhe idioma, sotaque e faz o teste de nível.
+6. **Checkout** — resumo do pedido com o cupom já aplicado (ou campo pra digitar um
+   manualmente), escolha de método de pagamento e cobrança processada pelo Asaas.
+7. **Confirmação e acesso** — webhook do Asaas confirma o pagamento e libera o
+   acesso à plataforma sozinho, sem ninguém do time aprovar nada.
+8. **Origem sem esforço** — no painel do criador, cada cadastro mostra de qual
+   QR/escola/cupom ele veio, sem nenhum trabalho manual de rastreio.
+9. **Desconto só no primeiro mês** — a partir da segunda mensalidade, a cobrança
+   automática via Asaas volta ao valor cheio do plano.
 
 Cupom também pode ser digitado manualmente no checkout, para quem recebeu o código
 por fora do QR (ex. boca a boca).

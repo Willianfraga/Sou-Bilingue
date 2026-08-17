@@ -1,3 +1,7 @@
+// Esta rota ("/") vai virar a página de vendas pública — destino real do QR Code
+// do panfleto, com a apresentação do produto e os 3 planos (ver seção 12 do
+// escopo: QR → página de vendas → cadastro → /checkout → acesso liberado).
+// Por enquanto é só uma tela de status, sem conteúdo de venda real.
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-6 px-6 py-16">
@@ -17,6 +21,11 @@ export default function Home() {
         desde o aluno #1 — o único trabalho manual é a divulgação, com QR Code
         rastreável por escola e cupom de desconto embutido — ver seção 08 e 12 do
         escopo.
+      </p>
+      <p className="text-sm text-neutral-500">
+        Esta página vai virar a página de vendas pública (destino do QR Code); o
+        cadastro e o <code className="rounded bg-neutral-100 px-1 py-0.5">/checkout</code>{" "}
+        são etapas separadas depois da escolha do plano.
       </p>
     </main>
   );

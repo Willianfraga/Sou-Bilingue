@@ -78,6 +78,12 @@ versão compartilhada) **e** este arquivo.
     QR do panfleto já carrega o código de origem da escola (decisão 12), o link pode
     vir com o cupom da mesma escola pré-preenchido — a pessoa não digita nada, e
     origem + desconto saem do mesmo mecanismo.
+14. **O QR Code não leva direto pro cadastro — leva pra uma página de vendas
+    pública** (sem login), que apresenta o produto e os 3 planos com o cupom da
+    escola já identificado. Só depois de escolher o plano é que entra cadastro →
+    checkout. Checkout é uma etapa própria: resumo do pedido, cupom aplicado,
+    escolha de método de pagamento (Pix/cartão/boleto) via Asaas, confirmação
+    automática por webhook, acesso liberado só depois da confirmação.
 
 ## Pendências reais (não finja que estão resolvidas)
 
