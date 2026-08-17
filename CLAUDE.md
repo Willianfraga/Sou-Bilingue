@@ -9,11 +9,17 @@ Idioma do produto e do código: **português do Brasil**.
 
 ## Estado atual (17 ago 2026)
 
-**Fase 0 do roteiro — piloto manual.** Nenhuma tela de produto foi construída ainda.
-O que existe até aqui é o blueprint completo em `docs/ESCOPO.md` (também publicado
-como artifact — ver seção "Onde encontrar o escopo completo" abaixo) e este scaffold
-inicial de código, criado por antecipação — não significa que a Fase 0/1 já estejam
-concluídas.
+**Fase 1 do roteiro — MVP 100% automatizado, sem piloto manual.** Nenhuma tela de
+produto foi construída ainda. O que existe até aqui é o blueprint completo em
+`docs/ESCOPO.md` (também publicado como artifact — ver seção "Onde encontrar o
+escopo completo" abaixo) e este scaffold inicial de código, criado por antecipação —
+não significa que a Fase 1 já esteja concluída.
+
+Decisão importante desta rodada: **não existe fase de piloto manual nem revisão
+humana em etapa nenhuma.** O trabalho manual do dono do produto é só divulgação
+(panfletagem em escolas com QR Code). Cadastro, pagamento, validação de aula e
+emissão de certificado têm que rodar sozinhos desde o primeiro aluno — não é
+aceitável nenhum fluxo que dependa de alguém do time apertar um botão por aluno.
 
 Este arquivo existe justamente para o problema que gerou sua criação: numa sessão
 anterior, o projeto só existia como uma conversa e um artifact — sem pasta, sem
@@ -46,7 +52,8 @@ versão compartilhada) **e** este arquivo.
    qualidade (pronúncia, gramática, participação).
 6. **3 planos por dias de aula na semana:** Básico (3d/6h), Intermediário (5d/10h),
    Avançado (7d/14h) — aula de 2h/dia, preços ilustrativos (R$49/79/119, ainda sem
-   recalcular o custo real do Avançado).
+   recalcular o custo real do Avançado). Validação da aula é sempre automática, por
+   nota mínima de qualidade — **nenhum plano tem revisão humana**, nem o Avançado.
 7. **3 interfaces:** aluno, responsável (só existe se o aluno for menor) e criador
    (CMS/admin/certificação).
 8. **Todo tutor de IA segue a mesma diretriz de comportamento** — amigável, corrige
@@ -58,6 +65,19 @@ versão compartilhada) **e** este arquivo.
    portfólio de certificados exportável em PDF único, prospecção de parceria com
    escolas, cápsulas de cultura por idioma e sotaque regional escolhível (aceitando o
    custo extra de voz por variante desde o início).
+10. **Zero operação manual desde o aluno #1** — sem piloto, sem revisão humana. O
+    certificado é válido e verificável desde o primeiro emitido, não é uma versão
+    piloto/beta. Papel do dono do produto: só divulgação.
+11. **Pagamento via Asaas** — mesmo gateway do projeto "academia flow", cobrança
+    recorrente mensal (Pix, cartão, boleto) com confirmação automática por webhook.
+12. **Aquisição por QR Code rastreável por escola/leva** — cada remessa de panfleto
+    carrega um código de origem no link de cadastro, para o painel do criador
+    mostrar de qual escola veio cada aluno.
+13. **Cupom de desconto por escola** — cadastrado dentro do painel do criador (nome
+    livre, normalmente o nome da escola), válido só na primeira mensalidade. Como o
+    QR do panfleto já carrega o código de origem da escola (decisão 12), o link pode
+    vir com o cupom da mesma escola pré-preenchido — a pessoa não digita nada, e
+    origem + desconto saem do mesmo mecanismo.
 
 ## Pendências reais (não finja que estão resolvidas)
 
@@ -65,8 +85,12 @@ versão compartilhada) **e** este arquivo.
    hoje é só uma frase de intenção (seção 11 do escopo), não um critério testável.
 2. Preço do plano Avançado (R$119) é ilustrativo — falta recalcular com o custo real
    de computação de LLM + STT/TTS + avaliação de pronúncia para 14h/semana.
-3. Métrica de sucesso do piloto da Fase 0 ainda não definida — que número, que
-   comparação, que prazo prova que o certificado sozinho sustenta o hábito.
+3. Métrica de sucesso pós-lançamento ainda não definida — sem piloto manual, que
+   número/comparação/prazo, acompanhado por analytics automatizado, prova que o
+   certificado sozinho sustenta o hábito.
+4. Fluxo ponta a ponta (cadastro → QR de origem → pagamento Asaas → aula → validação
+   → certificado) ainda não foi testado nem uma vez, nem com conta de teste — antes
+   da primeira divulgação real vale rodar isso de ponta a ponta pelo menos uma vez.
 
 ## Stack (decisão pragmática desta sessão, não do documento de escopo)
 

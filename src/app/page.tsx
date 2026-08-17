@@ -2,7 +2,7 @@ export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-6 px-6 py-16">
       <span className="font-mono text-xs uppercase tracking-widest text-amber-700">
-        Fase 0 · piloto manual
+        Fase 1 · MVP 100% automatizado
       </span>
       <h1 className="text-3xl font-bold">Fluência Certificada</h1>
       <p className="text-neutral-600">
@@ -12,9 +12,11 @@ export default function Home() {
         <code className="rounded bg-neutral-100 px-1 py-0.5">docs/ESCOPO.md</code>.
       </p>
       <p className="text-sm text-neutral-500">
-        Antes de construir qualquer tela real, o roteiro pede um piloto manual com
-        20–50 alunos para validar se o certificado sozinho sustenta o hábito de
-        estudo — ver seção 08 do escopo.
+        Decisão de escopo: sem piloto manual e sem revisão humana em etapa nenhuma.
+        Cadastro, pagamento (Asaas), aula e certificado precisam rodar sozinhos
+        desde o aluno #1 — o único trabalho manual é a divulgação, com QR Code
+        rastreável por escola e cupom de desconto embutido — ver seção 08 e 12 do
+        escopo.
       </p>
     </main>
   );
