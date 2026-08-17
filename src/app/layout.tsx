@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Fluência Certificada",
+  title: "SouBilingue",
   description:
     "App de aprendizado de idiomas com certificado mensal em vez de recompensa em dinheiro.",
 };

@@ -1,18 +1,24 @@
-# Fluência Certificada — contexto do projeto
+# SouBilingue — contexto do projeto
 
 App de aprendizado de idiomas por conversa com IA. Diferencial: em vez de recompensa
 em dinheiro, o aluno que cumprir a cota de aulas de **todas as semanas do mês**
 recebe automaticamente um **certificado de conclusão mensal** em PDF, verificável
 publicamente por código.
 
+Nome do projeto até 17 ago 2026 era "Fluência Certificada" (codinome de blueprint,
+ainda visível nos commits antigos) — renomeado pra **SouBilingue**, nome do domínio
+que vai ser usado.
+
 Idioma do produto e do código: **português do Brasil**.
 
 ## Estado atual (17 ago 2026)
 
-**Fase 1 do roteiro — MVP 100% automatizado, sem piloto manual.** Nenhuma tela de
-produto foi construída ainda. O que existe até aqui é o blueprint completo em
-`docs/ESCOPO.md` (também publicado como artifact — ver seção "Onde encontrar o
-escopo completo" abaixo) e este scaffold inicial de código, criado por antecipação —
+**Fase 1 do roteiro — MVP 100% automatizado, sem piloto manual.** O blueprint
+completo está em `docs/ESCOPO.md` (também publicado como artifact — ver seção
+"Onde encontrar o escopo completo" abaixo). Do código, existe o esqueleto de
+navegação das 3 interfaces (aluno, responsável, criador) e a primeira tela real —
+`/aluno` (Progresso do mês), ainda com dado mock, sem banco por trás. O resto das
+telas são placeholder —
 não significa que a Fase 1 já esteja concluída.
 
 Decisão importante desta rodada: **não existe fase de piloto manual nem revisão
@@ -36,7 +42,7 @@ versão compartilhada) **e** este arquivo.
 
 - `docs/ESCOPO.md` — versão em Markdown, controlada por este repositório.
 - Artifact publicado (mesma informação, formatada): peça ao Claude Code para listar
-  os artifacts da conta se o link se perder — o título é "Fluência Certificada".
+  os artifacts da conta se o link se perder — o título é "SouBilingue".
 
 ## Decisões já fechadas (não reabrir sem motivo novo)
 

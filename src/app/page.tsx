@@ -16,7 +16,7 @@ export default function Home() {
       <span className="font-mono text-xs uppercase tracking-widest text-amber-700">
         Fase 1 · MVP 100% automatizado
       </span>
-      <h1 className="text-3xl font-bold">Fluência Certificada</h1>
+      <h1 className="text-3xl font-bold">SouBilingue</h1>
       <p className="text-neutral-600">
         Nenhuma tela de produto foi construída ainda — este é só o ponto de partida
         do código. O blueprint completo (referências, planos, motor de

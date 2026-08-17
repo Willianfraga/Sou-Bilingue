@@ -1,7 +1,7 @@
-# Fluência Certificada — blueprint de produto
+# SouBilingue — blueprint de produto
 
 *Criado 16 ago 2026 · atualizado 17 ago 2026. Também publicado como artifact
-("Fluência Certificada") para leitura formatada — peça ao Claude Code para
+("SouBilingue") para leitura formatada — peça ao Claude Code para
 listar os artifacts da conta se o link se perder.*
 
 Um app de idiomas que reconhece o esforço do mês com um certificado — sem dinheiro

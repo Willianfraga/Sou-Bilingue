@@ -1,4 +1,4 @@
-# Fluência Certificada
+# SouBilingue
 
 App de aprendizado de idiomas por conversa com IA. Em vez de recompensa em dinheiro,
 o aluno que cumprir a cota de aulas de todas as semanas do mês recebe automaticamente
