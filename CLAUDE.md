@@ -16,9 +16,11 @@ Idioma do produto e do código: **português do Brasil**.
 **Fase 1 do roteiro — MVP 100% automatizado, sem piloto manual.** O blueprint
 completo está em `docs/ESCOPO.md` (também publicado como artifact — ver seção
 "Onde encontrar o escopo completo" abaixo). Do código, existe o esqueleto de
-navegação das 3 interfaces (aluno, responsável, criador) e a primeira tela real —
-`/aluno` (Progresso do mês), ainda com dado mock, sem banco por trás. O resto das
-telas são placeholder —
+navegação das 3 interfaces (aluno, responsável, criador) e quatro telas reais da
+interface do aluno: Progresso do mês, Certificados e Perfil (dado mock, sem banco
+por trás) e **Aula — essa com o tutor de IA já ligado de verdade** (Claude Opus 5,
+via `src/app/api/aula/chat/route.ts`, `ANTHROPIC_API_KEY` em `.env.local`). O
+resto das telas são placeholder —
 não significa que a Fase 1 já esteja concluída.
 
 Decisão importante desta rodada: **não existe fase de piloto manual nem revisão
@@ -95,6 +97,13 @@ versão compartilhada) **e** este arquivo.
     checkout. Checkout é uma etapa própria: resumo do pedido, cupom aplicado,
     escolha de método de pagamento (Pix/cartão/boleto) via Asaas, confirmação
     automática por webhook, acesso liberado só depois da confirmação.
+15. **Tutor de IA: Claude Opus 5, chamado só do servidor.** A chave
+    (`ANTHROPIC_API_KEY`) mora em `.env.local`, nunca chega ao browser — mesma
+    regra do projeto "academia flow" (segredo nunca no cliente). O contexto do
+    aluno (idioma, sotaque, tutor, objetivo pessoal) vem do perfil resolvido no
+    servidor, não dos argumentos que o cliente manda — hoje `src/lib/mock/perfil.ts`;
+    quando existir sessão de verdade, troca pela consulta ao banco pelo aluno
+    autenticado, nunca por um campo que o `fetch` do cliente possa forjar.
 
 ## Pendências reais (não finja que estão resolvidas)
 
