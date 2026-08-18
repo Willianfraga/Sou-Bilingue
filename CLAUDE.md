@@ -229,6 +229,23 @@ disse que ainda vai amadurecer os detalhes — não implementar nada disso ainda
    mês → certificado) **já foi confirmado visualmente em 18 ago**, ver "Estado
    atual" acima — falta só ligar a ponta de aquisição/pagamento nisso.
 
+## Otimizações de custo de IA implementadas
+
+**Problema encontrado em 19 ago:** `/api/aula/chat` estava usando `claude-opus-5`
+(US$ 15/M tokens entrada), queimando créditos rápido em testes de desenvolvimento.
+
+**Correção:**
+- Modelo padrão trocado para `claude-haiku-4-5-20251001` (US$ 0,80/M entrada — 19x mais barato)
+- **Prompt caching** ativado na chamada — reduz custo em ~90% em mensagens repetidas com mesmo prompt
+- Configurável via `ANTHROPIC_MODEL` em `.env` — permite trocar pra Opus/Sonnet em produção se necessário
+
+**Economia estimada:** 1 chat de 5 turnos:
+- Antes (Opus): ~$0,30/chat
+- Depois (Haiku + cache): ~$0,02/chat
+- **Redução: 85-90%**
+
+Aproveite o servidor rodando em dev pra testar o chat sem queimar crédito de verdade agora.
+
 ## Por onde retomar (feito em 18 ago, sessão pode continuar direto daqui)
 
 Se abrir uma sessão nova amanhã, não precisa re-explicar nada disso — está tudo

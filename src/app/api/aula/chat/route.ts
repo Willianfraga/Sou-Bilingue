@@ -34,11 +34,18 @@ export async function POST(request: Request) {
   }
 
   const tutor = await getTutorPorId(perfil.tutorId);
+  const systemPrompt = buildSystemPrompt(perfil, tutor?.nome ?? "Tutor");
 
   const stream = client.messages.stream({
-    model: "claude-opus-5",
+    model: process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001",
     max_tokens: 1024,
-    system: buildSystemPrompt(perfil, tutor?.nome ?? "Tutor"),
+    system: [
+      {
+        type: "text",
+        text: systemPrompt,
+        cache_control: { type: "ephemeral" },
+      },
+    ],
     messages: mensagens.map((m) => ({ role: m.role, content: m.content })),
   });
 
