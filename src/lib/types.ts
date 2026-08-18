@@ -37,3 +37,29 @@ export function semanaCompleta(semana: StatusSemana): boolean {
 export function elegivelParaCertificado(progresso: ProgressoDoMes): boolean {
   return progresso.semanas.every(semanaCompleta);
 }
+
+export type Idioma =
+  | "espanhol"
+  | "frances"
+  | "ingles"
+  | "mandarim"
+  | "italiano";
+
+export const NOME_DO_IDIOMA: Record<Idioma, string> = {
+  espanhol: "Espanhol",
+  frances: "Francês",
+  ingles: "Inglês",
+  mandarim: "Mandarim",
+  italiano: "Italiano",
+};
+
+// Um certificado por mês conquistado (§ 02, § 05) — nunca por aula ou por
+// semana. codigoVerificacao é o que a página pública /verificar/[codigo] confere.
+export type Certificado = {
+  id: string;
+  mesReferencia: string; // ex. "Julho 2026"
+  idioma: Idioma;
+  plano: Plano;
+  codigoVerificacao: string;
+  emitidoEm: string; // data ISO
+};
