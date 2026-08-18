@@ -1,10 +1,10 @@
-import { getRegrasDeCertificacaoMock } from "@/lib/mock/admin";
+import { getRegrasCertificacao } from "@/lib/data/admin";
 import { NOME_DO_PLANO } from "@/lib/types";
 
 // § 04, § 05: nota mínima decide se a aula conta como cumprida — sempre
 // automática, nenhum plano tem revisão humana (inclusive o Avançado).
-export default function MotorDeCertificacao() {
-  const regras = getRegrasDeCertificacaoMock();
+export default async function MotorDeCertificacao() {
+  const regras = await getRegrasCertificacao();
 
   return (
     <div className="flex max-w-xl flex-col gap-6">

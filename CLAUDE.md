@@ -22,12 +22,10 @@ esqueleto de navegação preenchidas com conteúdo real. **Autenticação de ver
 existe** (Supabase Auth, e-mail/senha) — `/login`, middleware que renova sessão e
 barra rota privada, guards por papel em cada layout (`src/lib/auth/guards.ts`), sem
 mais atalho de dev na home. O tutor de IA (`/aluno/aula`) fala de verdade com
-Claude Opus 5. Tutores já vêm do banco real (`src/lib/data/tutores.ts`); o resto
-(progresso, certificados, cupons, assinaturas etc.) ainda lê de
-`src/lib/mock/*.ts` — trocar isso agora é viável tabela por tabela porque já
-existe aluno autenticado de verdade pra amarrar o dado. Nenhuma tela de produto
-está pronta pra usuário real ainda — faltam cadastro público, pagamento e o resto
-listado nas pendências abaixo.
+Claude Opus 5. **As três interfaces leem 100% do banco real agora** — nenhuma
+tela usa mock pra dado que já tem tabela (`src/lib/data/*.ts`). Nenhuma tela de
+produto está pronta pra usuário real ainda — faltam cadastro público, pagamento
+e o resto listado nas pendências abaixo.
 
 Decisão importante desta rodada: **não existe fase de piloto manual nem revisão
 humana em etapa nenhuma.** O trabalho manual do dono do produto é só divulgação
@@ -154,10 +152,7 @@ versão compartilhada) **e** este arquivo.
     usando o cliente de sessão (RLS ativo, não mais o admin) — testado com login
     real: RLS confirmado isolando um aluno do outro (a sessão do aluno adulto não
     enxerga a linha do aluno menor). `/api/aula/chat` agora exige sessão de aluno
-    de verdade, sem exceção no middleware. Só a interface do responsável e do
-    criador ainda leem `src/lib/mock/{progresso,certificados}.ts` — faltam ainda
-    cupons, origem de cadastro, assinaturas e parcerias com escolas, que não têm
-    seed nenhum no banco.
+    de verdade, sem exceção no middleware.
 
     **Bug de RLS encontrado e corrigido em 17 ago** (`supabase/migrations/0002_responsavel_le_profile_do_aluno.sql`,
     aplicada): a policy de `profiles` só deixava cada um ler o próprio
@@ -166,6 +161,29 @@ versão compartilhada) **e** este arquivo.
     tela). Corrigido trocando a policy pra usar `app.pode_ver_aluno(id)` —
     a mesma função já usada em todo o resto do schema. Testado de novo com
     login real: `nome do aluno: Pedro Fraga` aparece certo agora.
+
+    **As três interfaces (aluno, responsável, criador) leem 100% do banco de
+    verdade agora** — nenhuma tela usa mock pra dado que já tem tabela.
+    Interface do responsável via `src/lib/data/{alunos,progresso,certificados,consentimento}.ts`
+    (reaproveitando as mesmas funções do aluno, filtrando pelo aluno
+    vinculado). Interface do criador via `src/lib/data/admin.ts` — as 7
+    telas (assinaturas, conteúdo, motor de certificação, cupons, origem,
+    auditoria, parcerias), seed em `scripts/seed-admin-teste.mjs`. Testado
+    com login real do admin e confirmado que um aluno comum não enxerga dado
+    admin-only (`cupons` retorna vazio pra ele). O que continua mock
+    (`src/lib/mock/responsavel.ts`, "limites de uso") não tem tabela no
+    schema ainda, de propósito.
+
+## Ideia em aberto, ainda não decidida
+
+**Comissão pra escola via link de afiliado (17 ago).** Separado do cupom de
+desconto (§ 12, que dá desconto pro aluno) — para escolas particulares, a ideia
+é um link de afiliado onde a escola ganha uma **porcentagem por aluno
+matriculado**, com o pagamento da comissão indo **direto pra escola** via uma
+**plataforma de afiliados externa** (não construída aqui). O próprio usuário
+disse que ainda vai amadurecer os detalhes — não implementar nada disso ainda;
+`parcerias_escolas` continua só como rastreio de prospecção
+(contatada/negociando/fechada), sem campo de comissão.
 
 ## Pendências reais (não finja que estão resolvidas)
 

@@ -1,9 +1,9 @@
-import { getAuditoriaLgpdMock } from "@/lib/mock/admin";
+import { getAuditoriaLgpd } from "@/lib/data/admin";
 
 // § 02, § 03: trilha de auditoria do consentimento — quando cada responsável
 // consentiu, e com o quê.
-export default function AuditoriaLgpd() {
-  const registros = getAuditoriaLgpdMock();
+export default async function AuditoriaLgpd() {
+  const registros = await getAuditoriaLgpd();
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">

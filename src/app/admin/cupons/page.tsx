@@ -1,9 +1,9 @@
-import { getCuponsMock } from "@/lib/mock/admin";
+import { getCupons } from "@/lib/data/admin";
 
 // § 12: cupom por escola, válido só na primeira mensalidade — o link do QR
 // já carrega o código embutido, ninguém digita nada.
-export default function CuponsEQrCodes() {
-  const cupons = getCuponsMock();
+export default async function CuponsEQrCodes() {
+  const cupons = await getCupons();
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">

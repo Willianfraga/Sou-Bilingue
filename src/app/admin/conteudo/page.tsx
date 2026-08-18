@@ -1,9 +1,9 @@
 import { StatusChip } from "@/components/admin/StatusChip";
-import { getConteudoMock } from "@/lib/mock/admin";
+import { getConteudo } from "@/lib/data/admin";
 import { NOME_DO_IDIOMA } from "@/lib/types";
 
-export default function Conteudo() {
-  const conteudo = getConteudoMock();
+export default async function Conteudo() {
+  const conteudo = await getConteudo();
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">

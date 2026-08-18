@@ -1,10 +1,11 @@
 import { StatusChip } from "@/components/admin/StatusChip";
-import { getParceriasEscolasMock } from "@/lib/mock/admin";
+import { getParceriasEscolas } from "@/lib/data/admin";
 
 // § 08, § 10: prospecção de parceria pra o certificado valer nota extra ou
-// crédito extracurricular — começa já na Fase 1, em paralelo.
-export default function ParceriasComEscolas() {
-  const parcerias = getParceriasEscolasMock();
+// crédito extracurricular — começa já na Fase 1, em paralelo. Comissão de
+// afiliado é ideia em aberto, ainda não decidida (ver CLAUDE.md).
+export default async function ParceriasComEscolas() {
+  const parcerias = await getParceriasEscolas();
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">

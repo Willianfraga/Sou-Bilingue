@@ -1,10 +1,10 @@
-import { getCuponsMock, getOrigemCadastrosMock } from "@/lib/mock/admin";
+import { getCupons, getOrigemCadastros } from "@/lib/data/admin";
 
 // § 12: de qual QR/escola/cupom veio cada aluno — sem nenhum trabalho manual
 // de rastreio.
-export default function OrigemDosCadastros() {
-  const origens = getOrigemCadastrosMock();
-  const cupons = getCuponsMock();
+export default async function OrigemDosCadastros() {
+  const origens = await getOrigemCadastros();
+  const cupons = await getCupons();
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">

@@ -1,11 +1,12 @@
 import { StatusChip } from "@/components/admin/StatusChip";
-import { getAssinaturasMock } from "@/lib/mock/admin";
+import { getAssinaturas } from "@/lib/data/admin";
 import { NOME_DO_PLANO } from "@/lib/types";
 
 // § 03, § 07: painel de assinaturas é só visão — cobrança processada pelo
-// Asaas, nada aqui opera na mão. Dado mock, sem banco por trás.
-export default function Assinaturas() {
-  const assinaturas = getAssinaturasMock();
+// Asaas, nada aqui opera na mão. Dado real; assinaturas ainda não têm
+// gateway ligado (ver seed em scripts/seed-admin-teste.mjs).
+export default async function Assinaturas() {
+  const assinaturas = await getAssinaturas();
 
   return (
     <div className="flex max-w-3xl flex-col gap-6">
