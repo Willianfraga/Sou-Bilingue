@@ -106,9 +106,12 @@ versão compartilhada) **e** este arquivo.
     anon/service_role JWT) — os clientes em `src/lib/supabase/` funcionam com
     qualquer um dos dois formatos, nada a mudar no código.
 
-    **Pendente:** a migration `supabase/migrations/0001_schema_inicial.sql`
-    ainda não foi aplicada nesse projeto — precisa rodar no SQL Editor do
-    painel (Claude Code não tem a senha do Postgres pra aplicar direto).
+    **Migration aplicada em 17 ago 2026** (rodada no SQL Editor do painel) —
+    as 13 tabelas existem, RLS ativo, seed confirmado (4 tutores, 3 regras de
+    certificação, 3 linhas de conteúdo em Espanhol). Testado com as duas
+    chaves: anon (RLS filtra tutores sem sessão logada — esperado) e service
+    role (bypassa RLS, seed visível). Próximo passo: trocar `getXxxMock()` de
+    `src/lib/mock/*.ts` por consultas reais, tabela por tabela.
 16. **Tutor de IA: Claude Opus 5, chamado só do servidor.** A chave
     (`ANTHROPIC_API_KEY`) mora em `.env.local`, nunca chega ao browser — mesma
     regra do projeto "academia flow" (segredo nunca no cliente). O contexto do
