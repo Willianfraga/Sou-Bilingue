@@ -27,3 +27,5 @@ Thumbs.db
 # typescript
 next-env.d.ts
 *.tsbuildinfo
+.env.production
+apply-prod-migrations.mjs
