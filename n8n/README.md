@@ -48,12 +48,57 @@ Nenhum, por enquanto — só existe essa rota de job hoje
 do academia flow (gerar cobrança, régua de vencimento) e um 06 pro webhook do
 Asaas — mesmo padrão, chamando a rota da aplicação e deixando a decisão lá.
 
-## Importando
+## Setup em produção (quando o app tiver um domínio real)
 
-1. n8n → **Import from File** → selecione `wf01_fechamento_mensal.json`.
-2. Abra o nó "Fechar o mês" e escolha a credencial `SouBilingue Cron` (o
-   import não leva credenciais).
-3. Ative o workflow.
+**Pré-requisito:** o app já estará deployed em um servidor/plataforma acessível pela internet.
+
+### 1. Configurar variáveis no n8n
+
+Vá em **n8n Settings → Variables** e crie:
+
+```
+SB_BASE_URL = https://seu-dominio.com.br  (ou IP da produção)
+SB_CRON_SECRET = (copie do .env de produção — deve bater exatamente)
+```
+
+### 2. Importar o workflow
+
+1. n8n → **Import from File** → `wf01_fechamento_mensal.json`
+2. Abra o nó **"Fechar o mês"**
+3. Em **Authentication**, escolha tipo **Header Auth**
+4. Crie uma credencial nova ou reutilize:
+   - **Header:** `Authorization`
+   - **Valor:** `Bearer {{$env.SB_CRON_SECRET}}`
+5. Salve
+6. **Ative o workflow** (toggle azul no topo)
+
+### 3. Testar
+
+Clique em **"Execute Workflow"** (botão Execute no topo). Resultado aparece em **Execution History**.
+
+Esperado: `emitidos: X, jaTinham: Y, naoElegiveis: Z` (valores variam conforme o mês e os alunos).
+
+## Importando (DESENVOLVIMENTO APENAS — app em localhost)
+
+Hoje o app roda em `localhost:3000` — o n8n não consegue alcançar de fora. Para testar o workflow em dev:
+
+**Opção 1 (rápida):** Dispare a rota manualmente via curl (simulando o n8n):
+
+```bash
+CRON_SECRET=$(grep CRON_SECRET .env.local | cut -d= -f2)
+curl -X POST http://localhost:3000/api/jobs/fechamento-mensal \
+  -H "Authorization: Bearer $CRON_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"ano": 2026, "mes": 8}'
+```
+
+Isso é exatamente o que o workflow faria — confirma que a rota funciona e o token está certo.
+
+**Opção 2 (importar mesmo assim):** Se você tiver n8n rodando localmente também:
+
+1. Configure `SB_BASE_URL = http://localhost:3000`
+2. Importe o workflow
+3. Execute — funcionará igual
 
 ## Como saber se está funcionando
 
