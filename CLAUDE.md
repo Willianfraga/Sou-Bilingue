@@ -252,13 +252,19 @@ isoladamente da chave anterior (que tinha US$ 10,19 em uso Opus). Com Haiku +
 caching, o custo deve ficar proporcional ao Academia Flow (US$ 0,34/mês) — dessa
 forma fica claro que a otimização funciona de verdade.
 
-## Por onde retomar (feito em 18 ago, sessão pode continuar direto daqui)
+## Por onde retomar (atualizado 19 ago)
 
-Se abrir uma sessão nova amanhã, não precisa re-explicar nada disso — está tudo
+Se abrir uma sessão nova, não precisa re-explicar nada disso — está tudo
 commitado. Nessa ordem, o que falta:
 
-1. **Cron de verdade** pro `/api/jobs/fechamento-mensal` (Vercel Cron ou n8n) —
-   hoje só dá pra disparar na mão. É rápido, só configuração.
+1. ~~**Cron de verdade** pro `/api/jobs/fechamento-mensal`~~ — **feito em 19
+   ago**, via n8n (decisão: n8n, mesmo padrão do academia flow, não Vercel
+   Cron — ver `n8n/README.md`). `n8n/wf01_fechamento_mensal.json` calcula o
+   mês anterior e chama a rota; **ainda não importado/ativado num n8n real**,
+   porque o app só existe em `localhost` — o workflow fica pronto e inerte até
+   existir deploy. `n8n/README.md` tem tanto o passo a passo de produção
+   quanto duas formas de testar em dev (curl direto, ou n8n local apontando
+   pra `localhost:3000`).
 2. **Geração real de PDF** do certificado — hoje só existe a linha no banco
    com `codigo_verificacao`, sem PDF nenhum gerado.
 3. **Cadastro público + pagamento (Asaas)** — o funil inteiro (§ 12) que ficou
@@ -269,6 +275,10 @@ commitado. Nessa ordem, o que falta:
    Contas de teste em `scripts/seed-usuarios-teste.mjs` (senha `Teste@123`
    pra todas): `admin@`, `aluno.adulto@`, `aluno.menor@`, `responsavel@`,
    todas `@soubilingue.com.br`.
+5. **Cuidado com custo de IA:** `/api/aula/chat` usa `claude-haiku-4-5` por
+   padrão agora (era Opus, trocado em 19 ago por custo — ver seção acima).
+   Chave da Anthropic também foi trocada por uma dedicada e zerada. Não volte
+   pra Opus como padrão sem querer — só via `ANTHROPIC_MODEL` explícito.
 
 ## Stack (decisão pragmática desta sessão, não do documento de escopo)
 
