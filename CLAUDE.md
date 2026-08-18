@@ -159,6 +159,14 @@ versão compartilhada) **e** este arquivo.
     cupons, origem de cadastro, assinaturas e parcerias com escolas, que não têm
     seed nenhum no banco.
 
+    **Bug de RLS encontrado e corrigido em 17 ago** (`supabase/migrations/0002_responsavel_le_profile_do_aluno.sql`,
+    aplicada): a policy de `profiles` só deixava cada um ler o próprio
+    registro, então o responsável via a cota/certificado/consentimento do
+    aluno vinculado mas não conseguia ler o `nome` dele (ficava undefined na
+    tela). Corrigido trocando a policy pra usar `app.pode_ver_aluno(id)` —
+    a mesma função já usada em todo o resto do schema. Testado de novo com
+    login real: `nome do aluno: Pedro Fraga` aparece certo agora.
+
 ## Pendências reais (não finja que estão resolvidas)
 
 1. Regra concreta de dificuldade adaptativa e de correção que explica o porquê —

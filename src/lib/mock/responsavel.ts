@@ -1,14 +1,6 @@
-// Dado fixo — sem banco por trás. Existe só quando o aluno é menor de idade
-// (docs/ESCOPO.md § 03, § 02: consentimento LGPD obrigatório antes de liberar
-// o cadastro do menor).
-export function getConsentimentoMock() {
-  return {
-    responsavelNome: "Marina Fraga",
-    alunoNome: "Pedro Fraga",
-    consentidoEm: "2026-07-15",
-  };
-}
-
+// Dado fixo — sem tabela no banco ainda ("limites de uso" não está no
+// schema, ver supabase/migrations/0001_schema_inicial.sql). Consentimento e
+// progresso do responsável já são reais — ver src/lib/data/*.
 export function getLimitesDeUsoMock() {
   return {
     janelaPermitida: "16h às 20h, dias de aula",
