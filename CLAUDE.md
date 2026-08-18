@@ -97,7 +97,12 @@ versão compartilhada) **e** este arquivo.
     checkout. Checkout é uma etapa própria: resumo do pedido, cupom aplicado,
     escolha de método de pagamento (Pix/cartão/boleto) via Asaas, confirmação
     automática por webhook, acesso liberado só depois da confirmação.
-15. **Tutor de IA: Claude Opus 5, chamado só do servidor.** A chave
+15. **Banco: projeto Supabase próprio, separado do "academia flow".** São dois
+    projetos em andamento diferentes — nunca reaproveitar o Supabase do academia
+    flow aqui, mesmo sendo a mesma stack/conta. Ainda não criado; quando existir,
+    a URL/chave vai em `.env.local` (nunca commitada), seguindo o mesmo padrão de
+    `SUPABASE_SERVICE_ROLE_KEY` nunca com prefixo `NEXT_PUBLIC_` já usado lá.
+16. **Tutor de IA: Claude Opus 5, chamado só do servidor.** A chave
     (`ANTHROPIC_API_KEY`) mora em `.env.local`, nunca chega ao browser — mesma
     regra do projeto "academia flow" (segredo nunca no cliente). O contexto do
     aluno (idioma, sotaque, tutor, objetivo pessoal) vem do perfil resolvido no
