@@ -63,3 +63,31 @@ export type Certificado = {
   codigoVerificacao: string;
   emitidoEm: string; // data ISO
 };
+
+// Sotaque regional escolhível por idioma — decidido que entra desde o MVP (§ 07,
+// § 10). Mandarim e Italiano têm menos variantes por enquanto (§ 07: só o padrão
+// no começo pra não multiplicar custo de voz antes do piloto de idioma).
+export const SOTAQUES_POR_IDIOMA: Record<Idioma, string[]> = {
+  espanhol: ["Espanha", "México", "Argentina"],
+  ingles: ["Americano", "Britânico"],
+  frances: ["França", "Québec"],
+  mandarim: ["China continental", "Taiwan"],
+  italiano: ["Padrão"],
+};
+
+// Elenco diverso de tutores de IA (§ 03) — todos seguem a mesma diretriz de
+// comportamento (amigável, corrige sem constranger); o que muda aqui é só a
+// apresentação.
+export type Tutor = {
+  id: string;
+  nome: string;
+  descricao: string;
+};
+
+export type PerfilDoAluno = {
+  idioma: Idioma;
+  sotaque: string;
+  plano: Plano;
+  tutorId: string;
+  objetivoPessoal: string; // muda os temas de conversa do tutor (§ 11)
+};

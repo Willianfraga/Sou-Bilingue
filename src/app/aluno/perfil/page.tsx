@@ -1,11 +1,45 @@
-import { PlaceholderScreen } from "@/components/PlaceholderScreen";
+import { CampoPerfil } from "@/components/aluno/CampoPerfil";
+import { getPerfilDoAlunoMock, getTutoresMock } from "@/lib/mock/perfil";
+import { NOME_DO_IDIOMA, NOME_DO_PLANO } from "@/lib/types";
 
+// Ainda usa dado fixo (src/lib/mock/perfil.ts) — sem edição de verdade ainda,
+// só leitura. "Trocar" fica desabilitado até o cadastro/edição existir.
 export default function Perfil() {
+  const perfil = getPerfilDoAlunoMock();
+  const tutor = getTutoresMock().find((t) => t.id === perfil.tutorId);
+
   return (
-    <PlaceholderScreen
-      title="Perfil"
-      escopo="ESCOPO.md § 03, § 04"
-      descricao="Idioma e sotaque regional escolhidos, tutor de IA escolhido (elenco diverso), plano atual (Básico/Intermediário/Avançado) e objetivo pessoal do cadastro, que muda os temas de conversa do tutor."
-    />
+    <div className="flex max-w-xl flex-col gap-6">
+      <div>
+        <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+          Cadastro
+        </span>
+        <h1 className="mt-1 text-2xl font-bold">Perfil</h1>
+      </div>
+
+      <div className="rounded-lg border border-neutral-200 px-5">
+        <CampoPerfil
+          label="Idioma"
+          valor={NOME_DO_IDIOMA[perfil.idioma]}
+          detalhe={`Sotaque: ${perfil.sotaque}`}
+        />
+        <CampoPerfil label="Plano" valor={NOME_DO_PLANO[perfil.plano]} />
+        <CampoPerfil
+          label="Tutor"
+          valor={tutor?.nome ?? "—"}
+          detalhe={tutor?.descricao}
+        />
+        <CampoPerfil label="Objetivo pessoal" valor={perfil.objetivoPessoal} />
+      </div>
+
+      <button
+        type="button"
+        disabled
+        title="Edição ainda não implementada"
+        className="w-fit cursor-not-allowed rounded-md border border-neutral-200 px-4 py-2 text-sm text-neutral-400"
+      >
+        Editar perfil
+      </button>
+    </div>
   );
 }
