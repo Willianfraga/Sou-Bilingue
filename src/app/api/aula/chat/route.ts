@@ -1,7 +1,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildSystemPrompt } from "@/lib/ai/tutor";
-import { getTutorPorNome } from "@/lib/data/tutores";
-import { getPerfilDoAlunoMock, NOME_DO_TUTOR_MOCK } from "@/lib/mock/perfil";
+import { getSessao } from "@/lib/auth/guards";
+import { getPerfilDoAluno } from "@/lib/data/alunos";
+import { getTutorPorId } from "@/lib/data/tutores";
 
 export const runtime = "nodejs";
 
@@ -12,6 +13,18 @@ const client = new Anthropic();
 type MensagemCliente = { role: "user" | "assistant"; content: string };
 
 export async function POST(request: Request) {
+  // O contexto do aluno vem da sessão no servidor — nunca do que o cliente
+  // manda no corpo da requisição. Sem sessão de aluno, sem aula.
+  const sessao = await getSessao();
+  if (!sessao || sessao.papel !== "aluno") {
+    return new Response("Não autenticado.", { status: 401 });
+  }
+
+  const perfil = await getPerfilDoAluno(sessao.userId);
+  if (!perfil) {
+    return new Response("Perfil do aluno não encontrado.", { status: 404 });
+  }
+
   const { mensagens } = (await request.json()) as {
     mensagens: MensagemCliente[];
   };
@@ -20,13 +33,7 @@ export async function POST(request: Request) {
     return new Response("Nenhuma mensagem enviada.", { status: 400 });
   }
 
-  // O contexto do aluno (idioma, sotaque, tutor, objetivo) vem do perfil no
-  // servidor — nunca do que o cliente manda no corpo da requisição. O perfil
-  // em si ainda é mock (src/lib/mock/perfil.ts) — sem cadastro real — mas o
-  // tutor já vem do banco de verdade. Quando existir sessão de verdade, troca
-  // o perfil também por uma consulta ao banco pelo id do aluno autenticado.
-  const perfil = getPerfilDoAlunoMock();
-  const tutor = await getTutorPorNome(NOME_DO_TUTOR_MOCK);
+  const tutor = await getTutorPorId(perfil.tutorId);
 
   const stream = client.messages.stream({
     model: "claude-opus-5",

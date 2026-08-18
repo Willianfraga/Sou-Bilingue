@@ -146,7 +146,18 @@ versão compartilhada) **e** este arquivo.
     contas que existem são as 4 de teste (`scripts/seed-usuarios-teste.mjs`:
     admin@, aluno.adulto@, responsavel@, aluno.menor@, todas @soubilingue.com.br,
     senha `Teste@123`). Trocar/remover esse script antes de qualquer divulgação
-    real.
+    real. `scripts/seed-dados-teste.mjs` complementa com cotas_semanais e
+    certificados de exemplo pros dois alunos.
+
+    **Interface do aluno inteira já lê do banco de verdade** (progresso,
+    certificados, perfil, tutor) via `src/lib/data/{alunos,progresso,certificados,tutores}.ts`,
+    usando o cliente de sessão (RLS ativo, não mais o admin) — testado com login
+    real: RLS confirmado isolando um aluno do outro (a sessão do aluno adulto não
+    enxerga a linha do aluno menor). `/api/aula/chat` agora exige sessão de aluno
+    de verdade, sem exceção no middleware. Só a interface do responsável e do
+    criador ainda leem `src/lib/mock/{progresso,certificados}.ts` — faltam ainda
+    cupons, origem de cadastro, assinaturas e parcerias com escolas, que não têm
+    seed nenhum no banco.
 
 ## Pendências reais (não finja que estão resolvidas)
 

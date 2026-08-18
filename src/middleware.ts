@@ -8,7 +8,6 @@ const CAMINHOS_PUBLICOS = [
   "/login",
   "/verificar", // § 06: verificação pública de certificado, sem login
   "/checkout", // ainda adiado (§ 12), mas fica público quando existir
-  "/api/aula/chat", // TEMPORÁRIO — sem cadastro de aluno real ainda (ver CLAUDE.md)
 ];
 
 export async function middleware(request: NextRequest) {

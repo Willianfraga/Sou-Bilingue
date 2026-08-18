@@ -1,12 +1,24 @@
 import { CardCertificadoDoMes } from "@/components/aluno/CardCertificadoDoMes";
 import { MapaDoMes } from "@/components/aluno/MapaDoMes";
-import { getProgressoDoMesMock } from "@/lib/mock/progresso";
+import { requireSessao } from "@/lib/auth/guards";
+import { getProgressoDoMes } from "@/lib/data/progresso";
 import { NOME_DO_PLANO, elegivelParaCertificado } from "@/lib/types";
 
-// Ainda usa dado fixo (src/lib/mock/progresso.ts) — sem banco por trás. O formato
-// do dado já é o que a tabela real vai precisar ter (docs/ESCOPO.md § 05).
-export default function ProgressoDoMes() {
-  const progresso = getProgressoDoMesMock();
+// Dado real — src/lib/data/progresso.ts consulta cotas_semanais com o
+// cliente de sessão (RLS ativo). O formato já era o mesmo do mock, então a
+// troca foi só na origem do dado, não na tela (docs/ESCOPO.md § 05).
+export default async function ProgressoDoMes() {
+  const sessao = await requireSessao();
+  const progresso = await getProgressoDoMes(sessao.userId);
+
+  if (!progresso) {
+    return (
+      <p className="text-neutral-500">
+        Ainda não há progresso registrado pra este mês.
+      </p>
+    );
+  }
+
   const elegivel = elegivelParaCertificado(progresso);
 
   return (

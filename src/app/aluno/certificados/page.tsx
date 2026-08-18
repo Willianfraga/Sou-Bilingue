@@ -1,11 +1,13 @@
 import { CardCertificado } from "@/components/aluno/CardCertificado";
-import { getCertificadosMock } from "@/lib/mock/certificados";
+import { requireSessao } from "@/lib/auth/guards";
+import { getCertificados } from "@/lib/data/certificados";
 
-// Ainda usa dado fixo (src/lib/mock/certificados.ts) — sem geração de PDF nem
-// banco por trás. O botão de portfólio fica desabilitado até isso existir de
-// verdade (docs/ESCOPO.md § 07: geração de PDF por template + portfólio único).
-export default function Certificados() {
-  const certificados = getCertificadosMock();
+// Dado real — src/lib/data/certificados.ts, RLS ativo. Sem geração de PDF
+// ainda; o botão de portfólio fica desabilitado até isso existir de verdade
+// (docs/ESCOPO.md § 07: geração de PDF por template + portfólio único).
+export default async function Certificados() {
+  const sessao = await requireSessao();
+  const certificados = await getCertificados(sessao.userId);
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
