@@ -99,9 +99,16 @@ versão compartilhada) **e** este arquivo.
     automática por webhook, acesso liberado só depois da confirmação.
 15. **Banco: projeto Supabase próprio, separado do "academia flow".** São dois
     projetos em andamento diferentes — nunca reaproveitar o Supabase do academia
-    flow aqui, mesmo sendo a mesma stack/conta. Ainda não criado; quando existir,
-    a URL/chave vai em `.env.local` (nunca commitada), seguindo o mesmo padrão de
-    `SUPABASE_SERVICE_ROLE_KEY` nunca com prefixo `NEXT_PUBLIC_` já usado lá.
+    flow aqui, mesmo sendo a mesma stack/conta. Criado em 17 ago 2026
+    (`jlaqxvutvfdxcjdvfhos.supabase.co`); credenciais em `.env.local` (nunca
+    commitadas), conexão testada e confirmada. Usa o esquema novo de chaves do
+    Supabase (`sb_publishable_...` / `sb_secret_...`, não o legado
+    anon/service_role JWT) — os clientes em `src/lib/supabase/` funcionam com
+    qualquer um dos dois formatos, nada a mudar no código.
+
+    **Pendente:** a migration `supabase/migrations/0001_schema_inicial.sql`
+    ainda não foi aplicada nesse projeto — precisa rodar no SQL Editor do
+    painel (Claude Code não tem a senha do Postgres pra aplicar direto).
 16. **Tutor de IA: Claude Opus 5, chamado só do servidor.** A chave
     (`ANTHROPIC_API_KEY`) mora em `.env.local`, nunca chega ao browser — mesma
     regra do projeto "academia flow" (segredo nunca no cliente). O contexto do
