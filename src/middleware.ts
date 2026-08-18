@@ -8,6 +8,10 @@ const CAMINHOS_PUBLICOS = [
   "/login",
   "/verificar", // § 06: verificação pública de certificado, sem login
   "/checkout", // ainda adiado (§ 12), mas fica público quando existir
+  // Chamado por cron (n8n, Vercel Cron), sem sessão de usuário nenhuma — a
+  // própria rota recusa quem não mandar o CRON_SECRET certo. Sem isto aqui,
+  // o middleware barraria o cron antes mesmo da rota checar o token.
+  "/api/jobs",
 ];
 
 export async function middleware(request: NextRequest) {

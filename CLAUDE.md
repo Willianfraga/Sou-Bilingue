@@ -174,6 +174,21 @@ versão compartilhada) **e** este arquivo.
     (`src/lib/mock/responsavel.ts`, "limites de uso") não tem tabela no
     schema ainda, de propósito.
 
+**Motor de fechamento mensal existe e foi testado de ponta a ponta (18 ago).**
+`src/lib/certificacao/fechamento.ts` (`fecharMesDoAluno`, `fecharMesDeTodosOsAlunos`)
+implementa a regra do § 05: só emite se as 4 semanas do mês existirem e
+baterem 100% da cota, nunca por aula/semana avulsa. Exposto em
+`POST /api/jobs/fechamento-mensal`, protegido por `CRON_SECRET` (header
+`Authorization: Bearer`, não sessão de usuário — mesmo padrão do
+`/api/jobs` do academia flow) — por isso está nos caminhos públicos do
+middleware, a própria rota recusa quem não manda o token certo. Ainda não
+tem cron de verdade chamando isso (Vercel Cron/n8n) — só testado
+manualmente. Testado contra o banco real: aluno com mês perfeito (o
+"aluno.menor" semeado) recebeu o certificado automaticamente; aluno com
+semana incompleta ficou de fora; rodar o job de novo pro mesmo mês não
+duplica (idempotente, tanto pela checagem prévia quanto pelo
+`unique(aluno_id, mes_referencia)` do banco).
+
 ## Ideia em aberto, ainda não decidida
 
 **Comissão pra escola via link de afiliado (17 ago).** Separado do cupom de
