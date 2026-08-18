@@ -1,0 +1,70 @@
+{
+  "name": "WF01 — Fechamento mensal (certificados)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 4 1 * *" }] }
+      },
+      "id": "trigger",
+      "name": "Todo dia 1 às 04h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Roda no dia 1 do mês, mas fecha o mês que ACABOU DE TERMINAR — não\n// o mês corrente que só começou. § 05: certificado só sai se as 4\n// semanas do mês existirem e baterem 100%.\nconst agora = new Date();\nagora.setDate(1); // evita virar mês errado por causa do dia\nagora.setMonth(agora.getMonth() - 1);\nreturn [{ json: { ano: agora.getFullYear(), mes: agora.getMonth() + 1 } }];"
+      },
+      "id": "mes-anterior",
+      "name": "Calcular mês anterior",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.SB_BASE_URL }}/api/jobs/fechamento-mensal",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ ano: $json.ano, mes: $json.mes }) }}",
+        "options": {
+          "timeout": 300000,
+          "response": { "response": { "neverError": true, "fullResponse": true } }
+        }
+      },
+      "id": "fechamento",
+      "name": "Fechar o mês",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [700, 300],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 15000,
+      "credentials": { "httpHeaderAuth": { "id": "sb-cron", "name": "SouBilingue Cron" } }
+    },
+    {
+      "parameters": {
+        "jsCode": "// A rota é idempotente (checagem prévia + unique(aluno_id, mes_referencia)\n// no banco) — 'jaTinham' alto não é falha, é sinal de que rodar de novo\n// não duplica nada.\nconst body = $json.body ?? {};\nconst { ano, mes, total, emitidos, jaTinham, naoElegiveis, detalhe } = body;\n\nconsole.log(`[WF01] ${ano}-${String(mes).padStart(2, '0')}: total=${total} emitidos=${emitidos} já tinham=${jaTinham} não elegíveis=${naoElegiveis}`);\n\nif (!ano || !mes) {\n  throw new Error(`[WF01] resposta inesperada do job — status HTTP ${$json.statusCode}, corpo: ${JSON.stringify(body).slice(0, 300)}`);\n}\n\nreturn [{ json: { ano, mes, total, emitidos, jaTinham, naoElegiveis, detalhe } }];"
+      },
+      "id": "log",
+      "name": "Registrar resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [940, 300]
+    }
+  ],
+  "connections": {
+    "Todo dia 1 às 04h": { "main": [[{ "node": "Calcular mês anterior", "type": "main", "index": 0 }]] },
+    "Calcular mês anterior": { "main": [[{ "node": "Fechar o mês", "type": "main", "index": 0 }]] },
+    "Fechar o mês": { "main": [[{ "node": "Registrar resultado", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Sao_Paulo",
+    "saveDataSuccessExecution": "all"
+  },
+  "tags": [{ "name": "certificacao" }]
+}

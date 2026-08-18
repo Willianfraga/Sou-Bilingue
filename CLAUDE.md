@@ -246,6 +246,12 @@ disse que ainda vai amadurecer os detalhes — não implementar nada disso ainda
 
 Aproveite o servidor rodando em dev pra testar o chat sem queimar crédito de verdade agora.
 
+**Chave API dedicada (19 ago, após otimização):**
+Criada chave `SouBilingue` separada, zerada, pra rastrear consumo deste projeto
+isoladamente da chave anterior (que tinha US$ 10,19 em uso Opus). Com Haiku +
+caching, o custo deve ficar proporcional ao Academia Flow (US$ 0,34/mês) — dessa
+forma fica claro que a otimização funciona de verdade.
+
 ## Por onde retomar (feito em 18 ago, sessão pode continuar direto daqui)
 
 Se abrir uma sessão nova amanhã, não precisa re-explicar nada disso — está tudo
