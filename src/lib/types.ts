@@ -92,6 +92,9 @@ export type PerfilDoAluno = {
   objetivoPessoal: string; // muda os temas de conversa do tutor (§ 11)
 };
 
+// Espelha public.papel_usuario (supabase/migrations/0001_schema_inicial.sql).
+export type PapelUsuario = "aluno" | "responsavel" | "admin";
+
 // ---- Tipos da interface do criador (§ 03, § 12) ----
 
 export type StatusAssinatura = "ativa" | "atrasada" | "cancelada";

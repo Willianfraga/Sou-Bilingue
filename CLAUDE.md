@@ -15,13 +15,19 @@ Idioma do produto e do código: **português do Brasil**.
 
 **Fase 1 do roteiro — MVP 100% automatizado, sem piloto manual.** O blueprint
 completo está em `docs/ESCOPO.md` (também publicado como artifact — ver seção
-"Onde encontrar o escopo completo" abaixo). Do código, existe o esqueleto de
-navegação das 3 interfaces (aluno, responsável, criador) e quatro telas reais da
-interface do aluno: Progresso do mês, Certificados e Perfil (dado mock, sem banco
-por trás) e **Aula — essa com o tutor de IA já ligado de verdade** (Claude Opus 5,
-via `src/app/api/aula/chat/route.ts`, `ANTHROPIC_API_KEY` em `.env.local`). O
-resto das telas são placeholder —
-não significa que a Fase 1 já esteja concluída.
+"Onde encontrar o escopo completo" abaixo).
+
+Do código: as 3 interfaces (aluno, responsável, criador) têm todas as telas do
+esqueleto de navegação preenchidas com conteúdo real. **Autenticação de verdade
+existe** (Supabase Auth, e-mail/senha) — `/login`, middleware que renova sessão e
+barra rota privada, guards por papel em cada layout (`src/lib/auth/guards.ts`), sem
+mais atalho de dev na home. O tutor de IA (`/aluno/aula`) fala de verdade com
+Claude Opus 5. Tutores já vêm do banco real (`src/lib/data/tutores.ts`); o resto
+(progresso, certificados, cupons, assinaturas etc.) ainda lê de
+`src/lib/mock/*.ts` — trocar isso agora é viável tabela por tabela porque já
+existe aluno autenticado de verdade pra amarrar o dado. Nenhuma tela de produto
+está pronta pra usuário real ainda — faltam cadastro público, pagamento e o resto
+listado nas pendências abaixo.
 
 Decisão importante desta rodada: **não existe fase de piloto manual nem revisão
 humana em etapa nenhuma.** O trabalho manual do dono do produto é só divulgação
@@ -130,6 +136,17 @@ versão compartilhada) **e** este arquivo.
     servidor, não dos argumentos que o cliente manda — hoje `src/lib/mock/perfil.ts`;
     quando existir sessão de verdade, troca pela consulta ao banco pelo aluno
     autenticado, nunca por um campo que o `fetch` do cliente possa forjar.
+17. **Login por e-mail/senha (Supabase Auth), não magic link.** Decisão pragmática
+    (17 ago) — magic link dependeria de e-mail configurado (SMTP, template,
+    domínio de envio) que não existe ainda; senha funciona sem nenhuma peça
+    externa a mais. `src/middleware.ts` renova a sessão e barra rota privada;
+    `src/lib/auth/guards.ts` (`requirePapel`) é a barreira de aplicação em cima do
+    RLS do banco, chamada no topo de cada layout de interface. **Cadastro público
+    continua adiado** (mesma decisão 14, funil QR→venda→checkout) — as únicas
+    contas que existem são as 4 de teste (`scripts/seed-usuarios-teste.mjs`:
+    admin@, aluno.adulto@, responsavel@, aluno.menor@, todas @soubilingue.com.br,
+    senha `Teste@123`). Trocar/remover esse script antes de qualquer divulgação
+    real.
 
 ## Pendências reais (não finja que estão resolvidas)
 
