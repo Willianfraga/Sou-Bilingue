@@ -91,3 +91,63 @@ export type PerfilDoAluno = {
   tutorId: string;
   objetivoPessoal: string; // muda os temas de conversa do tutor (§ 11)
 };
+
+// ---- Tipos da interface do criador (§ 03, § 12) ----
+
+export type StatusAssinatura = "ativa" | "atrasada" | "cancelada";
+
+export type Assinatura = {
+  id: string;
+  alunoNome: string;
+  plano: Plano;
+  status: StatusAssinatura;
+  proximaCobranca: string; // data ISO — cobrada pelo Asaas, isto é só visão
+};
+
+export type StatusConteudo = "publicado" | "em curadoria";
+
+export type ConteudoPorNivel = {
+  idioma: Idioma;
+  nivel: string; // ex. "A1-A2"
+  status: StatusConteudo;
+};
+
+// § 05: nota mínima de qualidade decide se a aula conta como cumprida —
+// sempre automática, nenhum plano tem revisão humana.
+export type RegraDeCertificacao = {
+  plano: Plano;
+  notaMinima: number; // 0 a 100
+};
+
+// § 12: cupom por escola, válido só na primeira mensalidade; QR do panfleto
+// carrega esse código embutido.
+export type Cupom = {
+  id: string;
+  nomeEscola: string;
+  descontoPercentual: number;
+  usos: number;
+};
+
+export type OrigemCadastro = {
+  id: string;
+  alunoNome: string;
+  escolaOrigem: string;
+  cupomUsado: string | null;
+  cadastradoEm: string; // data ISO
+};
+
+export type RegistroAuditoriaLgpd = {
+  id: string;
+  responsavelNome: string;
+  alunoNome: string;
+  acao: string; // ex. "Consentimento dado"
+  dataHora: string; // ISO
+};
+
+export type StatusProspeccao = "contatada" | "negociando" | "fechada";
+
+export type ParceriaEscola = {
+  id: string;
+  nomeEscola: string;
+  status: StatusProspeccao;
+};

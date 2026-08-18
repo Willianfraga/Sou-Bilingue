@@ -1,11 +1,31 @@
-import { PlaceholderScreen } from "@/components/PlaceholderScreen";
+import { StatusChip } from "@/components/admin/StatusChip";
+import { getParceriasEscolasMock } from "@/lib/mock/admin";
 
+// § 08, § 10: prospecção de parceria pra o certificado valer nota extra ou
+// crédito extracurricular — começa já na Fase 1, em paralelo.
 export default function ParceriasComEscolas() {
+  const parcerias = getParceriasEscolasMock();
+
   return (
-    <PlaceholderScreen
-      title="Parcerias com escolas"
-      escopo="ESCOPO.md § 10, § 08"
-      descricao="Prospecção de parcerias com escolas para o certificado valer nota extra ou crédito extracurricular — quem foi contatado, em que estágio, qual escola aceitou validar o certificado."
-    />
+    <div className="flex max-w-2xl flex-col gap-6">
+      <div>
+        <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+          Prospecção
+        </span>
+        <h1 className="mt-1 text-2xl font-bold">Parcerias com escolas</h1>
+      </div>
+
+      <div className="rounded-lg border border-neutral-200 px-5">
+        {parcerias.map((parceria) => (
+          <div
+            key={parceria.id}
+            className="flex items-center justify-between border-b border-neutral-100 py-4 last:border-b-0"
+          >
+            <span className="font-semibold">{parceria.nomeEscola}</span>
+            <StatusChip status={parceria.status} />
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
