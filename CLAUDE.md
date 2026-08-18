@@ -112,6 +112,17 @@ versão compartilhada) **e** este arquivo.
     chaves: anon (RLS filtra tutores sem sessão logada — esperado) e service
     role (bypassa RLS, seed visível). Próximo passo: trocar `getXxxMock()` de
     `src/lib/mock/*.ts` por consultas reais, tabela por tabela.
+
+    **Primeira troca feita:** tutores (`src/lib/data/tutores.ts`) — `/aluno/perfil`,
+    `/aluno/aula` e `/api/aula/chat` já leem da tabela `tutores` de verdade, via
+    cliente admin (temporário — não existe login ainda, então não tem sessão pra
+    satisfazer a policy de RLS que exige `auth.uid()`; trocar pelo cliente de
+    sessão assim que existir). Como essas páginas são geradas estáticas no
+    build, o dado do tutor fica "congelado" no que existia no banco quando
+    rodou `npm run build` — sem problema pra dado quase-estático como tutor,
+    mas vai exigir `export const dynamic = 'force-dynamic'` (ou revalidação)
+    quando cotas/certificados por aluno forem trocados também, porque aí o
+    dado muda por usuário e por tempo, não pode ficar preso ao build.
 16. **Tutor de IA: Claude Opus 5, chamado só do servidor.** A chave
     (`ANTHROPIC_API_KEY`) mora em `.env.local`, nunca chega ao browser — mesma
     regra do projeto "academia flow" (segredo nunca no cliente). O contexto do

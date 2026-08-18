@@ -1,12 +1,14 @@
 import { CampoPerfil } from "@/components/aluno/CampoPerfil";
-import { getPerfilDoAlunoMock, getTutoresMock } from "@/lib/mock/perfil";
+import { getTutorPorNome } from "@/lib/data/tutores";
+import { getPerfilDoAlunoMock, NOME_DO_TUTOR_MOCK } from "@/lib/mock/perfil";
 import { NOME_DO_IDIOMA, NOME_DO_PLANO } from "@/lib/types";
 
-// Ainda usa dado fixo (src/lib/mock/perfil.ts) — sem edição de verdade ainda,
-// só leitura. "Trocar" fica desabilitado até o cadastro/edição existir.
-export default function Perfil() {
+// Tutor já vem do banco de verdade (src/lib/data/tutores.ts). O resto do
+// perfil ainda é mock — sem cadastro real, sem edição. "Trocar" fica
+// desabilitado até o cadastro/edição existir.
+export default async function Perfil() {
   const perfil = getPerfilDoAlunoMock();
-  const tutor = getTutoresMock().find((t) => t.id === perfil.tutorId);
+  const tutor = await getTutorPorNome(NOME_DO_TUTOR_MOCK);
 
   return (
     <div className="flex max-w-xl flex-col gap-6">

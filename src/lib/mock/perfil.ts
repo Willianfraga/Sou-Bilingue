@@ -1,14 +1,11 @@
-import type { PerfilDoAluno, Tutor } from "@/lib/types";
+import type { PerfilDoAluno } from "@/lib/types";
 
-// Elenco diverso (§ 03) — dado fixo, sem avatar de verdade ainda.
-export function getTutoresMock(): Tutor[] {
-  return [
-    { id: "tutor-clara", nome: "Clara", descricao: "Mulher, sotaque neutro" },
-    { id: "tutor-diego", nome: "Diego", descricao: "Homem, 30 e poucos anos" },
-    { id: "tutor-mei", nome: "Mei", descricao: "Mulher, voz jovem" },
-    { id: "tutor-seu-antonio", nome: "Seu Antônio", descricao: "Senhor, tom pausado" },
-  ];
-}
+// Tutores agora vêm do banco de verdade (src/lib/data/tutores.ts). Esse
+// perfil de aluno continua mock — nenhum cadastro real existe ainda —
+// então o tutorId abaixo não corresponde a nenhum id real da tabela
+// "tutores" (esses são gerados pelo Postgres). Resolve por nome via
+// getTutorPorNome(NOME_DO_TUTOR_MOCK) em vez de por id.
+export const NOME_DO_TUTOR_MOCK = "Clara";
 
 export function getPerfilDoAlunoMock(): PerfilDoAluno {
   return {

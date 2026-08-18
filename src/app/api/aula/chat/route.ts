@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { buildSystemPrompt } from "@/lib/ai/tutor";
-import { getPerfilDoAlunoMock, getTutoresMock } from "@/lib/mock/perfil";
+import { getTutorPorNome } from "@/lib/data/tutores";
+import { getPerfilDoAlunoMock, NOME_DO_TUTOR_MOCK } from "@/lib/mock/perfil";
 
 export const runtime = "nodejs";
 
@@ -20,11 +21,12 @@ export async function POST(request: Request) {
   }
 
   // O contexto do aluno (idioma, sotaque, tutor, objetivo) vem do perfil no
-  // servidor — nunca do que o cliente manda no corpo da requisição. Ainda é
-  // mock (src/lib/mock/perfil.ts); quando existir sessão de verdade, troca
-  // aqui por uma consulta ao banco pelo id do aluno autenticado.
+  // servidor — nunca do que o cliente manda no corpo da requisição. O perfil
+  // em si ainda é mock (src/lib/mock/perfil.ts) — sem cadastro real — mas o
+  // tutor já vem do banco de verdade. Quando existir sessão de verdade, troca
+  // o perfil também por uma consulta ao banco pelo id do aluno autenticado.
   const perfil = getPerfilDoAlunoMock();
-  const tutor = getTutoresMock().find((t) => t.id === perfil.tutorId);
+  const tutor = await getTutorPorNome(NOME_DO_TUTOR_MOCK);
 
   const stream = client.messages.stream({
     model: "claude-opus-5",
