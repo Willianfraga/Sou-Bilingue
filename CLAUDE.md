@@ -11,7 +11,7 @@ confirmado: **soubilingue.com.br**.
 
 Idioma do produto e do código: **português do Brasil**.
 
-## Estado atual (17 ago 2026)
+## Estado atual (18 ago 2026)
 
 **Fase 1 do roteiro — MVP 100% automatizado, sem piloto manual.** O blueprint
 completo está em `docs/ESCOPO.md` (também publicado como artifact — ver seção
@@ -23,9 +23,23 @@ existe** (Supabase Auth, e-mail/senha) — `/login`, middleware que renova sess�
 barra rota privada, guards por papel em cada layout (`src/lib/auth/guards.ts`), sem
 mais atalho de dev na home. O tutor de IA (`/aluno/aula`) fala de verdade com
 Claude Opus 5. **As três interfaces leem 100% do banco real agora** — nenhuma
-tela usa mock pra dado que já tem tabela (`src/lib/data/*.ts`). Nenhuma tela de
-produto está pronta pra usuário real ainda — faltam cadastro público, pagamento
-e o resto listado nas pendências abaixo.
+tela usa mock pra dado que já tem tabela (`src/lib/data/*.ts`). O motor de
+fechamento mensal (`src/lib/certificacao/fechamento.ts`,
+`POST /api/jobs/fechamento-mensal`) emite certificado sozinho quando o mês fecha
+100%. Nenhuma tela de produto está pronta pra usuário real ainda — faltam
+cadastro público, pagamento e o resto listado nas pendências abaixo.
+
+**Confirmado visualmente em 18 ago** — não é só teste de API: rodei o servidor
+local de verdade, logado com as 4 contas de teste via navegador real (Chrome
+via Playwright, instalado só pra isso e removido depois — não é dependência do
+projeto), e capturei as telas das 3 interfaces com dado real renderizando
+certinho (progresso do aluno, chat da aula, certificados, perfil, progresso do
+responsável já mostrando o mês perfeito do Pedro Fraga elegível/com certificado
+emitido pelo motor de fechamento, assinaturas e cupons do admin). Achados menores,
+sem gravidade: um 404 de recurso (provável favicon ausente, nunca configurado) e
+um aviso de hidratação no campo de texto de `/aluno/aula` (parece heurística do
+próprio Chrome sobre o campo, não reproduzido em nenhuma outra tela — vale
+conferir de novo se aparecer de novo, mas não travou nada).
 
 Decisão importante desta rodada: **não existe fase de piloto manual nem revisão
 humana em etapa nenhuma.** O trabalho manual do dono do produto é só divulgação
@@ -209,9 +223,29 @@ disse que ainda vai amadurecer os detalhes — não implementar nada disso ainda
 3. Métrica de sucesso pós-lançamento ainda não definida — sem piloto manual, que
    número/comparação/prazo, acompanhado por analytics automatizado, prova que o
    certificado sozinho sustenta o hábito.
-4. Fluxo ponta a ponta (cadastro → QR de origem → pagamento Asaas → aula → validação
-   → certificado) ainda não foi testado nem uma vez, nem com conta de teste — antes
-   da primeira divulgação real vale rodar isso de ponta a ponta pelo menos uma vez.
+4. O trecho **QR de origem → página de vendas → cadastro → pagamento Asaas**
+   nunca foi testado, nem com conta de teste — nem existe código ainda (§ 12
+   segue adiado). O resto do fluxo (login → app → aula com IA → fechamento do
+   mês → certificado) **já foi confirmado visualmente em 18 ago**, ver "Estado
+   atual" acima — falta só ligar a ponta de aquisição/pagamento nisso.
+
+## Por onde retomar (feito em 18 ago, sessão pode continuar direto daqui)
+
+Se abrir uma sessão nova amanhã, não precisa re-explicar nada disso — está tudo
+commitado. Nessa ordem, o que falta:
+
+1. **Cron de verdade** pro `/api/jobs/fechamento-mensal` (Vercel Cron ou n8n) —
+   hoje só dá pra disparar na mão. É rápido, só configuração.
+2. **Geração real de PDF** do certificado — hoje só existe a linha no banco
+   com `codigo_verificacao`, sem PDF nenhum gerado.
+3. **Cadastro público + pagamento (Asaas)** — o funil inteiro (§ 12) que ficou
+   adiado desde o início; é a peça que falta pra ter usuário real de verdade,
+   não só conta de teste semeada na mão.
+4. Servidor local pode estar rodando ainda de sessões anteriores
+   (`localhost:3000`) — se não estiver, `npm run dev` na pasta do projeto.
+   Contas de teste em `scripts/seed-usuarios-teste.mjs` (senha `Teste@123`
+   pra todas): `admin@`, `aluno.adulto@`, `aluno.menor@`, `responsavel@`,
+   todas `@soubilingue.com.br`.
 
 ## Stack (decisão pragmática desta sessão, não do documento de escopo)
 
