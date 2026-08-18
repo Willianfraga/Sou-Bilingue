@@ -6,8 +6,8 @@ recebe automaticamente um **certificado de conclusão mensal** em PDF, verificá
 publicamente por código.
 
 Nome do projeto até 17 ago 2026 era "Fluência Certificada" (codinome de blueprint,
-ainda visível nos commits antigos) — renomeado pra **SouBilingue**, nome do domínio
-que vai ser usado.
+ainda visível nos commits antigos) — renomeado pra **SouBilingue**. Domínio
+confirmado: **soubilingue.com.br**.
 
 Idioma do produto e do código: **português do Brasil**.
 
