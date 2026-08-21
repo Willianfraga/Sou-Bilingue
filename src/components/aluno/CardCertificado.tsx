@@ -23,6 +23,14 @@ export function CardCertificado({ certificado }: { certificado: Certificado }) {
         <p className="mt-1 text-xs text-neutral-400">
           emitido {certificado.emitidoEm}
         </p>
+        <a
+          href={`/api/certificados/${certificado.id}/pdf`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1 inline-block text-xs font-semibold text-neutral-700 underline"
+        >
+          Baixar PDF
+        </a>
       </div>
     </div>
   );

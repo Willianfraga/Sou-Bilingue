@@ -32,7 +32,7 @@ function StatusDaSemana({ semana }: { semana: StatusSemana }) {
 // semanas do mês, não um streak contínuo.
 export function MapaDoMes({ semanas }: { semanas: StatusSemana[] }) {
   return (
-    <div className="flex gap-3">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {semanas.map((semana) => (
         <StatusDaSemana key={semana.numero} semana={semana} />
       ))}

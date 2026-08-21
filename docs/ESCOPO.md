@@ -353,5 +353,6 @@ por fora do QR (ex. boca a boca).
 
 ---
 
-*Baseado na análise das 34 imagens e do vídeo em `Documentos/app bilingue ai` e do
-site getlucida.com. Preços e nomes de plano são ilustrativos.*
+*Baseado na análise das 34 imagens e do vídeo em `Documentos/Sou Bilingue` (pasta
+renomeada em 17 ago 2026, antes chamada `app bilingue ai`) e do site getlucida.com.
+Preços e nomes de plano são ilustrativos.*

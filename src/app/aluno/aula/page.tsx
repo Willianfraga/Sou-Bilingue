@@ -4,18 +4,21 @@ import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { getTutorPorId } from "@/lib/data/tutores";
 import { NOME_DO_IDIOMA } from "@/lib/types";
 
-// Server Component busca o dado real (perfil + tutor do banco); o Client
-// Component (AulaChat) só renderiza — mesmo padrão do projeto "academia flow".
+const IDIOMA_DA_VOZ = {
+  espanhol: "es-ES",
+  frances: "fr-FR",
+  ingles: "en-US",
+  mandarim: "zh-CN",
+  italiano: "it-IT",
+};
+
 export default async function Aula() {
   const sessao = await requireSessao();
   const perfil = await getPerfilDoAluno(sessao.userId);
-
-  if (!perfil) {
-    return <p className="text-neutral-500">Perfil não encontrado.</p>;
-  }
+  if (!perfil) return <p className="text-neutral-500">Perfil nao encontrado.</p>;
 
   const tutor = await getTutorPorId(perfil.tutorId);
-  const tituloTutor = `${tutor?.nome ?? "Tutor"} · ${NOME_DO_IDIOMA[perfil.idioma]}`;
+  const tituloTutor = `${tutor?.nome ?? "Tutor"} - ${NOME_DO_IDIOMA[perfil.idioma]}`;
 
-  return <AulaChat tituloTutor={tituloTutor} />;
+  return <AulaChat tituloTutor={tituloTutor} idiomaDaVoz={IDIOMA_DA_VOZ[perfil.idioma]} />;
 }

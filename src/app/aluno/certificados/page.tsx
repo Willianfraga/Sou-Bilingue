@@ -2,9 +2,9 @@ import { CardCertificado } from "@/components/aluno/CardCertificado";
 import { requireSessao } from "@/lib/auth/guards";
 import { getCertificados } from "@/lib/data/certificados";
 
-// Dado real — src/lib/data/certificados.ts, RLS ativo. Sem geração de PDF
-// ainda; o botão de portfólio fica desabilitado até isso existir de verdade
-// (docs/ESCOPO.md § 07: geração de PDF por template + portfólio único).
+// Dado real — src/lib/data/certificados.ts, RLS ativo. Geração de PDF via
+// src/lib/certificacao/pdf.ts (docs/ESCOPO.md § 07: PDF por template +
+// portfólio único).
 export default async function Certificados() {
   const sessao = await requireSessao();
   const certificados = await getCertificados(sessao.userId);
@@ -18,14 +18,16 @@ export default async function Certificados() {
           </span>
           <h1 className="mt-1 text-2xl font-bold">Certificados</h1>
         </div>
-        <button
-          type="button"
-          disabled
-          title="Geração de PDF ainda não implementada"
-          className="shrink-0 cursor-not-allowed rounded-md border border-neutral-200 px-4 py-2 text-sm text-neutral-400"
-        >
-          Baixar portfólio (PDF)
-        </button>
+        {certificados.length > 0 && (
+          <a
+            href="/api/aluno/portfolio/pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 rounded-md border border-neutral-300 px-4 py-2 text-sm font-semibold text-neutral-700 hover:bg-neutral-50"
+          >
+            Baixar portfólio (PDF)
+          </a>
+        )}
       </div>
 
       {certificados.length === 0 ? (
