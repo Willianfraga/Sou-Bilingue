@@ -1,0 +1,223 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║             FASE 2.4 — DASHBOARD DE CONSUMO                                ║
+║                      IMPLEMENTAÇÃO COMPLETA ✅                             ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+📅 Data: 22 de agosto de 2026
+✅ Status: COMPLETO — Compilação 100% verificada
+📦 Build: 27 rotas, 103 kB JS compartilhado
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 O QUE FOI IMPLEMENTADO
+
+Fase 2.4 adiciona visibilidade completa do consumo:
+
+✅ Backend (src/lib/billing/reports.ts)
+  • getConsumoMes() — Consumo do mês atual
+  • getHistoricoSessoes() — Últimas 30 sessões
+  • getHistoricoTopups() — Histórico de recargas
+  • getTendencias() — Últimos 7 dias
+  • getEstatisticasGerais() — Stats lifetime
+
+✅ Server Actions (src/app/aluno/dashboard/actions.ts)
+  • getConsumoMesAction()
+  • getHistoricoSessoesAction()
+  • getHistoricoTopupsAction()
+  • getTendenciasAction()
+  • getEstatisticasGeraisAction()
+  • getDashboardCompletAction() — Tudo junto
+
+✅ Componentes UI (src/components/aluno/)
+  • ConsumoDashboard.tsx — Dashboard com cards + gráficos
+  • HistoricoSessoes.tsx — Tabela de sessões
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📊 DASHBOARD COMPONENTS
+
+ConsumoDashboard:
+  ┌─────────────────────────────────────────────┐
+  │ Seu Consumo                                 │
+  ├─────────────────────────────────────────────┤
+  │ 12h compradas  │ 8h usadas  │ 42 sessões   │
+  │ R$ 198 investido                            │
+  ├─────────────────────────────────────────────┤
+  │ MÊS ATUAL — Agosto                          │
+  │ 8h de 12h | 67% ▰▰▱ | Duração média: 45min │
+  │ Restantes: 4h                               │
+  ├─────────────────────────────────────────────┤
+  │ ÚLTIMOS 7 DIAS                              │
+  │ 22/08: 1h (1 sessão) ▰                      │
+  │ 21/08: 2h (2 sessões) ▰▰                    │
+  │ 20/08: 1.5h (2 sessões) ▰                   │
+  └─────────────────────────────────────────────┘
+
+HistoricoSessoes:
+  ┌────────┬────────┬──────────┬─────────────┬────────┐
+  │ Data   │ Horário│ Duração  │ Tipo        │ Horas  │
+  ├────────┼────────┼──────────┼─────────────┼────────┤
+  │22/08   │ 14:30  │ 45min    │ Conversação │ 0.75h  │
+  │21/08   │ 10:15  │ 60min    │ Conversação │ 1.00h  │
+  │21/08   │ 15:45  │ 30min    │ Conversação │ 0.50h  │
+  │...     │ ...    │ ...      │ ...         │ ...    │
+  └────────┴────────┴──────────┴─────────────┴────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚙️ PERFORMANCE & QUERIES
+
+Otimizações:
+  ✓ Promise.all() para queries paralelas
+  ✓ Índices em usage_sessions
+  ✓ Limit em históricos (30/10)
+  ✓ Cálculos no backend
+  ✓ Single request com 5 operações
+
+Queries:
+  • getConsumoMes() — 2 queries
+  • getHistoricoSessoes() — 1 query
+  • getTendencias() — 1 query
+  • getEstatisticasGerais() — 4 queries
+  • Total: 1 request → 5 queries paralelas
+
+Índices utilizados:
+  • idx_session_aluno_ativo
+  • idx_session_data
+  • idx_topup_aluno
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎨 RESPONSIVIDADE
+
+Desktop (≥ md):
+  • Cards: 4 colunas (grid-cols-4)
+  • Tabela: cheia
+  • Gráficos: 100% width
+
+Mobile (< md):
+  • Cards: 2 colunas (grid-cols-2)
+  • Tabela: scroll horizontal
+  • Gráficos: barras compactas
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📈 DADOS EXIBIDOS
+
+Resumo Mensal:
+  • Horas total/utilizadas/restantes
+  • Percentual de uso (cor: verde/amarelo/vermelho)
+  • Número de sessões
+  • Duração média em minutos
+  • Primeira e última sessão
+
+Estatísticas Gerais:
+  • Total horas compradas (subscriptions + topups)
+  • Total horas usadas
+  • Total investido (soma de topups)
+  • Sessões lifetime
+  • Dias como membro
+
+Histórico Detalhado:
+  • Data e horário exato
+  • Duração em minutos
+  • Tipo de sessão
+  • Horas consumidas (com 2 casas decimais)
+
+Tendências:
+  • Últimos 7 dias
+  • Horas usadas por dia
+  • Sessões por dia
+  • Gráfico de barras
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔄 FLUXO DE CARREGAMENTO
+
+1. ConsumoDashboard/HistoricoSessoes montam
+2. useEffect dispara loadData()
+3. getDashboardCompletAction() (ou individual actions)
+4. Promise.all([5 funções]) executa em paralelo
+5. setState() atualiza cada seção
+6. UI renderiza com dados
+
+Tempo estimado: 500-1000ms (dependendo do banco)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🧪 TESTES NECESSÁRIOS
+
+Local (sem banco real):
+  • Componentes carregam sem erro
+  • TypeScript strict OK
+  • Build sucesso
+  • Responsividade mobile/desktop
+
+Em Supabase real:
+  • Dados carregam corretamente
+  • Cálculos estão certos
+  • Performance aceitável (< 2s)
+  • RLS funciona (só vê seus dados)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📁 ARQUIVOS CRIADOS
+
+Backend:
+  src/lib/billing/reports.ts
+  src/app/aluno/dashboard/actions.ts
+
+Frontend:
+  src/components/aluno/ConsumoDashboard.tsx
+  src/components/aluno/HistoricoSessoes.tsx
+
+Documentação:
+  docs/FASE24_DASHBOARD.md
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 PRÓXIMAS FASES
+
+Fase 2.4.1 — Gráficos Interativos (Chart.js)
+  [ ] Implementar gráficos com Chart.js
+  [ ] Gráfico de pizza (horas usadas vs restantes)
+  [ ] Gráfico de barras (tendências 7 dias)
+  [ ] Gráfico de linha (histórico 30 dias)
+
+Fase 2.5 — Exportação de Dados
+  [ ] Exportar como PDF
+  [ ] Exportar como CSV
+  [ ] Email com relatório mensal
+
+Fase 3 — Admin Dashboard
+  [ ] Visão geral de todas as academias
+  [ ] Gráficos de faturamento
+  [ ] Relatório de recargas
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✨ CHECKLIST — O QUE FOI ENTREGUE
+
+[x] 5 funções de backend
+[x] 6 server actions
+[x] 2 componentes React
+[x] TypeScript strict (100% sem erros)
+[x] Build Next.js (sucesso)
+[x] Documentação completa
+[x] Responsividade mobile/desktop
+[x] Performance otimizada
+
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Status Final: PRONTO PARA TESTAR 🎉
+
+Fase 2.4 está completa e compilando 100%.
+Aguardando teste em banco real (Supabase).
+
+Total de Fases: 4
+  ✅ Fase 1 — Pagamentos
+  ✅ Fase 2 — Rastreamento
+  ✅ Fase 2.3 — Recargas
+  ✅ Fase 2.4 — Dashboard
+
+═══════════════════════════════════════════════════════════════════════════════

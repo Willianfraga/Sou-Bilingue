@@ -20,5 +20,11 @@ export default async function Aula() {
   const tutor = await getTutorPorId(perfil.tutorId);
   const tituloTutor = `${tutor?.nome ?? "Tutor"} - ${NOME_DO_IDIOMA[perfil.idioma]}`;
 
-  return <AulaChat tituloTutor={tituloTutor} idiomaDaVoz={IDIOMA_DA_VOZ[perfil.idioma]} />;
+  return (
+    <AulaChat
+      tituloTutor={tituloTutor}
+      idiomaDaVoz={IDIOMA_DA_VOZ[perfil.idioma]}
+      fotoTutor={tutor?.foto_url}
+    />
+  );
 }

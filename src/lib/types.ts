@@ -82,6 +82,7 @@ export type Tutor = {
   id: string;
   nome: string;
   descricao: string;
+  foto_url?: string;
 };
 
 export type PerfilDoAluno = {
