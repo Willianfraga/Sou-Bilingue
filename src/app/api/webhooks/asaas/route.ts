@@ -1,187 +1,76 @@
-/**
- * Webhook do Asaas para processamento de pagamentos
- * URL configurada: https://seu-dominio.com/api/webhooks/asaas
- *
- * Eventos:
- * - payment.confirmed (pagamento confirmado)
- * - payment.failed (pagamento recusado)
- * - payment.refunded (pagamento reembolsado)
- * - subscription.renewed (assinatura renovada)
- * - subscription.cancelled (assinatura cancelada)
- */
-
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { validateWebhookSignature } from "@/lib/asaas/client";
-import { renewSubscription } from "@/lib/billing/subscription";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+
+type EventoAsaas = {
+  id?: string;
+  event?: string;
+  payment?: { id?: string; value?: number; subscription?: string | { id?: string } };
+};
 
 export async function POST(request: Request) {
+  const token = request.headers.get("asaas-access-token") || undefined;
+  if (!validateWebhookSignature(token)) {
+    return Response.json({ error: "Não autorizado" }, { status: 401 });
+  }
+
+  let evento: EventoAsaas;
   try {
-    // 1. Validar assinatura do webhook
-    const body = await request.text();
-    const signature = request.headers.get("x-webhook-signature") || undefined;
+    evento = (await request.json()) as EventoAsaas;
+  } catch {
+    return Response.json({ error: "JSON inválido" }, { status: 400 });
+  }
+  if (!evento.id || !evento.event) {
+    return Response.json({ error: "Evento inválido" }, { status: 400 });
+  }
 
-    if (!validateWebhookSignature(body, signature)) {
-      console.warn("Webhook signature inválida");
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const supabase = createSupabaseAdminClient();
+  const { error: registroError } = await supabase.from("webhook_events").insert({
+    provider: "asaas", event_id: evento.id, event_type: evento.event,
+    payload: evento, status: "processando",
+  });
+  if (registroError?.code === "23505") {
+    return Response.json({ success: true, duplicate: true });
+  }
+  if (registroError) return Response.json({ error: "Falha ao registrar evento" }, { status: 500 });
+
+  try {
+    const payment = evento.payment;
+    const subscriptionId = typeof payment?.subscription === "string"
+      ? payment.subscription : payment?.subscription?.id;
+    const eventosPagamento = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED", "PAYMENT_OVERDUE", "PAYMENT_DELETED"];
+
+    if (payment?.id && subscriptionId && eventosPagamento.includes(evento.event)) {
+      const { data: subscription, error } = await supabase.from("subscriptions")
+        .select("id, aluno_id, status").eq("asaas_subscription_id", subscriptionId).maybeSingle();
+      if (error) throw error;
+      if (!subscription) throw new Error(`Assinatura não encontrada: ${subscriptionId}`);
+
+      const aprovado = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(evento.event);
+      const { error: paymentError } = await supabase.from("payments").upsert({
+        asaas_payment_id: payment.id, aluno_id: subscription.aluno_id,
+        subscription_id: subscription.id, tipo: "assinatura", valor: payment.value ?? 0,
+        status: aprovado ? "pago" : "recusado",
+        data_pagamento: aprovado ? new Date().toISOString().slice(0, 10) : null,
+      }, { onConflict: "asaas_payment_id" });
+      if (paymentError) throw paymentError;
+
+      if (aprovado && subscription.status !== "ativa") {
+        const { error: activeError } = await supabase.from("subscriptions")
+          .update({ status: "ativa", atualizada_em: new Date().toISOString() }).eq("id", subscription.id);
+        if (activeError) throw activeError;
+      }
     }
 
-    const data = JSON.parse(body);
-    const { event, payment, subscription } = data;
-
-    console.log(`[Webhook Asaas] Evento recebido:`, event);
-
-    const supabase = await createSupabaseServerClient();
-
-    // ========================================================================
-    // 2. PAYMENT.CONFIRMED — Pagamento aprovado
-    // ========================================================================
-    if (event === "payment.confirmed") {
-      const paymentId = payment?.id;
-      const customerId = payment?.customer?.id;
-      const value = payment?.value;
-      const subscriptionId = payment?.subscription?.id;
-
-      if (!paymentId) {
-        return Response.json({ error: "Payment ID required" }, { status: 400 });
-      }
-
-      // Buscar subscription no banco por asaas_subscription_id
-      const { data: dbSub, error: subError } = await supabase
-        .from("subscriptions")
-        .select("id, aluno_id, status")
-        .eq("asaas_subscription_id", subscriptionId)
-        .single();
-
-      if (subError || !dbSub) {
-        console.error("Subscription não encontrada no banco:", subscriptionId);
-        // Mesmo assim retornar 200 para não fazer retry infinito
-        return Response.json({
-          success: true,
-          message: "Webhook processado (subscription não encontrada)",
-        });
-      }
-
-      // Registrar pagamento
-      const { error: paymentError } = await supabase
-        .from("payments")
-        .upsert({
-          asaas_payment_id: paymentId,
-          aluno_id: dbSub.aluno_id,
-          subscription_id: dbSub.id,
-          tipo: "assinatura",
-          valor: value,
-          status: "pago",
-          data_pagamento: new Date().toISOString().split("T")[0],
-        });
-
-      if (paymentError) {
-        console.error("Erro ao registrar pagamento:", paymentError);
-      }
-
-      // Garantir que assinatura está ativa
-      if (dbSub.status !== "ativa") {
-        await supabase
-          .from("subscriptions")
-          .update({ status: "ativa" })
-          .eq("id", dbSub.id);
-      }
-
-      console.log(`[Webhook] Pagamento confirmado: ${paymentId}`);
-      return Response.json({ success: true });
-    }
-
-    // ========================================================================
-    // 3. PAYMENT.FAILED — Pagamento recusado
-    // ========================================================================
-    if (event === "payment.failed") {
-      const paymentId = payment?.id;
-      const customerId = payment?.customer?.id;
-
-      // Registrar tentativa falhada
-      const { data: dbSub } = await supabase
-        .from("subscriptions")
-        .select("id, aluno_id")
-        .eq("asaas_subscription_id", payment?.subscription?.id)
-        .single();
-
-      if (dbSub) {
-        await supabase.from("payments").upsert({
-          asaas_payment_id: paymentId,
-          aluno_id: dbSub.aluno_id,
-          subscription_id: dbSub.id,
-          tipo: "assinatura",
-          valor: payment?.value,
-          status: "recusado",
-        });
-
-        // TODO: Enviar email ao aluno notificando falha de pagamento
-      }
-
-      console.log(`[Webhook] Pagamento recusado: ${paymentId}`);
-      return Response.json({ success: true });
-    }
-
-    // ========================================================================
-    // 4. SUBSCRIPTION.RENEWED — Assinatura renovada automaticamente
-    // ========================================================================
-    if (event === "subscription.renewed") {
-      const subscriptionId = subscription?.id;
-
-      // Buscar subscription no banco
-      const { data: dbSub } = await supabase
-        .from("subscriptions")
-        .select("id")
-        .eq("asaas_subscription_id", subscriptionId)
-        .single();
-
-      if (dbSub) {
-        const result = await renewSubscription(dbSub.id);
-        if (!result.success) {
-          console.error("Erro ao renovar subscription:", result.error);
-        }
-      }
-
-      console.log(`[Webhook] Assinatura renovada: ${subscriptionId}`);
-      return Response.json({ success: true });
-    }
-
-    // ========================================================================
-    // 5. SUBSCRIPTION.CANCELLED — Assinatura cancelada
-    // ========================================================================
-    if (event === "subscription.cancelled") {
-      const subscriptionId = subscription?.id;
-
-      const { data: dbSub } = await supabase
-        .from("subscriptions")
-        .select("id")
-        .eq("asaas_subscription_id", subscriptionId)
-        .single();
-
-      if (dbSub) {
-        await supabase
-          .from("subscriptions")
-          .update({
-            status: "cancelada",
-            cancelada_em: new Date().toISOString(),
-          })
-          .eq("id", dbSub.id);
-      }
-
-      console.log(`[Webhook] Assinatura cancelada: ${subscriptionId}`);
-      return Response.json({ success: true });
-    }
-
-    // ========================================================================
-    // Evento não reconhecido
-    // ========================================================================
-    console.warn(`Evento não tratado: ${event}`);
-    return Response.json({ success: true, message: "Evento ignorado" });
+    const { error } = await supabase.from("webhook_events")
+      .update({ status: "processado", processado_em: new Date().toISOString() })
+      .eq("provider", "asaas").eq("event_id", evento.id);
+    if (error) throw error;
+    return Response.json({ success: true });
   } catch (error) {
-    console.error("[Webhook] Erro ao processar:", error);
-    // Retornar 200 mesmo em erro para não fazer retry infinito
-    return Response.json(
-      { error: "Erro ao processar webhook" },
-      { status: 200 }
-    );
+    const mensagem = error instanceof Error ? error.message : "Erro desconhecido";
+    await supabase.from("webhook_events").update({ status: "erro", process_error: mensagem })
+      .eq("provider", "asaas").eq("event_id", evento.id);
+    console.error("Falha ao processar webhook Asaas", error);
+    return Response.json({ error: "Falha ao processar evento" }, { status: 500 });
   }
 }

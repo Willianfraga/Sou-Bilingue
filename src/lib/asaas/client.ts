@@ -207,22 +207,14 @@ export async function getPayments(filters?: {
 // ============================================================================
 
 export function validateWebhookSignature(
-  body: string,
-  signature: string | undefined
+  accessToken: string | undefined
 ): boolean {
-  if (!signature) return false;
-
   const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN;
-  if (!webhookToken) return false;
-
-  // Asaas usa HMAC SHA-256
-  const crypto = require("crypto");
-  const hash = crypto
-    .createHmac("sha256", webhookToken)
-    .update(body)
-    .digest("hex");
-
-  return hash === signature;
+  if (!webhookToken || !accessToken) return false;
+  const crypto = require("node:crypto") as typeof import("node:crypto");
+  const esperado = Buffer.from(webhookToken);
+  const recebido = Buffer.from(accessToken);
+  return esperado.length === recebido.length && crypto.timingSafeEqual(esperado, recebido);
 }
 
 // ============================================================================

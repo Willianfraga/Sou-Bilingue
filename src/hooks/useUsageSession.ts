@@ -6,6 +6,7 @@ import {
   endSessionAction,
   getActiveSessionAction,
   getElapsedTimeAction,
+  heartbeatSessionAction,
 } from "@/app/aluno/sessions/actions";
 
 interface UseUsageSessionProps {
@@ -124,8 +125,9 @@ export function useUsageSession(options: UseUsageSessionProps = {}) {
     timerRef.current = setInterval(async () => {
       setElapsedTime((prev) => prev + 1);
 
-      // Atualizar do servidor a cada 10s para sincronizar
+      // Sincronizar e registrar atividade no servidor a cada 10s.
       if (elapsedTime % 10 === 0) {
+        await heartbeatSessionAction(sessionId);
         const timeResult = await getElapsedTimeAction(sessionId);
         if (timeResult.success && timeResult.segundos) {
           setElapsedTime(timeResult.segundos);
@@ -186,10 +188,12 @@ export function useUsageSession(options: UseUsageSessionProps = {}) {
           const agora = new Date().getTime();
           const segundos = Math.floor((agora - iniciada) / 1000);
           setElapsedTime(segundos);
+        } else if (result.success) {
+          void startSession();
         }
       });
     }
-  }, [autoStart, sessionId]);
+  }, [autoStart, sessionId, startSession]);
 
   // ========================================================================
   // Formatar tempo

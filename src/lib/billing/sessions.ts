@@ -260,6 +260,15 @@ export async function getSessionElapsedTime(
   }
 }
 
+export async function heartbeatUsageSession(sessionId: string, alunoId: string) {
+  const supabase = await createSupabaseServerClient();
+  const agora = new Date().toISOString();
+  const { error } = await supabase.from("usage_sessions")
+    .update({ last_activity_at: agora, atualizada_em: agora })
+    .eq("id", sessionId).eq("aluno_id", alunoId).eq("ativo", true);
+  return error ? { success: false, error: "Não foi possível manter a sessão ativa" } : { success: true };
+}
+
 // ============================================================================
 // Forçar encerramento por timeout
 // ============================================================================

@@ -91,6 +91,16 @@ export async function getElapsedTimeAction(sessionId: string) {
   }
 }
 
+export async function heartbeatSessionAction(sessionId: string) {
+  try {
+    const sessao = await requireSessao();
+    const { heartbeatUsageSession } = await import("@/lib/billing/sessions");
+    return await heartbeatUsageSession(sessionId, sessao.userId);
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : "Erro no heartbeat" };
+  }
+}
+
 /**
  * Obter histórico de sessões
  */
