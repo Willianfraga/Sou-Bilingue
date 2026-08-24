@@ -23,6 +23,7 @@ export function AulaChat({
   const mensagensRef = useRef<Mensagem[]>([]);
   const recognitionRef = useRef<any>(null);
   const ativaRef = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
 
   function atualizarMensagens(proximas: Mensagem[]) {
@@ -48,6 +49,8 @@ export function AulaChat({
     ativaRef.current = false;
     pararReconhecimento();
     window.speechSynthesis?.cancel();
+    audioRef.current?.pause();
+    audioRef.current = null;
     setEstado("pausada");
   }
 
@@ -90,7 +93,7 @@ export function AulaChat({
     recognition.start();
   }
 
-  function falar(texto: string) {
+  function falarNoNavegador(texto: string) {
     if (!ativaRef.current) return;
     if (!window.speechSynthesis) {
       ouvir();
@@ -104,6 +107,39 @@ export function AulaChat({
     fala.onend = () => ouvir();
     fala.onerror = () => ouvir();
     window.speechSynthesis.speak(fala);
+  }
+
+  async function falar(texto: string) {
+    if (!ativaRef.current) return;
+    setEstado("falando");
+    window.speechSynthesis?.cancel();
+    audioRef.current?.pause();
+
+    try {
+      const resposta = await fetch("/api/aula/voz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texto }),
+      });
+      if (!resposta.ok) throw new Error("Voz premium indisponível");
+
+      const url = URL.createObjectURL(await resposta.blob());
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+        audioRef.current = null;
+        ouvir();
+      };
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        audioRef.current = null;
+        falarNoNavegador(texto);
+      };
+      await audio.play();
+    } catch {
+      falarNoNavegador(texto);
+    }
   }
 
   async function responder(texto: string) {
@@ -131,7 +167,7 @@ export function AulaChat({
       }
       const finalizadas = [...proximas, { role: "assistant" as const, content: respostaCompleta }];
       atualizarMensagens(finalizadas);
-      falar(respostaCompleta);
+      await falar(respostaCompleta);
     } catch {
       setErro("A tutora nao conseguiu responder agora. Tente continuar em alguns instantes.");
       setEstado("erro");
