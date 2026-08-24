@@ -29,3 +29,13 @@ next-env.d.ts
 *.tsbuildinfo
 .env.production
 apply-prod-migrations.mjs
+
+# documentos locais com acessos e credenciais — nunca versionar
+ACESSOS_PRODUCAO.md
+DEPLOY_PASSO_A_PASSO.md
+DEPLOY_RAPIDO.md
+RESUMO_EXECUTIVO.txt
+CHECKLIST_DEPLOY.txt
+GUIA_DOMINIO_HOSTINGER.md
+PAINEL_CONTROLE.html
+deploy.sh
