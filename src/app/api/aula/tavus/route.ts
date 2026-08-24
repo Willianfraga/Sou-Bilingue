@@ -24,6 +24,10 @@ export async function POST() {
         persona_id: personaId,
         replica_id: replicaId,
         conversation_name: `Aula Sou Bilíngue — ${sessao.nome}`,
+        properties: {
+          participant_absent_timeout: 60,
+          participant_left_timeout: 10,
+        },
       }),
       cache: "no-store",
       signal: AbortSignal.timeout(15_000),
@@ -40,5 +44,31 @@ export async function POST() {
   } catch (erro) {
     console.error("Erro ao criar conversa Tavus", erro);
     return NextResponse.json({ erro: "A plataforma de vídeo demorou para responder." }, { status: 504 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  const sessao = await getSessao();
+  if (!sessao || sessao.papel !== "aluno") {
+    return NextResponse.json({ erro: "Acesso não autorizado." }, { status: 401 });
+  }
+  const apiKey = process.env.TAVUS_API_KEY;
+  if (!apiKey) return NextResponse.json({ erro: "Tavus não configurado." }, { status: 503 });
+  const corpo = (await request.json().catch(() => null)) as { conversationId?: string } | null;
+  const conversationId = corpo?.conversationId;
+  if (!conversationId || !/^c[a-zA-Z0-9_-]{6,80}$/.test(conversationId)) {
+    return NextResponse.json({ erro: "Conversa inválida." }, { status: 400 });
+  }
+  try {
+    await fetch(`${TAVUS_API_URL}/conversations/${encodeURIComponent(conversationId)}/end`, {
+      method: "POST",
+      headers: { "x-api-key": apiKey },
+      cache: "no-store",
+      signal: AbortSignal.timeout(10_000),
+    });
+    return NextResponse.json({ encerrada: true });
+  } catch (erro) {
+    console.error("Erro ao encerrar conversa Tavus", erro);
+    return NextResponse.json({ erro: "Não foi possível confirmar o encerramento." }, { status: 502 });
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type SessaoTavus = {
   conversationId: string;
@@ -11,6 +11,32 @@ export function TavusAula({ tituloTutor }: { tituloTutor: string }) {
   const [sessao, setSessao] = useState<SessaoTavus | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
+  const conversaAtivaRef = useRef<string | null>(null);
+
+  async function encerrarVideochamada() {
+    const conversationId = conversaAtivaRef.current;
+    conversaAtivaRef.current = null;
+    setSessao(null);
+    if (!conversationId) return;
+    await fetch("/api/aula/tavus", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ conversationId }),
+      keepalive: true,
+    }).catch(() => undefined);
+  }
+
+  useEffect(() => () => {
+    const conversationId = conversaAtivaRef.current;
+    if (conversationId) {
+      void fetch("/api/aula/tavus", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversationId }),
+        keepalive: true,
+      });
+    }
+  }, []);
 
   async function iniciarVideochamada() {
     setCarregando(true);
@@ -19,6 +45,7 @@ export function TavusAula({ tituloTutor }: { tituloTutor: string }) {
       const resposta = await fetch("/api/aula/tavus", { method: "POST" });
       const dados = (await resposta.json()) as SessaoTavus & { erro?: string };
       if (!resposta.ok) throw new Error(dados.erro || "Não foi possível iniciar o avatar.");
+      conversaAtivaRef.current = dados.conversationId;
       setSessao(dados);
     } catch (falha) {
       setErro(falha instanceof Error ? falha.message : "Não foi possível iniciar o avatar.");
@@ -46,7 +73,7 @@ export function TavusAula({ tituloTutor }: { tituloTutor: string }) {
     <section className="overflow-hidden rounded-[2rem] bg-slate-950 shadow-2xl">
       <div className="flex items-center justify-between bg-slate-900 px-4 py-3 text-white">
         <div><p className="text-xs font-bold text-emerald-300">● AO VIVO</p><p className="text-sm font-semibold">{tituloTutor}</p></div>
-        <button type="button" onClick={() => setSessao(null)} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-bold hover:bg-white/20">Encerrar</button>
+        <button type="button" onClick={() => void encerrarVideochamada()} className="rounded-xl bg-white/10 px-4 py-2 text-sm font-bold hover:bg-white/20">Encerrar</button>
       </div>
       <iframe
         src={sessao.conversationUrl}

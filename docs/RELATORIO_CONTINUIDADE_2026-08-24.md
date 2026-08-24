@@ -240,5 +240,7 @@ Após teste visual, os movimentos contínuos feitos com CSS foram desativados po
 - timeout de 15 segundos e mensagem de falha amigável;
 - modo leve atual preservado como fallback;
 - botão de videochamada aparece apenas quando chave, Persona e Replica estiverem configuradas.
+- encerramento explícito da conversa na API Tavus ao sair, evitando consumo de minutos órfãos;
+- timeouts para ausência inicial e saída do participante.
 
 Variáveis necessárias: `TAVUS_API_KEY`, `TAVUS_PERSONA_ID` e `TAVUS_REPLICA_ID`.
