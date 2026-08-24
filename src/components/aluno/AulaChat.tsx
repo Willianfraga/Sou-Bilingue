@@ -5,6 +5,7 @@ import Image from "next/image";
 
 type Mensagem = { role: "user" | "assistant"; content: string; lida?: boolean };
 type Estado = "pronta" | "falando" | "ouvindo" | "pensando" | "pausada" | "erro";
+type GestoTutor = "neutro" | "aceno" | "legal" | "comemoracao";
 
 // O navegador pede acesso ao microfone apenas na primeira aula. Depois de
 // iniciada, a conversa segue sozinha: tutor fala, aluno responde, tutor fala.
@@ -22,6 +23,8 @@ export function AulaChat({
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [estado, setEstado] = useState<Estado>("pronta");
   const [erro, setErro] = useState("");
+  const [gestoTutor, setGestoTutor] = useState<GestoTutor>("neutro");
+  const [piscando, setPiscando] = useState(false);
   const mensagensRef = useRef<Mensagem[]>([]);
   const recognitionRef = useRef<any>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
@@ -31,6 +34,42 @@ export function AulaChat({
   const ativaRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
+  const gestoTimeoutRef = useRef<number | null>(null);
+  const primeiraFalaRef = useRef(true);
+
+  const tutoraEhClara = tituloTutor.trim().toLowerCase().includes("clara");
+  const fotoAtualTutor = tutoraEhClara
+    ? gestoTutor === "aceno"
+      ? "/tutores/clara-wave.png"
+      : gestoTutor === "legal"
+        ? "/tutores/clara-thumbs-up.png"
+        : gestoTutor === "comemoracao"
+          ? "/tutores/clara-celebrate.png"
+          : piscando
+            ? "/tutores/clara-blink.png"
+            : fotoTutor
+    : fotoTutor;
+
+  function mostrarGesto(gesto: GestoTutor, duracao = 2200) {
+    if (!tutoraEhClara) return;
+    if (gestoTimeoutRef.current !== null) window.clearTimeout(gestoTimeoutRef.current);
+    setGestoTutor(gesto);
+    gestoTimeoutRef.current = window.setTimeout(() => {
+      setGestoTutor("neutro");
+      gestoTimeoutRef.current = null;
+    }, duracao);
+  }
+
+  function escolherGestoDaFala(texto: string) {
+    if (primeiraFalaRef.current) {
+      primeiraFalaRef.current = false;
+      mostrarGesto("aceno", 2600);
+      return;
+    }
+    if (/parab[eé]ns|perfeito|excelente|muito bem|mandou bem|arrasou|isso a[ií]|boa[!,.]/i.test(texto)) {
+      mostrarGesto(texto.length % 2 === 0 ? "comemoracao" : "legal", 2600);
+    }
+  }
 
   function atualizarMensagens(proximas: Mensagem[]) {
     mensagensRef.current = proximas;
@@ -45,6 +84,30 @@ export function AulaChat({
       }, 100);
     }
   }, [mensagens]);
+
+  useEffect(() => {
+    if (!tutoraEhClara) return;
+    let timer = 0;
+    let fecharOlhos = 0;
+    const agendarPiscada = () => {
+      timer = window.setTimeout(() => {
+        if (gestoTutor === "neutro") {
+          setPiscando(true);
+          fecharOlhos = window.setTimeout(() => setPiscando(false), 150);
+        }
+        agendarPiscada();
+      }, 3800 + Math.random() * 2800);
+    };
+    agendarPiscada();
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(fecharOlhos);
+    };
+  }, [gestoTutor, tutoraEhClara]);
+
+  useEffect(() => () => {
+    if (gestoTimeoutRef.current !== null) window.clearTimeout(gestoTimeoutRef.current);
+  }, []);
 
   function pararReconhecimento() {
     recognitionRef.current?.stop();
@@ -66,6 +129,7 @@ export function AulaChat({
     void audioContextRef.current?.close();
     audioContextRef.current = null;
     setEstado("pausada");
+    setGestoTutor("neutro");
   }
 
   function ouvirComReconhecimentoNativo() {
@@ -237,6 +301,7 @@ export function AulaChat({
 
   async function falar(texto: string) {
     if (!ativaRef.current) return;
+    escolherGestoDaFala(texto);
     setEstado("falando");
     window.speechSynthesis?.cancel();
     audioRef.current?.pause();
@@ -348,13 +413,20 @@ export function AulaChat({
           <div className="flex flex-col items-center text-center">
             {/* AVATAR DA TUTORA */}
             <div className="relative mb-3 w-full sm:mb-4">
-              {fotoTutor ? (
+              {fotoAtualTutor ? (
                 <div className="relative mx-auto h-52 w-full max-w-xl overflow-hidden rounded-[1.75rem] border border-white/25 bg-indigo-950 shadow-2xl sm:h-72">
                   <Image
-                    src={fotoTutor}
+                    key={fotoAtualTutor}
+                    src={fotoAtualTutor}
                     alt={tituloTutor}
                     fill
-                    className="object-cover object-top"
+                    className={`object-cover object-top transition-all duration-300 ${
+                      estado === "falando"
+                        ? "animate-tutor-falando"
+                        : estado === "ouvindo"
+                          ? "animate-tutor-ouvindo"
+                          : "animate-tutor-respirando"
+                    }`}
                     priority
                   />
                 </div>
@@ -504,6 +576,26 @@ export function AulaChat({
         }
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes tutorRespirando {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.012); }
+        }
+        @keyframes tutorFalando {
+          0%, 100% { transform: scale(1.02) rotate(-0.35deg); }
+          50% { transform: scale(1.035) rotate(0.45deg) translateY(-2px); }
+        }
+        @keyframes tutorOuvindo {
+          0%, 100% { transform: scale(1.015) rotate(0); }
+          50% { transform: scale(1.025) rotate(0.8deg); }
+        }
+        :global(.animate-tutor-respirando) { animation: tutorRespirando 4.2s ease-in-out infinite; }
+        :global(.animate-tutor-falando) { animation: tutorFalando 2.1s ease-in-out infinite; }
+        :global(.animate-tutor-ouvindo) { animation: tutorOuvindo 3s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          :global(.animate-tutor-respirando),
+          :global(.animate-tutor-falando),
+          :global(.animate-tutor-ouvindo) { animation: none; }
         }
       `}</style>
     </div>

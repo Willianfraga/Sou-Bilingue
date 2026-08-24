@@ -214,3 +214,18 @@ Procedimento de produção:
 ## 15. Próxima ação
 
 Executar a homologação end-to-end da primeira assinatura Sandbox usando uma conta de aluno sem assinatura ativa. Somente após todos os eventos serem verificados no Supabase e no Asaas o módulo financeiro poderá ser classificado como pronto para produção.
+# Protótipo de avatar expressivo — Clara
+
+Foi adicionada uma primeira camada de animação visual à tutora Clara, preservando a identidade fotográfica já utilizada no aplicativo.
+
+- piscada natural em intervalos variáveis;
+- respiração e movimento corporal sutil em repouso;
+- leve movimento de cabeça durante fala e escuta;
+- aceno automático na primeira fala;
+- gesto de aprovação e comemoração quando a resposta contém elogio;
+- respeito à preferência de acessibilidade `prefers-reduced-motion`;
+- imagens mantidas localmente em `public/tutores`, sem dependência de serviço externo em tempo de execução.
+
+Arquivos visuais: `clara-wave.png`, `clara-thumbs-up.png`, `clara-celebrate.png` e `clara-blink.png`.
+
+Esta é a etapa inicial, baseada em transições entre poses. Lipsync real e gestos contínuos exigirão uma camada posterior com avatar rigado ou provedor de vídeo em tempo real.
