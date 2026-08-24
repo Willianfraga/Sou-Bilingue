@@ -3,6 +3,7 @@ import { buildSystemPrompt } from "@/lib/ai/tutor";
 import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { getTutorPorId } from "@/lib/data/tutores";
+import { formatarMemorias, getMemoriasDoAluno, salvarMemoriasDaFala } from "@/lib/ai/memory";
 
 export const runtime = "nodejs";
 
@@ -36,7 +37,16 @@ export async function POST(request: Request) {
 
   const tutor = await getTutorPorId(perfil.tutorId);
   const temaLivre = typeof tema === "string" ? tema.trim().slice(0, 180) : undefined;
-  const systemPrompt = buildSystemPrompt(perfil, tutor?.nome ?? "Tutor", temaLivre);
+  const ultimaFala = [...mensagens].reverse().find((mensagem) => mensagem.role === "user")?.content ?? "";
+  await salvarMemoriasDaFala(sessao.userId, ultimaFala);
+  const memorias = await getMemoriasDoAluno(sessao.userId);
+  const systemPrompt = buildSystemPrompt(
+    perfil,
+    tutor?.nome ?? "Tutor",
+    sessao.nome,
+    formatarMemorias(memorias),
+    temaLivre,
+  );
 
   try {
     const resposta = await client.messages.create({

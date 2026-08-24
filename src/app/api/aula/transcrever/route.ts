@@ -3,14 +3,6 @@ import { getPerfilDoAluno } from "@/lib/data/alunos";
 
 export const runtime = "nodejs";
 
-const CODIGO_DO_IDIOMA = {
-  ingles: "en",
-  espanhol: "es",
-  frances: "fr",
-  italiano: "it",
-  mandarim: "zh",
-} as const;
-
 export async function POST(request: Request) {
   const sessao = await getSessao();
   if (!sessao || sessao.papel !== "aluno") {
@@ -36,7 +28,8 @@ export async function POST(request: Request) {
   const formulario = new FormData();
   formulario.append("file", audio, audio.name || "resposta.webm");
   formulario.append("model_id", "scribe_v2");
-  formulario.append("language_code", CODIGO_DO_IDIOMA[perfil.idioma]);
+  // O aluno pode alternar entre português e o idioma estudado na mesma aula.
+  // Sem language_code, o Scribe detecta automaticamente a língua de cada fala.
   formulario.append("tag_audio_events", "false");
   formulario.append("num_speakers", "1");
 
