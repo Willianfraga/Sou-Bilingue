@@ -1,6 +1,16 @@
 import { SideNav } from "@/components/SideNav";
 import { requirePapel } from "@/lib/auth/guards";
 
+const items = [
+  { href: "/aluno/aula", label: "Iniciar aula" },
+  { href: "/aluno/aula#escolher-tutor", label: "Escolher meu tutor" },
+  { href: "/aluno", label: "Meu progresso" },
+  { href: "/aluno/perfil", label: "Meu perfil" },
+  { href: "/aluno/licoes#escolher-idioma", label: "Escolher meu idioma" },
+  { href: "/aluno/certificados", label: "Meus certificados" },
+  { href: "/aluno/licoes", label: "Minhas lições" },
+];
+
 export default async function AlunoLayout({
   children,
 }: {
@@ -11,7 +21,7 @@ export default async function AlunoLayout({
   return (
     <div className="min-h-screen bg-[#f8f9ff]">
       <div className="hidden min-h-screen md:flex">
-        <SideNav title="Sou Bilíngue" items={[]} nome={sessao.nome} tone="purple" />
+        <SideNav title="Sou Bilíngue" items={items} nome={sessao.nome} tone="purple" />
         <div className="flex-1 px-10 py-10">{children}</div>
       </div>
 
