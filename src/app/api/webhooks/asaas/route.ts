@@ -4,7 +4,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 type EventoAsaas = {
   id?: string;
   event?: string;
-  payment?: { id?: string; value?: number; subscription?: string | { id?: string } };
+  payment?: { id?: string; value?: number; subscription?: string | { id?: string }; externalReference?: string };
 };
 
 export async function POST(request: Request) {
@@ -38,6 +38,23 @@ export async function POST(request: Request) {
     const subscriptionId = typeof payment?.subscription === "string"
       ? payment.subscription : payment?.subscription?.id;
     const eventosPagamento = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED", "PAYMENT_OVERDUE", "PAYMENT_DELETED"];
+
+    const topupMatch = payment?.externalReference?.match(/^soubilingue:topup:([0-9a-f-]{36})$/i);
+    if (payment?.id && topupMatch && eventosPagamento.includes(evento.event)) {
+      const aprovado = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(evento.event);
+      if (aprovado) {
+        const { error } = await supabase.rpc("process_topup_payment", {
+          p_topup_id: topupMatch[1],
+          p_payment_id: payment.id,
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("hour_topups")
+          .update({ status: evento.event === "PAYMENT_DELETED" ? "expirada" : "pending" })
+          .eq("id", topupMatch[1]).eq("asaas_invoice_id", payment.id);
+        if (error) throw error;
+      }
+    }
 
     if (payment?.id && subscriptionId && eventosPagamento.includes(evento.event)) {
       const { data: subscription, error } = await supabase.from("subscriptions")

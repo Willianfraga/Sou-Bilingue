@@ -5,7 +5,10 @@
  */
 
 const API_KEY = process.env.ASAAS_API_KEY;
-const API_URL = process.env.ASAAS_API_URL;
+const API_URL = process.env.ASAAS_API_URL?.replace(
+  "https://sandbox.asaas.com/api/v3",
+  "https://api-sandbox.asaas.com/v3",
+);
 
 // Validação lazy — só ocorre quando uma função é chamada, não na importação
 function validateConfig() {
@@ -58,6 +61,8 @@ export interface AsaasPayment {
   expectedDueDate: string;
   confirmationDate?: string;
   billingType: "CREDIT_CARD" | "PIX" | "BOLETO" | "DEBIT_ACCOUNT";
+  invoiceUrl?: string;
+  subscription?: string;
 }
 
 // ============================================================================
@@ -104,6 +109,7 @@ export async function createCustomer(data: {
   city?: string;
   state?: string;
   postalCode?: string;
+  externalReference?: string;
 }): Promise<AsaasCustomer> {
   return request<AsaasCustomer>("POST", "/customers", {
     name: data.name,
@@ -114,6 +120,7 @@ export async function createCustomer(data: {
     city: data.city,
     state: data.state,
     postalCode: data.postalCode,
+    externalReference: data.externalReference,
   });
 }
 
@@ -127,7 +134,7 @@ export async function getCustomer(customerId: string): Promise<AsaasCustomer> {
 
 export async function createSubscription(data: {
   customerId: string;
-  billingType: "CREDIT_CARD" | "PIX" | "BOLETO";
+  billingType: "UNDEFINED" | "CREDIT_CARD" | "PIX" | "BOLETO";
   value: number;
   nextDueDate: string; // YYYY-MM-DD
   cycle: "MONTHLY" | "QUARTERLY" | "ANNUAL";
@@ -137,8 +144,18 @@ export async function createSubscription(data: {
     type: "FIXED" | "PERCENTAGE";
     value: number;
   };
+  externalReference?: string;
+  callback?: { successUrl: string; autoRedirect?: boolean };
 }): Promise<AsaasSubscription> {
-  return request<AsaasSubscription>("POST", "/subscriptions", data);
+  const { customerId, ...payload } = data;
+  return request<AsaasSubscription>("POST", "/subscriptions", {
+    ...payload,
+    customer: customerId,
+  });
+}
+
+export async function getSubscriptionPayments(subscriptionId: string) {
+  return request<{ data: AsaasPayment[] }>("GET", `/subscriptions/${subscriptionId}/payments`);
 }
 
 export async function getSubscription(
@@ -218,20 +235,27 @@ export function validateWebhookSignature(
 }
 
 // ============================================================================
-// Checkout Link (PRÉ-APROVADO)
+// Fatura da primeira cobrança da assinatura
 // ============================================================================
 
-export function generateCheckoutLink(
-  subscriptionId: string,
-  redirectUrl?: string
-): string {
-  validateConfig();
-  const baseUrl = (API_URL || "").replace("/api/v3", "");
-  const url = new URL(`/checkout/${subscriptionId}`, baseUrl);
-
-  if (redirectUrl) {
-    url.searchParams.set("returnUrl", redirectUrl);
+export async function getSubscriptionInvoiceUrl(subscriptionId: string): Promise<string> {
+  const payments = await getSubscriptionPayments(subscriptionId);
+  const firstPayment = payments.data?.[0];
+  if (!firstPayment?.invoiceUrl) {
+    throw new Error("O Asaas não retornou a fatura inicial da assinatura");
   }
+  return firstPayment.invoiceUrl;
+}
 
-  return url.toString();
+export async function createPayment(data: {
+  customerId: string;
+  billingType: "UNDEFINED" | "CREDIT_CARD" | "PIX" | "BOLETO";
+  value: number;
+  dueDate: string;
+  description: string;
+  externalReference: string;
+  callback?: { successUrl: string; autoRedirect?: boolean };
+}): Promise<AsaasPayment> {
+  const { customerId, ...payload } = data;
+  return request<AsaasPayment>("POST", "/payments", { ...payload, customer: customerId });
 }

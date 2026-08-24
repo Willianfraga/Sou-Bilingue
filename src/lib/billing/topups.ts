@@ -13,7 +13,7 @@
  */
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createCustomer, createSubscription } from "@/lib/asaas/client";
+import { createCustomer, createPayment } from "@/lib/asaas/client";
 
 // ============================================================================
 // Tipos
@@ -148,6 +148,7 @@ export async function createHourTopup(
       const { id: newCustomerId } = await createCustomer({
         name: nomeAluno,
         email: emailAluno,
+        externalReference: `soubilingue:aluno:${alunoId}`,
       });
       customerId = newCustomerId;
 
@@ -159,36 +160,34 @@ export async function createHourTopup(
     }
 
     // 6. Criar cobrança única (não assinatura) no Asaas
-    const { id: asaasInvoiceId } = await createSubscription({
+    const payment = await createPayment({
       customerId,
-      billingType: "PIX",
+      billingType: "UNDEFINED",
       value: parseFloat((Math.round(valorTotal * 100) / 100).toFixed(2)),
-      nextDueDate: new Date().toISOString().split("T")[0],
-      cycle: "MONTHLY", // Apenas 1 cobrança
-      description: `Recarga de ${horasDesejadas}h — SouBilingue`,
-      maxPaymentAttempts: 3,
+      dueDate: new Date().toISOString().split("T")[0],
+      description: `Sou Bilíngue - Recarga de ${horasDesejadas}h`,
+      externalReference: `soubilingue:topup:${topup.id}`,
+      callback: {
+        successUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://app.soubilingue.com.br"}/aluno?recarga=sucesso`,
+        autoRedirect: true,
+      },
     });
 
     // 7. Registrar asaas_invoice_id no topup
     await supabase
       .from("hour_topups")
       .update({
-        // TODO: Adicionar coluna asaas_invoice_id se não existir
+        asaas_invoice_id: payment.id,
         status: "pending",
       })
       .eq("id", topup.id);
 
-    // 8. Gerar checkout link
-    const { generateCheckoutLink } = await import("@/lib/asaas/client");
-    const checkoutUrl = generateCheckoutLink(
-      subscription.asaas_subscription_id || asaasInvoiceId,
-      `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/aluno`
-    );
+    if (!payment.invoiceUrl) throw new Error("O Asaas não retornou o link da recarga");
 
     return {
       success: true,
       topupId: topup.id,
-      checkoutUrl,
+      checkoutUrl: payment.invoiceUrl,
       valor: parseFloat((Math.round(valorTotal * 100) / 100).toFixed(2)),
     };
   } catch (error) {

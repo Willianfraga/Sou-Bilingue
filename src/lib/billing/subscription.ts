@@ -124,23 +124,29 @@ export async function createNewSubscription(
       name: nomeAluno,
       email: emailAluno,
       cpfCnpj: cpf,
+      externalReference: `soubilingue:aluno:${alunoId}`,
     });
 
     // 3. Datas do ciclo
     const hoje = new Date();
-    const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-    const proximoMes = new Date(inicioMes);
+    const inicioMes = new Date(hoje);
+    const proximoMes = new Date(hoje);
     proximoMes.setMonth(proximoMes.getMonth() + 1);
 
     // 4. Criar assinatura no Asaas
     const asaasSubscription = await createSubscription({
       customerId: customer.id,
-      billingType: "PIX", // Padrão PIX, pode ser alterado depois
+      billingType: "UNDEFINED",
       value: plano.preco,
-      nextDueDate: proximoMes.toISOString().split("T")[0],
+      nextDueDate: hoje.toISOString().split("T")[0],
       cycle: "MONTHLY",
-      description: `Plano ${plano.nome} - SouBilingue`,
+      description: `Sou Bilíngue - Plano ${plano.nome}`,
       maxPaymentAttempts: 3,
+      externalReference: `soubilingue:aluno:${alunoId}:plano:${planoId}`,
+      callback: {
+        successUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://app.soubilingue.com.br"}/aluno?pagamento=sucesso`,
+        autoRedirect: true,
+      },
     });
 
     // 5. Criar assinatura no Supabase
@@ -149,7 +155,7 @@ export async function createNewSubscription(
       .insert({
         aluno_id: alunoId,
         plano_id: planoId,
-        status: "ativa",
+        status: "pendente",
         ciclo_inicio: inicioMes.toISOString().split("T")[0],
         ciclo_fim: proximoMes.toISOString().split("T")[0],
         horas_total: plano.horas_mensais,
