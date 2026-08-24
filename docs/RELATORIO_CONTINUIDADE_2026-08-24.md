@@ -74,6 +74,10 @@ As memórias relevantes são recuperadas em aulas futuras. O conteúdo é proteg
 - As chaves ficam somente no servidor.
 - A chave configurada possui permissões mínimas de voz, transcrição e leitura de vozes.
 - O áudio da conversa não é guardado pela telemetria do aplicativo.
+- Clara recebeu um perfil próprio de expressividade: voz Laura, estabilidade
+  reduzida, estilo elevado e ritmo ligeiramente mais ágil.
+- A personalidade da Clara passou a usar calor humano, entusiasmo brasileiro e
+  hospitalidade inspirada no Nordeste, sem caricatura ou estereótipos.
 
 ## 7. Painel administrativo de custos de IA
 
