@@ -78,6 +78,10 @@ As memórias relevantes são recuperadas em aulas futuras. O conteúdo é proteg
   reduzida, estilo elevado e ritmo ligeiramente mais ágil.
 - A personalidade da Clara passou a usar calor humano, entusiasmo brasileiro e
   hospitalidade inspirada no Nordeste, sem caricatura ou estereótipos.
+- Todos os tutores receberam perfis próprios de expressividade vocal e regras
+  para acompanhar a energia e a linguagem do aluno.
+- Os tutores passaram a sugerir temas, respostas, exemplos, situações reais e
+  pequenos desafios de modo opcional, alegre e descontraído.
 
 ## 7. Painel administrativo de custos de IA
 

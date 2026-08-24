@@ -9,24 +9,31 @@ export const VOZ_POR_TUTOR: Record<string, string> = {
   "dbed74f6-38e3-414e-8ad7-4e508c73e839": "TX3LPaxmHKxFdv7VOQHJ", // Theo — Liam
 };
 
-const CLARA_ID = "e315b919-9faf-4ebb-a786-db46a676c01e";
+type VoiceSettings = {
+  stability: number;
+  similarity_boost: number;
+  style: number;
+  speed: number;
+  use_speaker_boost: boolean;
+};
 
-function getVoiceSettings(tutorId: string) {
-  if (tutorId === CLARA_ID) {
-    return {
-      stability: 0.3,
-      similarity_boost: 0.8,
-      style: 0.58,
-      speed: 1.04,
-      use_speaker_boost: true,
-    };
-  }
+// Cada tutor continua reconhecível, mas todos têm espaço para sorrir na voz,
+// variar a entonação e acompanhar a energia do aluno.
+const EXPRESSIVIDADE_POR_TUTOR: Record<string, VoiceSettings> = {
+  "e315b919-9faf-4ebb-a786-db46a676c01e": { stability: 0.3, similarity_boost: 0.8, style: 0.58, speed: 1.04, use_speaker_boost: true }, // Clara: calorosa
+  "2dff69b8-0df7-4740-b67e-4caa7bf38ecc": { stability: 0.34, similarity_boost: 0.8, style: 0.5, speed: 1.05, use_speaker_boost: true }, // Diego: comunicativo
+  "2fbd2c7b-8613-44c1-961c-542b72f250e7": { stability: 0.35, similarity_boost: 0.82, style: 0.48, speed: 1.03, use_speaker_boost: true }, // Mei: leve
+  "3af0510b-a5b5-40d9-9772-fd0fb6ba6943": { stability: 0.43, similarity_boost: 0.82, style: 0.38, speed: 0.98, use_speaker_boost: true }, // Seu Antônio: sereno e bem-humorado
+  "41396d05-5d7d-4913-866b-109f441b2e0b": { stability: 0.32, similarity_boost: 0.8, style: 0.54, speed: 1.05, use_speaker_boost: true }, // Luna: jovem e vibrante
+  "dbed74f6-38e3-414e-8ad7-4e508c73e839": { stability: 0.36, similarity_boost: 0.8, style: 0.48, speed: 1.03, use_speaker_boost: true }, // Theo: descontraído
+};
 
-  return {
-    stability: 0.52,
-    similarity_boost: 0.78,
-    style: 0.15,
-    speed: 1,
+function getVoiceSettings(tutorId: string): VoiceSettings {
+  return EXPRESSIVIDADE_POR_TUTOR[tutorId] ?? {
+    stability: 0.38,
+    similarity_boost: 0.8,
+    style: 0.45,
+    speed: 1.02,
     use_speaker_boost: true,
   };
 }
