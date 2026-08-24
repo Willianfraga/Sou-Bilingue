@@ -353,9 +353,9 @@ export function AulaChat({
           <button
             type="button"
             onClick={iniciar}
-            className="w-full rounded-lg sm:rounded-2xl bg-indigo-600 px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-bold text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition"
+            className="btn-premium-wide border-indigo-100 text-sm"
           >
-            {estado === "pronta" ? "🎤 Iniciar conversa" : "▶️ Retomar conversa"}
+            {estado === "pronta" ? "🎤 Iniciar conversa →" : "▶️ Retomar conversa →"}
           </button>
         ) : (
           <button

@@ -19,7 +19,7 @@ export function SeletorIdioma({ atual, destino }: { atual: Idioma; destino: "/al
           {OPCOES.map((opcao) => <option key={opcao.valor} value={opcao.valor}>{opcao.bandeira} {opcao.nome}</option>)}
         </select>
       </label>
-      <button type="submit" className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-indigo-700">Escolher idioma</button>
+      <button type="submit" className="btn-premium border-indigo-100">Escolher idioma <span aria-hidden="true">→</span></button>
     </form>
   );
 }

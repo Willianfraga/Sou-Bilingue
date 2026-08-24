@@ -32,17 +32,17 @@ export default async function Licoes() {
           <label htmlFor="tema" className="block text-xs font-semibold text-indigo-100">Conte ao tutor o que você quer praticar</label>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row">
             <input id="tema" name="tema" maxLength={180} placeholder="Ex.: entrevista, viagem, música ou conversa livre" className="min-w-0 flex-1 rounded-xl border border-white/20 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-white/70" />
-            <button type="submit" className="rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-700 transition hover:bg-indigo-50">Conversar agora &rarr;</button>
+            <button type="submit" className="btn-premium whitespace-nowrap">Conversar agora <span aria-hidden="true">→</span></button>
           </div>
           <Link href="/aluno/aula" className="mt-3 inline-flex text-xs font-semibold text-indigo-100 underline decoration-indigo-300 underline-offset-4">Prefiro que o tutor me ajude a escolher</Link>
         </form>
       </section>
 
       <details className="group rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-slate-100 md:p-5">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl border border-indigo-100 bg-indigo-50 px-5 py-4 text-indigo-900 transition hover:border-indigo-300 hover:bg-indigo-100 [&::-webkit-details-marker]:hidden">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-3 text-white shadow-lg shadow-indigo-100 transition hover:-translate-y-0.5 hover:shadow-xl [&::-webkit-details-marker]:hidden">
           <span>
-            <span className="block text-base font-bold">Seguir lições sugeridas</span>
-            <span className="mt-1 block text-xs text-indigo-600">Abra somente se quiser uma trilha pronta</span>
+            <span className="btn-premium pointer-events-none">Seguir lições sugeridas <span aria-hidden="true">→</span></span>
+            <span className="mt-2 block px-2 text-xs text-indigo-100">Abra somente se quiser uma trilha pronta</span>
           </span>
           <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-bold text-indigo-600 transition group-open:rotate-45">+</span>
         </summary>

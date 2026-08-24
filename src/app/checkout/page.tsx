@@ -139,10 +139,10 @@ export default function CheckoutPage() {
             {/* Button */}
             <button
               onClick={() => handleSelectPlan(plan.id)}
-              className={`mt-6 w-full rounded-lg px-4 py-2 font-semibold transition ${
-                selectedPlan === plan.id
-                  ? "bg-blue-600 text-white"
-                  : "bg-neutral-100 text-neutral-900 hover:bg-neutral-200"
+            className={`mt-6 w-full rounded-2xl px-4 py-3 font-bold transition ${
+              selectedPlan === plan.id
+                  ? "bg-white text-indigo-700 shadow-lg ring-1 ring-indigo-100"
+                  : "bg-neutral-100 text-neutral-900 hover:bg-white hover:text-indigo-700 hover:shadow-md"
               }`}
             >
               {selectedPlan === plan.id ? "Selecionado" : "Selecionar"}
@@ -197,13 +197,13 @@ export default function CheckoutPage() {
       <button
         onClick={handleCheckout}
         disabled={!selectedPlan || processing}
-        className={`w-full rounded-lg px-6 py-4 text-lg font-bold text-white transition ${
+        className={`btn-premium-wide text-lg ${
           !selectedPlan || processing
-            ? "bg-neutral-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
+            ? "cursor-not-allowed bg-neutral-200 text-neutral-500 shadow-none"
+            : "border-indigo-100"
         }`}
       >
-        {processing ? "Processando..." : "Continuar para Pagamento"}
+        {processing ? "Processando..." : "Continuar para pagamento →"}
       </button>
 
       {/* Footer Text */}
