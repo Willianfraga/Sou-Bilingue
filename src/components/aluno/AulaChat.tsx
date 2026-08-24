@@ -413,20 +413,13 @@ export function AulaChat({
           <div className="flex flex-col items-center text-center">
             {/* AVATAR DA TUTORA */}
             <div className="relative mb-3 w-full sm:mb-4">
-              {fotoAtualTutor ? (
+              {fotoTutor ? (
                 <div className="relative mx-auto h-52 w-full max-w-xl overflow-hidden rounded-[1.75rem] border border-white/25 bg-indigo-950 shadow-2xl sm:h-72">
                   <Image
-                    key={fotoAtualTutor}
-                    src={fotoAtualTutor}
+                    src={fotoTutor}
                     alt={tituloTutor}
                     fill
-                    className={`object-cover object-top transition-all duration-300 ${
-                      estado === "falando"
-                        ? "animate-tutor-falando"
-                        : estado === "ouvindo"
-                          ? "animate-tutor-ouvindo"
-                          : "animate-tutor-respirando"
-                    }`}
+                    className="object-cover object-top"
                     priority
                   />
                 </div>

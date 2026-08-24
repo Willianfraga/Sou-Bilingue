@@ -56,6 +56,7 @@ export default async function Aula({
         alunoId={sessao.userId}
         horasRestantes={assinatura.horas_restantes}
         horasTotal={assinatura.horas_total}
+        tavusDisponivel={Boolean(process.env.TAVUS_API_KEY && process.env.TAVUS_PERSONA_ID && process.env.TAVUS_REPLICA_ID)}
       />
     </div>
   );

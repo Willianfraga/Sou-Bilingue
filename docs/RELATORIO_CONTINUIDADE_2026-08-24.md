@@ -229,3 +229,16 @@ Foi adicionada uma primeira camada de animação visual à tutora Clara, preserv
 Arquivos visuais: `clara-wave.png`, `clara-thumbs-up.png`, `clara-celebrate.png` e `clara-blink.png`.
 
 Esta é a etapa inicial, baseada em transições entre poses. Lipsync real e gestos contínuos exigirão uma camada posterior com avatar rigado ou provedor de vídeo em tempo real.
+
+## Evolução para Tavus CVI
+
+Após teste visual, os movimentos contínuos feitos com CSS foram desativados por parecerem artificiais. Foi criada uma integração opcional e segura com Tavus CVI para videochamada por WebRTC, sincronização labial e expressões naturais.
+
+- criação da conversa feita exclusivamente pelo servidor;
+- `TAVUS_API_KEY` nunca é enviada ao navegador;
+- validação do endereço de vídeo antes de incorporá-lo;
+- timeout de 15 segundos e mensagem de falha amigável;
+- modo leve atual preservado como fallback;
+- botão de videochamada aparece apenas quando chave, Persona e Replica estiverem configuradas.
+
+Variáveis necessárias: `TAVUS_API_KEY`, `TAVUS_PERSONA_ID` e `TAVUS_REPLICA_ID`.
