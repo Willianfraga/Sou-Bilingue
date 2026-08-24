@@ -1,6 +1,7 @@
 import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { sintetizarVoz } from "@/lib/voice/elevenlabs";
+import { recordAIUsage } from "@/lib/ai/usage";
 
 export const runtime = "nodejs";
 
@@ -23,6 +24,13 @@ export async function POST(request: Request) {
 
   try {
     const audio = await sintetizarVoz({ texto, tutorId: perfil.tutorId });
+    await recordAIUsage({
+      alunoId: sessao.userId,
+      provider: "elevenlabs",
+      service: "tts",
+      model: "eleven_flash_v2_5",
+      characters: Array.from(texto).length,
+    });
     return new Response(audio, {
       headers: {
         "Content-Type": "audio/mpeg",

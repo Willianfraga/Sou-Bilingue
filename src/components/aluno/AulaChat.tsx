@@ -116,13 +116,14 @@ export function AulaChat({
     return stream;
   }
 
-  async function transcreverAudio(blob: Blob) {
+  async function transcreverAudio(blob: Blob, duracaoSegundos: number) {
     if (!ativaRef.current) return;
     setEstado("pensando");
     setErro("Transcrevendo sua resposta...");
     try {
       const formulario = new FormData();
       formulario.append("audio", blob, blob.type.includes("mp4") ? "resposta.mp4" : "resposta.webm");
+      formulario.append("duration_seconds", duracaoSegundos.toFixed(3));
       const resposta = await fetch("/api/aula/transcrever", { method: "POST", body: formulario });
       const dados = (await resposta.json()) as { texto?: string; erro?: string };
       if (!resposta.ok) throw new Error(dados.erro || "Falha na transcrição");
@@ -173,7 +174,8 @@ export function AulaChat({
           window.setTimeout(() => void ouvir(), 500);
           return;
         }
-        void transcreverAudio(new Blob(partes, { type: gravador.mimeType || "audio/webm" }));
+        const duracaoSegundos = Math.min(30, Math.max(0, (performance.now() - inicio) / 1_000));
+        void transcreverAudio(new Blob(partes, { type: gravador.mimeType || "audio/webm" }), duracaoSegundos);
       };
 
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;

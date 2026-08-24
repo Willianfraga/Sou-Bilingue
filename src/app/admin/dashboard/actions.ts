@@ -10,6 +10,7 @@ import {
   type RelatorioFaturamento,
   type TopupsStats,
 } from "@/lib/admin/stats";
+import { getAIUsageDashboard, type AIUsageDashboard } from "@/lib/ai/usage";
 
 interface ActionState<T> {
   success: boolean;
@@ -111,6 +112,21 @@ export async function getTopupsStatsAction(): Promise<ActionState<TopupsStats>> 
     return {
       success: false,
       error: error instanceof Error ? error.message : "Erro ao buscar estatísticas",
+    };
+  }
+}
+
+export async function getAIUsageDashboardAction(
+  periodDays: number = 30,
+): Promise<ActionState<AIUsageDashboard>> {
+  try {
+    await requireAdmin();
+    return { success: true, data: await getAIUsageDashboard(periodDays) };
+  } catch (error) {
+    console.error("Erro ao buscar consumo de IA:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Erro ao buscar consumo de IA",
     };
   }
 }

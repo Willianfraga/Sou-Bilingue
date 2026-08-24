@@ -4,6 +4,7 @@ import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { getTutorPorId } from "@/lib/data/tutores";
 import { formatarMemorias, getMemoriasDoAluno, salvarMemoriasDaFala } from "@/lib/ai/memory";
+import { recordAIUsage } from "@/lib/ai/usage";
 
 export const runtime = "nodejs";
 
@@ -66,6 +67,18 @@ export async function POST(request: Request) {
       .filter((bloco) => bloco.type === "text")
       .map((bloco) => bloco.text)
       .join("");
+
+    const usage = resposta.usage as any;
+    await recordAIUsage({
+      alunoId: sessao.userId,
+      provider: "anthropic",
+      service: "llm",
+      model: resposta.model,
+      inputTokens: usage.input_tokens,
+      outputTokens: usage.output_tokens,
+      cacheCreationTokens: usage.cache_creation_input_tokens,
+      cacheReadTokens: usage.cache_read_input_tokens,
+    });
 
     return new Response(texto, {
       headers: { "Content-Type": "text/plain; charset=utf-8" },

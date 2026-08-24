@@ -1,5 +1,6 @@
 import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
+import { recordAIUsage } from "@/lib/ai/usage";
 
 export const runtime = "nodejs";
 
@@ -21,6 +22,10 @@ export async function POST(request: Request) {
 
   const recebido = await request.formData();
   const audio = recebido.get("audio");
+  const duracaoInformada = Number(recebido.get("duration_seconds"));
+  const duracaoSegundos = Number.isFinite(duracaoInformada)
+    ? Math.min(30, Math.max(0, duracaoInformada))
+    : 0;
   if (!(audio instanceof File) || audio.size < 100 || audio.size > 12 * 1024 * 1024) {
     return Response.json({ erro: "Áudio inválido." }, { status: 400 });
   }
@@ -45,6 +50,13 @@ export async function POST(request: Request) {
       console.error("Falha na transcrição ElevenLabs:", resposta.status);
       return Response.json({ erro: "Não foi possível transcrever o áudio." }, { status: 502 });
     }
+    await recordAIUsage({
+      alunoId: sessao.userId,
+      provider: "elevenlabs",
+      service: "stt",
+      model: "scribe_v2",
+      audioSeconds: duracaoSegundos,
+    });
     return Response.json({ texto: dados?.text?.trim() ?? "" });
   } catch (erro) {
     console.error("Falha ao transcrever voz:", erro);
