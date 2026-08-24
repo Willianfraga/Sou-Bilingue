@@ -24,6 +24,10 @@ export function AulaChat({
   const [erro, setErro] = useState("");
   const mensagensRef = useRef<Mensagem[]>([]);
   const recognitionRef = useRef<any>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const monitorRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
   const ativaRef = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const chatRef = useRef<HTMLDivElement>(null);
@@ -45,6 +49,10 @@ export function AulaChat({
   function pararReconhecimento() {
     recognitionRef.current?.stop();
     recognitionRef.current = null;
+    if (monitorRef.current !== null) cancelAnimationFrame(monitorRef.current);
+    monitorRef.current = null;
+    if (mediaRecorderRef.current?.state === "recording") mediaRecorderRef.current.stop();
+    mediaRecorderRef.current = null;
   }
 
   function encerrar() {
@@ -53,10 +61,14 @@ export function AulaChat({
     window.speechSynthesis?.cancel();
     audioRef.current?.pause();
     audioRef.current = null;
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+    mediaStreamRef.current = null;
+    void audioContextRef.current?.close();
+    audioContextRef.current = null;
     setEstado("pausada");
   }
 
-  function ouvir() {
+  function ouvirComReconhecimentoNativo() {
     if (!ativaRef.current) return;
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -93,6 +105,116 @@ export function AulaChat({
       if (ativaRef.current && textoFinal.trim()) void responder(textoFinal.trim());
     };
     recognition.start();
+  }
+
+  async function garantirMicrofone() {
+    if (mediaStreamRef.current?.active) return mediaStreamRef.current;
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+    });
+    mediaStreamRef.current = stream;
+    return stream;
+  }
+
+  async function transcreverAudio(blob: Blob) {
+    if (!ativaRef.current) return;
+    setEstado("pensando");
+    setErro("Transcrevendo sua resposta...");
+    try {
+      const formulario = new FormData();
+      formulario.append("audio", blob, blob.type.includes("mp4") ? "resposta.mp4" : "resposta.webm");
+      const resposta = await fetch("/api/aula/transcrever", { method: "POST", body: formulario });
+      const dados = (await resposta.json()) as { texto?: string; erro?: string };
+      if (!resposta.ok) throw new Error(dados.erro || "Falha na transcrição");
+      const texto = dados.texto?.trim();
+      if (!texto) {
+        setErro("Não ouvi uma frase completa. Pode falar novamente.");
+        window.setTimeout(() => void ouvir(), 700);
+        return;
+      }
+      setErro("");
+      await responder(texto);
+    } catch {
+      setErro("Não consegui transcrever agora. Vou abrir o microfone novamente.");
+      window.setTimeout(() => void ouvir(), 900);
+    }
+  }
+
+  async function ouvir() {
+    if (!ativaRef.current) return;
+    if (typeof MediaRecorder === "undefined") {
+      ouvirComReconhecimentoNativo();
+      return;
+    }
+
+    try {
+      const stream = await garantirMicrofone();
+      const tipos = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+      const mimeType = tipos.find((tipo) => MediaRecorder.isTypeSupported(tipo));
+      const gravador = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      const partes: BlobPart[] = [];
+      let detectouFala = false;
+      let silencioDesde = 0;
+      const inicio = performance.now();
+
+      mediaRecorderRef.current = gravador;
+      setEstado("ouvindo");
+      setErro("Microfone aberto — fale normalmente.");
+      gravador.ondataavailable = (evento) => {
+        if (evento.data.size > 0) partes.push(evento.data);
+      };
+      gravador.onstop = () => {
+        if (monitorRef.current !== null) cancelAnimationFrame(monitorRef.current);
+        monitorRef.current = null;
+        mediaRecorderRef.current = null;
+        if (!ativaRef.current) return;
+        if (!detectouFala) {
+          setErro("Estou ouvindo. Pode começar a falar.");
+          window.setTimeout(() => void ouvir(), 500);
+          return;
+        }
+        void transcreverAudio(new Blob(partes, { type: gravador.mimeType || "audio/webm" }));
+      };
+
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const contexto = audioContextRef.current ?? new AudioContextClass();
+      audioContextRef.current = contexto;
+      if (contexto.state === "suspended") await contexto.resume();
+      const analisador = contexto.createAnalyser();
+      analisador.fftSize = 512;
+      contexto.createMediaStreamSource(stream).connect(analisador);
+      const amostras = new Uint8Array(analisador.fftSize);
+
+      const monitorar = () => {
+        if (gravador.state !== "recording") return;
+        analisador.getByteTimeDomainData(amostras);
+        let energia = 0;
+        for (const valor of amostras) energia += Math.abs(valor - 128);
+        const volume = energia / amostras.length;
+        const agora = performance.now();
+        if (volume > 4.5) {
+          detectouFala = true;
+          silencioDesde = 0;
+        } else if (detectouFala) {
+          if (!silencioDesde) silencioDesde = agora;
+          if (agora - silencioDesde > 1200 && agora - inicio > 900) {
+            gravador.stop();
+            return;
+          }
+        }
+        if (agora - inicio > 18_000) {
+          gravador.stop();
+          return;
+        }
+        monitorRef.current = requestAnimationFrame(monitorar);
+      };
+
+      gravador.start(250);
+      monitorRef.current = requestAnimationFrame(monitorar);
+    } catch {
+      setErro("Permita o uso do microfone para conversar automaticamente com o tutor.");
+      setEstado("erro");
+    }
   }
 
   function falarNoNavegador(texto: string) {
@@ -179,8 +301,7 @@ export function AulaChat({
   async function iniciar() {
     setErro("");
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((track) => track.stop());
+      await garantirMicrofone();
       ativaRef.current = true;
       if (mensagensRef.current.length > 0) {
         ouvir();
@@ -200,7 +321,7 @@ export function AulaChat({
   const descricaoEstado: Record<Estado, string> = {
     pronta: "A tutora vai falar primeiro.",
     falando: "A tutora esta falando...",
-    ouvindo: "Estou ouvindo voce...",
+    ouvindo: "Microfone aberto. Pode responder...",
     pensando: "A tutora esta preparando a resposta...",
     pausada: "Conversa pausada.",
     erro: "Precisamos de um ajuste para continuar.",
