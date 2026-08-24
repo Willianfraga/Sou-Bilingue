@@ -44,15 +44,32 @@ function FormularioDeLogin() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
-      <div>
-        <span className="font-mono text-xs uppercase tracking-widest text-amber-700">
-          SouBilingue
-        </span>
-        <h1 className="mt-1 text-2xl font-bold">Entrar</h1>
-      </div>
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7f5ef] px-6 py-12">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-orange-200/50 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-emerald-200/50 blur-3xl" />
 
-      <form onSubmit={entrar} className="flex flex-col gap-4">
+      <section className="relative w-full max-w-md rounded-[2rem] border border-black/5 bg-white p-7 shadow-2xl shadow-emerald-950/10 sm:p-10">
+        <div className="text-center">
+          <a href="/" className="inline-flex items-center gap-3">
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#17201d] text-sm font-black text-white">
+              SB
+            </span>
+            <span className="text-3xl font-black tracking-[-0.04em] text-[#17201d]">
+              Sou Bilíngue
+            </span>
+          </a>
+          <p className="mt-5 text-sm font-bold uppercase tracking-[0.18em] text-[#ff6b4a]">
+            Já sou aluno
+          </p>
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-[#17201d]">
+            Faça seu login
+          </h1>
+          <p className="mt-3 text-base font-medium text-[#66706c]">
+            Seu melhor professor está aqui.
+          </p>
+        </div>
+
+      <form onSubmit={entrar} className="mt-9 flex flex-col gap-5">
         <div className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm font-medium">
             E-mail
@@ -64,7 +81,8 @@ function FormularioDeLogin() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={enviando}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm disabled:opacity-50"
+            placeholder="voce@exemplo.com"
+            className="rounded-xl border border-[#d8d7d1] bg-[#faf9f6] px-4 py-3 text-sm outline-none transition focus:border-[#ff6b4a] focus:ring-4 focus:ring-orange-100 disabled:opacity-50"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -78,20 +96,22 @@ function FormularioDeLogin() {
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             disabled={enviando}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-sm disabled:opacity-50"
+            placeholder="Sua senha"
+            className="rounded-xl border border-[#d8d7d1] bg-[#faf9f6] px-4 py-3 text-sm outline-none transition focus:border-[#ff6b4a] focus:ring-4 focus:ring-orange-100 disabled:opacity-50"
           />
         </div>
 
-        {erro && <p className="text-sm text-red-600">{erro}</p>}
+        {erro && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{erro}</p>}
 
         <button
           type="submit"
           disabled={enviando}
-          className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-full bg-[#17201d] px-5 py-4 text-sm font-black text-white shadow-lg shadow-emerald-950/15 transition hover:-translate-y-0.5 hover:bg-[#263b35] disabled:translate-y-0 disabled:opacity-50"
         >
-          {enviando ? "Entrando..." : "Entrar"}
+          {enviando ? "Entrando..." : "Fazer login"}
         </button>
       </form>
+      </section>
     </main>
   );
 }
