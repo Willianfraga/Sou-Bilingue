@@ -44,27 +44,16 @@ function FormularioDeLogin() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f7f5ef] px-6 py-12">
-      <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-orange-200/50 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-emerald-200/50 blur-3xl" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-[#242057] via-[#4338ca] to-[#7c3aed] px-5 py-10 sm:px-6 sm:py-12">
+      <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-cyan-300/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-28 -left-24 h-80 w-80 rounded-full bg-fuchsia-400/20 blur-3xl" />
 
-      <section className="relative w-full max-w-md rounded-[2rem] border border-black/5 bg-white p-7 shadow-2xl shadow-emerald-950/10 sm:p-10">
+      <section className="relative w-full max-w-md rounded-[2rem] border border-white/60 bg-white/95 p-7 shadow-2xl shadow-indigo-950/30 backdrop-blur sm:p-10">
         <div className="text-center">
-          <a href="/" className="inline-flex items-center gap-3">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-[#17201d] text-sm font-black text-white">
-              SB
-            </span>
-            <span className="text-3xl font-black tracking-[-0.04em] text-[#17201d]">
-              Sou Bilíngue
-            </span>
-          </a>
-          <p className="mt-5 text-sm font-bold uppercase tracking-[0.18em] text-[#ff6b4a]">
-            Já sou aluno
-          </p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight text-[#17201d]">
+          <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
             Faça seu login
           </h1>
-          <p className="mt-3 text-base font-medium text-[#66706c]">
+          <p className="mt-3 text-base font-semibold text-indigo-700">
             Seu melhor professor está aqui.
           </p>
         </div>
@@ -82,7 +71,7 @@ function FormularioDeLogin() {
             onChange={(e) => setEmail(e.target.value)}
             disabled={enviando}
             placeholder="voce@exemplo.com"
-            className="rounded-xl border border-[#d8d7d1] bg-[#faf9f6] px-4 py-3 text-sm outline-none transition focus:border-[#ff6b4a] focus:ring-4 focus:ring-orange-100 disabled:opacity-50"
+            className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-50"
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -97,7 +86,7 @@ function FormularioDeLogin() {
             onChange={(e) => setSenha(e.target.value)}
             disabled={enviando}
             placeholder="Sua senha"
-            className="rounded-xl border border-[#d8d7d1] bg-[#faf9f6] px-4 py-3 text-sm outline-none transition focus:border-[#ff6b4a] focus:ring-4 focus:ring-orange-100 disabled:opacity-50"
+            className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-50"
           />
         </div>
 
@@ -106,7 +95,7 @@ function FormularioDeLogin() {
         <button
           type="submit"
           disabled={enviando}
-          className="rounded-full bg-[#17201d] px-5 py-4 text-sm font-black text-white shadow-lg shadow-emerald-950/15 transition hover:-translate-y-0.5 hover:bg-[#263b35] disabled:translate-y-0 disabled:opacity-50"
+          className="rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-4 text-sm font-black text-white shadow-lg shadow-violet-500/25 transition hover:-translate-y-0.5 hover:from-indigo-700 hover:to-violet-700 disabled:translate-y-0 disabled:opacity-50"
         >
           {enviando ? "Entrando..." : "Fazer login"}
         </button>
