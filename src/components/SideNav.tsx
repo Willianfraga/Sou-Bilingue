@@ -19,9 +19,9 @@ export function SideNav({
   const roxo = tone === "purple";
 
   return (
-    <nav className={`flex w-60 shrink-0 flex-col justify-between border-r px-5 py-8 ${roxo ? "border-violet-500 bg-gradient-to-b from-indigo-600 to-violet-600 text-white shadow-xl shadow-indigo-200/50" : "border-neutral-200"}`}>
+    <nav className={`flex w-60 shrink-0 flex-col justify-between border-r px-6 py-8 ${roxo ? "border-violet-500 bg-gradient-to-b from-indigo-600 to-violet-600 !text-white shadow-xl shadow-indigo-200/50" : "border-neutral-200"}`}>
       <div>
-        <div className={`mb-6 font-mono text-xs uppercase tracking-[0.2em] ${roxo ? "text-white" : "text-amber-700"}`}>
+        <div className={`mb-6 text-base font-black uppercase tracking-[0.14em] ${roxo ? "!text-white drop-shadow-sm" : "font-mono text-xs text-amber-700"}`}>
           {title}
         </div>
         <ul className="flex flex-col gap-1">
@@ -29,7 +29,7 @@ export function SideNav({
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`block rounded-xl px-3 py-2 text-sm transition ${roxo ? "text-indigo-50 hover:bg-white/15 hover:text-white" : "text-neutral-700 hover:bg-neutral-100"}`}
+                className={`block rounded-xl px-3 py-2 text-sm font-bold transition ${roxo ? "!text-white hover:bg-white/15" : "text-neutral-700 hover:bg-neutral-100"}`}
               >
                 {item.label}
               </Link>
@@ -39,7 +39,7 @@ export function SideNav({
       </div>
 
       <div className={`border-t pt-4 ${roxo ? "border-white/20" : "border-neutral-100"}`}>
-        <p className={`px-3 text-sm font-semibold ${roxo ? "text-white" : "text-neutral-700"}`}>{nome}</p>
+        <p className={`px-3 text-sm font-extrabold ${roxo ? "!text-white" : "text-neutral-700"}`}>{nome}</p>
         <SairButton inverted={roxo} />
       </div>
     </nav>
