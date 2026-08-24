@@ -13,7 +13,12 @@ const IDIOMA_DA_VOZ = {
   italiano: "it-IT",
 };
 
-export default async function Aula() {
+export default async function Aula({
+  searchParams,
+}: {
+  searchParams: Promise<{ tema?: string }>;
+}) {
+  const { tema } = await searchParams;
   const sessao = await requireSessao();
   const perfil = await getPerfilDoAluno(sessao.userId);
   if (!perfil) return <p className="text-neutral-500">Perfil nao encontrado.</p>;
@@ -39,6 +44,7 @@ export default async function Aula() {
       tituloTutor={tituloTutor}
       idiomaDaVoz={IDIOMA_DA_VOZ[perfil.idioma]}
       fotoTutor={tutor?.foto_url}
+      temaInicial={tema?.trim().slice(0, 180)}
       alunoId={sessao.userId}
       horasRestantes={assinatura.horas_restantes}
       horasTotal={assinatura.horas_total}

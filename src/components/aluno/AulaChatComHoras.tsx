@@ -7,6 +7,7 @@ interface AulaChatComHorasProps {
   tituloTutor: string;
   idiomaDaVoz: string;
   fotoTutor?: string;
+  temaInicial?: string;
   alunoId: string;
   horasRestantes: number;
   horasTotal: number;
@@ -21,6 +22,7 @@ export function AulaChatComHoras({
   tituloTutor,
   idiomaDaVoz,
   fotoTutor,
+  temaInicial,
   alunoId,
   horasRestantes,
   horasTotal,
@@ -45,6 +47,7 @@ export function AulaChatComHoras({
           tituloTutor={tituloTutor}
           idiomaDaVoz={idiomaDaVoz}
           fotoTutor={fotoTutor}
+          temaInicial={temaInicial}
         />
       </main>
     </div>

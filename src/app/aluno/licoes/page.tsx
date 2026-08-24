@@ -20,19 +20,27 @@ export default async function Licoes() {
       <section className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-slate-100 md:p-7">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-indigo-600">Trilha de {idioma}</p>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">Licoes</h1>
-            <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">Escolha um tema. Antes da conversa, voce revisa palavras e frases importantes.</p>
+            <p className="text-sm font-semibold text-indigo-600">Aprenda {idioma} do seu jeito</p>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">O que você quer aprender hoje?</h1>
+            <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">Você escolhe o assunto e o ritmo. As trilhas abaixo são sugestões opcionais, não etapas obrigatórias.</p>
           </div>
           <span className="rounded-2xl bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700">A1</span>
         </div>
-        <Link href="/aluno/aula" className="mt-6 flex items-center justify-between rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 px-5 py-4 text-white shadow-lg shadow-indigo-100">
-          <span><span className="block text-xs font-medium text-indigo-100">Pratica livre com seu tutor</span><span className="mt-1 block text-base font-bold">Iniciar conversa casual</span></span>
-          <span className="text-xl">&rarr;</span>
-        </Link>
+        <form action="/aluno/aula" className="mt-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-4 text-white shadow-lg shadow-indigo-100">
+          <label htmlFor="tema" className="block text-xs font-semibold text-indigo-100">Conte ao tutor o que você quer praticar</label>
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+            <input id="tema" name="tema" maxLength={180} placeholder="Ex.: entrevista, viagem, música ou conversa livre" className="min-w-0 flex-1 rounded-xl border border-white/20 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-white/70" />
+            <button type="submit" className="rounded-xl bg-white px-5 py-3 text-sm font-bold text-indigo-700 transition hover:bg-indigo-50">Conversar agora &rarr;</button>
+          </div>
+          <Link href="/aluno/aula" className="mt-3 inline-flex text-xs font-semibold text-indigo-100 underline decoration-indigo-300 underline-offset-4">Prefiro que o tutor me ajude a escolher</Link>
+        </form>
       </section>
 
       <section className="space-y-5">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Sugestões opcionais</p>
+          <p className="mt-1 text-sm text-slate-500">Escolha qualquer tema, de qualquer nível. Você pode mudar quando quiser.</p>
+        </div>
         {trilhas.map((trilha, indice) => (
           <article key={trilha.nivel} className="rounded-[1.75rem] bg-white p-5 shadow-sm ring-1 ring-slate-100">
             <div className="flex items-start gap-3">
@@ -41,8 +49,8 @@ export default async function Licoes() {
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3">
               {trilha.aulas.map((aula, aulaIndice) => (
-                <Link key={aula} href="/aluno/aula" className={"rounded-2xl border p-3 text-left transition " + (indice === 0 && aulaIndice === 0 ? "border-indigo-200 bg-indigo-50 text-indigo-900 hover:border-indigo-400" : "border-slate-100 bg-slate-50 text-slate-500 hover:border-slate-200")}>
-                  <span className="block text-[10px] font-bold uppercase tracking-wider opacity-60">Licao {aulaIndice + 1}</span>
+                <Link key={aula} href={`/aluno/aula?tema=${encodeURIComponent(aula)}`} className={"rounded-2xl border p-3 text-left transition hover:-translate-y-0.5 hover:shadow-sm " + (indice === 0 && aulaIndice === 0 ? "border-indigo-200 bg-indigo-50 text-indigo-900 hover:border-indigo-400" : "border-slate-100 bg-slate-50 text-slate-600 hover:border-indigo-200 hover:bg-indigo-50")}>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider opacity-60">Tema sugerido</span>
                   <span className="mt-1 block text-sm font-semibold leading-5">{aula}</span>
                 </Link>
               ))}

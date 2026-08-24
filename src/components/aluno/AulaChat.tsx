@@ -12,10 +12,12 @@ export function AulaChat({
   tituloTutor,
   idiomaDaVoz,
   fotoTutor,
+  temaInicial,
 }: {
   tituloTutor: string;
   idiomaDaVoz: string;
   fotoTutor?: string;
+  temaInicial?: string;
 }) {
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [estado, setEstado] = useState<Estado>("pronta");
@@ -152,7 +154,7 @@ export function AulaChat({
       const resposta = await fetch("/api/aula/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensagens: proximas }),
+        body: JSON.stringify({ mensagens: proximas, tema: temaInicial }),
       });
       if (!resposta.ok || !resposta.body) throw new Error("Falha no tutor");
 
@@ -180,7 +182,11 @@ export function AulaChat({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((track) => track.stop());
       ativaRef.current = true;
-      await responder("Ola! Vamos iniciar uma conversa de pratica.");
+      await responder(
+        temaInicial
+          ? `Quero praticar este tema: ${temaInicial}. Ajude-me de forma leve e conversacional.`
+          : "Quero uma conversa livre. Pergunte o que eu gostaria de aprender hoje.",
+      );
     } catch {
       setErro("Precisamos do acesso ao microfone para iniciar a conversa automatica.");
       setEstado("erro");

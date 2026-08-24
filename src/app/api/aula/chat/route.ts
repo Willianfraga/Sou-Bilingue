@@ -25,8 +25,9 @@ export async function POST(request: Request) {
     return new Response("Perfil do aluno não encontrado.", { status: 404 });
   }
 
-  const { mensagens } = (await request.json()) as {
+  const { mensagens, tema } = (await request.json()) as {
     mensagens: MensagemCliente[];
+    tema?: unknown;
   };
 
   if (!Array.isArray(mensagens) || mensagens.length === 0) {
@@ -34,7 +35,8 @@ export async function POST(request: Request) {
   }
 
   const tutor = await getTutorPorId(perfil.tutorId);
-  const systemPrompt = buildSystemPrompt(perfil, tutor?.nome ?? "Tutor");
+  const temaLivre = typeof tema === "string" ? tema.trim().slice(0, 180) : undefined;
+  const systemPrompt = buildSystemPrompt(perfil, tutor?.nome ?? "Tutor", temaLivre);
 
   const stream = client.messages.stream({
     model: process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001",
