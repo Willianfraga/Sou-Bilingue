@@ -1,14 +1,5 @@
 import { SideNav } from "@/components/SideNav";
-import { NavegacaoAluno } from "@/components/aluno/NavegacaoAluno";
 import { requirePapel } from "@/lib/auth/guards";
-
-const items = [
-  { href: "/aluno/licoes", label: "Licoes" },
-  { href: "/aluno", label: "Progresso do mês" },
-  { href: "/aluno/aula", label: "Aula" },
-  { href: "/aluno/certificados", label: "Certificados" },
-  { href: "/aluno/perfil", label: "Perfil" },
-];
 
 export default async function AlunoLayout({
   children,
@@ -20,11 +11,11 @@ export default async function AlunoLayout({
   return (
     <div className="min-h-screen bg-[#f8f9ff]">
       <div className="hidden min-h-screen md:flex">
-        <SideNav title="Interface do aluno" items={items} nome={sessao.nome} />
+        <SideNav title="Sou Bilíngue" items={[]} nome={sessao.nome} tone="purple" />
         <div className="flex-1 px-10 py-10">{children}</div>
       </div>
 
-      <div className="mx-auto min-h-screen max-w-md px-5 pb-28 pt-7 md:hidden">
+      <div className="mx-auto min-h-screen max-w-md px-5 pb-8 pt-7 md:hidden">
         <header className="mb-7 flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-slate-400">Sou Bilíngue</p>
@@ -41,7 +32,6 @@ export default async function AlunoLayout({
         {children}
       </div>
 
-      <NavegacaoAluno />
     </div>
   );
 }
