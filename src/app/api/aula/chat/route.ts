@@ -38,34 +38,33 @@ export async function POST(request: Request) {
   const temaLivre = typeof tema === "string" ? tema.trim().slice(0, 180) : undefined;
   const systemPrompt = buildSystemPrompt(perfil, tutor?.nome ?? "Tutor", temaLivre);
 
-  const stream = client.messages.stream({
-    model: process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001",
-    max_tokens: 1024,
-    system: [
-      {
-        type: "text",
-        text: systemPrompt,
-        cache_control: { type: "ephemeral" },
-      },
-    ],
-    messages: mensagens.map((m) => ({ role: m.role, content: m.content })),
-  });
+  try {
+    const resposta = await client.messages.create({
+      model: process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001",
+      max_tokens: 1024,
+      system: [
+        {
+          type: "text",
+          text: systemPrompt,
+          cache_control: { type: "ephemeral" },
+        },
+      ],
+      messages: mensagens.map((m) => ({ role: m.role, content: m.content })),
+    });
 
-  const encoder = new TextEncoder();
-  const readable = new ReadableStream<Uint8Array>({
-    start(controller) {
-      stream.on("text", (delta) => {
-        controller.enqueue(encoder.encode(delta));
-      });
-      stream.on("end", () => controller.close());
-      stream.on("error", (erro) => controller.error(erro));
-    },
-    cancel() {
-      stream.abort();
-    },
-  });
+    const texto = resposta.content
+      .filter((bloco) => bloco.type === "text")
+      .map((bloco) => bloco.text)
+      .join("");
 
-  return new Response(readable, {
-    headers: { "Content-Type": "text/plain; charset=utf-8" },
-  });
+    return new Response(texto, {
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  } catch (erro) {
+    console.error("Falha na API do tutor:", erro);
+    return Response.json(
+      { erro: "O tutor está temporariamente indisponível." },
+      { status: 502 },
+    );
+  }
 }

@@ -10,7 +10,7 @@ export async function getTutores(): Promise<Tutor[]> {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("tutores")
-    .select("id, nome, descricao")
+    .select("id, nome, descricao, foto_url")
     .order("nome");
 
   if (error) {
@@ -23,7 +23,7 @@ export async function getTutorPorId(id: string): Promise<Tutor | null> {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("tutores")
-    .select("id, nome, descricao")
+    .select("id, nome, descricao, foto_url")
     .eq("id", id)
     .maybeSingle();
 

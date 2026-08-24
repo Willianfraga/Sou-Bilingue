@@ -171,7 +171,7 @@ export function AulaChat({
       atualizarMensagens(finalizadas);
       await falar(respostaCompleta);
     } catch {
-      setErro("A tutora nao conseguiu responder agora. Tente continuar em alguns instantes.");
+      setErro("A tutora não conseguiu responder agora. Sua mensagem foi mantida; retome para continuar sem repetir.");
       setEstado("erro");
     }
   }
@@ -182,6 +182,10 @@ export function AulaChat({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach((track) => track.stop());
       ativaRef.current = true;
+      if (mensagensRef.current.length > 0) {
+        ouvir();
+        return;
+      }
       await responder(
         temaInicial
           ? `Quero praticar este tema: ${temaInicial}. Ajude-me de forma leve e conversacional.`
@@ -220,14 +224,14 @@ export function AulaChat({
 
           <div className="flex flex-col items-center text-center">
             {/* AVATAR DA TUTORA */}
-            <div className="relative mb-3 sm:mb-4">
+            <div className="relative mb-3 w-full sm:mb-4">
               {fotoTutor ? (
-                <div className="relative h-24 w-24 sm:h-32 sm:w-32 overflow-hidden rounded-2xl sm:rounded-3xl border-4 border-white/30 shadow-lg sm:shadow-xl">
+                <div className="relative mx-auto h-52 w-full max-w-xl overflow-hidden rounded-[1.75rem] border border-white/25 bg-indigo-950 shadow-2xl sm:h-72">
                   <Image
                     src={fotoTutor}
                     alt={tituloTutor}
                     fill
-                    className="object-cover"
+                    className="object-cover object-top"
                     priority
                   />
                 </div>
@@ -283,9 +287,13 @@ export function AulaChat({
                 >
                   {/* Avatar mini da tutora */}
                   {mensagem.role === "assistant" && (
-                    <div className="flex-shrink-0 h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] sm:text-xs font-bold mt-0.5">
-                      T
-                    </div>
+                    fotoTutor ? (
+                      <div className="relative mt-0.5 h-7 w-7 flex-shrink-0 overflow-hidden rounded-full bg-indigo-950 sm:h-9 sm:w-9">
+                        <Image src={fotoTutor} alt="Tutor" fill className="object-cover object-top" sizes="36px" />
+                      </div>
+                    ) : (
+                      <div className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-indigo-600 text-[10px] font-bold text-white sm:h-9 sm:w-9">T</div>
+                    )
                   )}
 
                   {/* Bubble de mensagem */}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { NOME_DO_IDIOMA } from "@/lib/types";
+import { SeletorIdioma } from "@/components/aluno/SeletorIdioma";
 
 const trilhas = [
   { nivel: "A1", nome: "Iniciante", descricao: "Primeiras conversas para o dia a dia.", aulas: ["Apresente-se", "Dias e horas", "Numeros e idade", "Descricao pessoal"] },
@@ -26,6 +27,7 @@ export default async function Licoes() {
           </div>
           <span className="rounded-2xl bg-indigo-50 px-3 py-2 text-xs font-bold text-indigo-700">A1</span>
         </div>
+        {perfil && <div className="mt-6"><SeletorIdioma atual={perfil.idioma} destino="/aluno/licoes" /></div>}
         <form action="/aluno/aula" className="mt-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 p-4 text-white shadow-lg shadow-indigo-100">
           <label htmlFor="tema" className="block text-xs font-semibold text-indigo-100">Conte ao tutor o que você quer praticar</label>
           <div className="mt-2 flex flex-col gap-2 sm:flex-row">
