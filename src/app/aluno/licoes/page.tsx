@@ -36,12 +36,21 @@ export default async function Licoes() {
         </form>
       </section>
 
-      <section className="space-y-5">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Sugestões opcionais</p>
-          <p className="mt-1 text-sm text-slate-500">Escolha qualquer tema, de qualquer nível. Você pode mudar quando quiser.</p>
-        </div>
-        {trilhas.map((trilha, indice) => (
+      <details className="group rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-slate-100 md:p-5">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-2xl border border-indigo-100 bg-indigo-50 px-5 py-4 text-indigo-900 transition hover:border-indigo-300 hover:bg-indigo-100 [&::-webkit-details-marker]:hidden">
+          <span>
+            <span className="block text-base font-bold">Seguir lições sugeridas</span>
+            <span className="mt-1 block text-xs text-indigo-600">Abra somente se quiser uma trilha pronta</span>
+          </span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-bold text-indigo-600 transition group-open:rotate-45">+</span>
+        </summary>
+
+        <section className="mt-5 space-y-5 border-t border-slate-100 pt-5">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-600">Sugestões opcionais</p>
+            <p className="mt-1 text-sm text-slate-500">Escolha qualquer tema, de qualquer nível. Você pode mudar quando quiser.</p>
+          </div>
+          {trilhas.map((trilha, indice) => (
           <article key={trilha.nivel} className="rounded-[1.75rem] bg-white p-5 shadow-sm ring-1 ring-slate-100">
             <div className="flex items-start gap-3">
               <span className={"flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-bold " + (indice === 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-500")}>{trilha.nivel}</span>
@@ -56,8 +65,9 @@ export default async function Licoes() {
               ))}
             </div>
           </article>
-        ))}
-      </section>
+          ))}
+        </section>
+      </details>
     </div>
   );
 }
