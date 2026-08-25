@@ -4,6 +4,9 @@ import { getSessao } from "@/lib/auth/guards";
 const TAVUS_API_URL = "https://tavusapi.com/v2";
 
 export async function POST() {
+  if (process.env.TAVUS_ENABLED !== "true") {
+    return NextResponse.json({ erro: "Videochamada Tavus desativada." }, { status: 503 });
+  }
   const sessao = await getSessao();
   if (!sessao || sessao.papel !== "aluno") {
     return NextResponse.json({ erro: "Acesso não autorizado." }, { status: 401 });
@@ -48,6 +51,9 @@ export async function POST() {
 }
 
 export async function DELETE(request: Request) {
+  if (process.env.TAVUS_ENABLED !== "true") {
+    return NextResponse.json({ encerrada: true });
+  }
   const sessao = await getSessao();
   if (!sessao || sessao.papel !== "aluno") {
     return NextResponse.json({ erro: "Acesso não autorizado." }, { status: 401 });

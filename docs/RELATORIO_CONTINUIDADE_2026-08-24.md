@@ -244,3 +244,7 @@ Após teste visual, os movimentos contínuos feitos com CSS foram desativados po
 - timeouts para ausência inicial e saída do participante.
 
 Variáveis necessárias: `TAVUS_API_KEY`, `TAVUS_PERSONA_ID` e `TAVUS_REPLICA_ID`.
+
+### Reversão solicitada
+
+Em 24/08/2026, a videochamada Tavus foi desativada por solicitação do responsável pelo produto após o teste apresentar comportamento linguístico inadequado. O aplicativo voltou ao avatar fotográfico anterior, estável e sem movimento artificial. A integração permanece inativa atrás da chave `TAVUS_ENABLED`, cujo padrão seguro é desligado.
