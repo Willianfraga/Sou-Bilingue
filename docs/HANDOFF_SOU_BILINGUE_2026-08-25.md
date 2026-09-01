@@ -122,3 +122,52 @@ Prioridade 3, somente se aprovada: reavaliar Tavus usando contexto por sessão e
 - Tavus: conta criada e configuração mantida inativa
 
 Nenhuma senha ou chave secreta está registrada neste documento.
+
+---
+
+## Atualização de continuidade — 01/09/2026
+
+### Situação informada
+
+Durante os testes da aula, foi constatado que as vozes dos tutores estavam soando iguais.
+
+### Diagnóstico confirmado no código
+
+O arquivo `src/lib/voice/elevenlabs.ts` resolve as vozes por UUID fixo do tutor. Foram encontrados dois motivos para o comportamento:
+
+1. Clara e Luna estão associadas explicitamente à mesma voz ElevenLabs (`Laura`, ID `FGY2WhTYpPnrIDTdsKH5`).
+2. Quando o UUID recebido não corresponde a nenhum dos UUIDs fixos, `getVoiceId()` usa silenciosamente a voz da Clara como fallback.
+
+Consequência: dois tutores já possuem a mesma voz por configuração e qualquer tutor cujo UUID de produção seja diferente do UUID fixado no código também fala com a voz da Clara. As configurações de expressividade dependem dos mesmos UUIDs e podem cair no perfil genérico pelo mesmo motivo.
+
+O endpoint `src/app/api/aula/voz/route.ts` consulta o perfil do aluno e envia `perfil.tutorId` para a síntese. Portanto, o problema identificado está na resolução/mapeamento das vozes, e não inicialmente no endpoint de áudio ou no seletor de tutor.
+
+### Estado preservado
+
+- Nenhum dado de aluno foi removido.
+- A escolha de tutor continua armazenada no perfil.
+- O avatar fotográfico anterior permanece como experiência principal.
+- Tavus continua desativado pela feature flag.
+- Produção continua em `https://app.soubilingue.com.br`.
+- Nenhuma alteração foi feita no projeto Academia Flow.
+
+### Próxima tarefa obrigatória
+
+Corrigir as vozes antes de avançar para novas funcionalidades:
+
+1. conferir os UUIDs reais dos tutores no Supabase e nos seeds;
+2. atribuir uma voz ElevenLabs exclusiva para cada tutor;
+3. retirar o fallback silencioso para a voz da Clara;
+4. preferencialmente persistir `elevenlabs_voice_id` na tabela `tutores`, evitando dependência de UUIDs fixos no código;
+5. validar Clara, Diego, Mei, Seu Antônio, Luna e Theo individualmente;
+6. testar voz, idioma escolhido, ritmo, espontaneidade e reabertura automática do microfone;
+7. executar `npm run typecheck` e `npm run build`;
+8. publicar no Coolify e confirmar o resultado em produção.
+
+### Observação de segurança
+
+Os IDs públicos de voz podem ser documentados, mas a chave da API ElevenLabs deve permanecer somente nas variáveis secretas do Coolify. Não registrar tokens, senhas ou chaves neste arquivo.
+
+### Ponto de retomada
+
+Na próxima sessão, abrir primeiro `src/lib/voice/elevenlabs.ts` e comparar o mapa `VOZ_POR_TUTOR` com os registros reais da tabela `tutores`. Não reativar Tavus e não alterar Academia Flow.
