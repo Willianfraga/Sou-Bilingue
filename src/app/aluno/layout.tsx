@@ -1,11 +1,15 @@
+import { redirect } from "next/navigation";
 import { SideNav } from "@/components/SideNav";
 import { requirePapel } from "@/lib/auth/guards";
+import { getOnboardingDoAluno } from "@/lib/data/onboarding";
+import { redirecionamentoDaAreaDoAluno } from "@/lib/onboarding/fluxo";
 
 const items = [
   { href: "/aluno/aula", label: "Iniciar aula" },
   { href: "/aluno/aula#escolher-tutor", label: "Escolher meu tutor" },
   { href: "/aluno", label: "Meu progresso" },
   { href: "/aluno/perfil", label: "Meu perfil" },
+  { href: "/aluno/perfil#preferencias", label: "Minhas preferências" },
   { href: "/aluno/licoes#escolher-idioma", label: "Escolher meu idioma" },
   { href: "/aluno/certificados", label: "Meus certificados" },
   { href: "/aluno/licoes", label: "Minhas lições" },
@@ -17,6 +21,10 @@ export default async function AlunoLayout({
   children: React.ReactNode;
 }) {
   const sessao = await requirePapel("aluno");
+
+  // Entrevista de boas-vindas é obrigatória antes das aulas.
+  const destino = redirecionamentoDaAreaDoAluno(await getOnboardingDoAluno(sessao.userId));
+  if (destino) redirect(destino);
 
   return (
     <div className="min-h-screen bg-[#f8f9ff]">

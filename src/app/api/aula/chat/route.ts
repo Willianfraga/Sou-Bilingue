@@ -5,6 +5,9 @@ import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { getTutorPorId } from "@/lib/data/tutores";
 import { formatarMemorias, getMemoriasDoAluno, salvarMemoriasDaFala } from "@/lib/ai/memory";
 import { recordAIUsage } from "@/lib/ai/usage";
+import { getOnboardingDoAluno } from "@/lib/data/onboarding";
+import { buildStudentContext, nomeParaOTutor } from "@/lib/onboarding/contexto";
+import { onboardingConcluido } from "@/lib/onboarding/fluxo";
 
 export const runtime = "nodejs";
 
@@ -27,6 +30,15 @@ export async function POST(request: Request) {
     return new Response("Perfil do aluno não encontrado.", { status: 404 });
   }
 
+  // Aula só depois da entrevista de boas-vindas (mesma regra do layout de /aluno).
+  const onboarding = await getOnboardingDoAluno(sessao.userId);
+  if (!onboardingConcluido(onboarding)) {
+    return Response.json(
+      { erro: "Conclua a entrevista de boas-vindas antes da primeira aula.", destino: "/boas-vindas" },
+      { status: 403 },
+    );
+  }
+
   const { mensagens, tema } = (await request.json()) as {
     mensagens: MensagemCliente[];
     tema?: unknown;
@@ -41,12 +53,14 @@ export async function POST(request: Request) {
   const ultimaFala = [...mensagens].reverse().find((mensagem) => mensagem.role === "user")?.content ?? "";
   await salvarMemoriasDaFala(sessao.userId, ultimaFala);
   const memorias = await getMemoriasDoAluno(sessao.userId);
+  // Contexto permanente do aluno: montado só por buildStudentContext.
   const systemPrompt = buildSystemPrompt(
     perfil,
     tutor?.nome ?? "Tutor",
-    sessao.nome,
+    nomeParaOTutor(onboarding?.respostas, sessao.nome),
     formatarMemorias(memorias),
     temaLivre,
+    buildStudentContext(onboarding?.respostas),
   );
 
   try {

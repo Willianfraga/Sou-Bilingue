@@ -39,3 +39,9 @@ CHECKLIST_DEPLOY.txt
 GUIA_DOMINIO_HOSTINGER.md
 PAINEL_CONTROLE.html
 deploy.sh
+
+# backups do banco (dados de usuarios, nunca no Git)
+backups/
+*.backup
+*.dump
+*.sql.gz

@@ -26,6 +26,31 @@ como "atendidos" critérios que nunca foram testados.
 - Migration nova: `supabase/migrations/0011_elenco_tutores_faixa_etaria.sql`
   (idempotente; não apaga tutores).
 
+- Cadastro com confirmação de e-mail (2026-09-27, typecheck passa, sem teste
+  real): `signUp` sem sessão mostra aviso de e-mail enviado; o link cai em
+  `/auth/callback`, que abre a sessão e cria o profile a partir do nome do
+  metadata (`src/lib/auth/profile.ts`). Quem confirmou em outro navegador e
+  entra com senha tem o profile concluído sozinho em `/cadastro`.
+
+## Entrevista de boas-vindas (2026-09-27, testada, NÃO publicada)
+
+Onboarding pedagógico obrigatório antes das aulas: `/boas-vindas`, 15
+perguntas, rascunho automático, resumo e edição em `/aluno/perfil#preferencias`.
+Respostas em `public.aluno_onboarding` (migration 0013, já aplicada no banco
+`skalodmhvgvjuieesimj`). Contexto para a IA só por `buildStudentContext`
+(`src/lib/onboarding/contexto.ts`), usado em `src/app/api/aula/chat/route.ts`.
+Testes: `npm test` (unitários), `npm run test:integracao` (RLS no banco real),
+`npm run test:e2e` (precisa de `npm run dev`/`start`). Lint (ESLint instalado
+nesta rodada), typecheck e build passam. Ao publicar, todos os alunos atuais
+passam pela entrevista uma vez.
+
+## Domínio (2026-09-27)
+
+`soubilingue.com.br`, `www.soubilingue.com.br` e `app.soubilingue.com.br`
+respondem com HTTPS e abrem o app (adicionados ao app `sou-bilingue` no Coolify,
+aplicado com restart, sem rebuild — continua no build `fa2d129`). As mudanças
+locais acima ainda não foram publicadas.
+
 ## Pendente — ações manuais (só o dono do projeto consegue)
 
 1. `SUPABASE_SERVICE_ROLE_KEY` no `.env.local` está incompleta (15 caracteres)
@@ -34,11 +59,13 @@ como "atendidos" critérios que nunca foram testados.
 2. Rodar a migration 0011 no SQL Editor do Supabase. Hoje `/api/tutores`
    responde com lista vazia para usuário logado.
 
+3. No Supabase (Authentication → URL Configuration), incluir
+   `https://app.soubilingue.com.br/auth/callback` nas Redirect URLs antes de
+   publicar o cadastro novo.
+
 ## Pendente — código, ainda não feito nem testado
 
-- Cadastro com confirmação de e-mail habilitada: `signUp` não cria sessão e
-  `/api/cadastro` responde 401. Falta callback de confirmação e criação do
-  profile depois dela (ou trigger segura em `auth.users`).
+- Testar de ponta a ponta o cadastro com confirmação de e-mail.
 - `/api/auth/reset-password` usa `exchangeCodeForSession` no servidor; não foi
   testado com um e-mail real de recuperação.
 - `test/e2e.auth.test.js` nunca foi executado; não há Playwright.

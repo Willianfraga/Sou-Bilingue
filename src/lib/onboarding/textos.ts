@@ -1,0 +1,33 @@
+// Textos da interface da entrevista de boas-vindas (pt-BR). As perguntas
+// ficam em questionario.ts; aqui só o "entorno". Para internacionalizar,
+// basta trocar este objeto por um dicionário carregado por idioma.
+
+export const TEXTOS_ENTREVISTA = {
+  selo: "SouBilingue · primeira conversa",
+  tituloNovo: (tutor: string) => `Oi! Eu sou ${tutor}. Vamos nos conhecer?`,
+  tituloEditar: "Suas preferências de aula",
+  subtitulo: "Leva uns 3 minutos. Com isso, cada aula fica com a sua cara.",
+  progresso: (atual: number, total: number) => `Pergunta ${atual} de ${total}`,
+  revisao: "Revisão",
+  opcional: "Opcional",
+  voltar: "Voltar",
+  continuar: "Continuar",
+  pular: "Pular",
+  revisar: "Revisar respostas",
+  voltarAoResumo: "Voltar ao resumo",
+  concluir: "Concluir e começar",
+  concluirEdicao: "Salvar alterações",
+  enviando: "Salvando...",
+  prefiroNao: "Prefiro não responder",
+  alterar: "Alterar",
+  semResposta: "Sem resposta",
+  tituloResumo: "Confira se eu entendi direito",
+  textoResumo: "Você pode mudar qualquer resposta agora ou depois, no seu perfil.",
+  rascunhoSalvo: "Progresso salvo",
+  rascunhoSalvando: "Salvando progresso...",
+  rascunhoFalhou: "Não consegui salvar agora — vou tentar de novo.",
+  caracteres: (n: number, max: number) => `${n}/${max}`,
+  maximoAtingido: (max: number) => `Você já escolheu ${max}. Desmarque uma para trocar.`,
+  erroGenerico: "Algo deu errado ao salvar. Tente de novo em instantes.",
+  perguntaDoTutor: (tutor: string) => `${tutor} pergunta`,
+} as const;

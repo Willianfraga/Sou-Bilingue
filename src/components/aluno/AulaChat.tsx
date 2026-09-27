@@ -40,13 +40,13 @@ export function AulaChat({
   const tutoraEhClara = tituloTutor.trim().toLowerCase().includes("clara");
   const fotoAtualTutor = tutoraEhClara
     ? gestoTutor === "aceno"
-      ? "/tutores/clara-wave.png"
+      ? "/tutores/anime/clara-wave.png"
       : gestoTutor === "legal"
-        ? "/tutores/clara-thumbs-up.png"
+        ? "/tutores/anime/clara-thumbs-up.png"
         : gestoTutor === "comemoracao"
-          ? "/tutores/clara-celebrate.png"
+          ? "/tutores/anime/clara-celebrate.png"
           : piscando
-            ? "/tutores/clara-blink.png"
+            ? "/tutores/anime/clara-blink.png"
             : fotoTutor
     : fotoTutor;
 
@@ -377,7 +377,7 @@ export function AulaChat({
       await responder(
         temaInicial
           ? `Quero praticar este tema: ${temaInicial}. Ajude-me de forma leve e conversacional.`
-          : "Quero uma conversa livre. Pergunte o que eu gostaria de aprender hoje.",
+          : "Quero uma conversa livre. Escolha você um assunto ligado aos meus interesses e já comece a conversa, sem me perguntar o que eu quero aprender.",
       );
     } catch {
       setErro("Precisamos do acesso ao microfone para iniciar a conversa automatica.");

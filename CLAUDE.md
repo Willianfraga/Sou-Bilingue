@@ -58,6 +58,17 @@ anterior, o projeto só existia como uma conversa e um artifact — sem pasta, s
 de escopo mudar, atualize `docs/ESCOPO.md` (e o artifact, se ele continuar sendo a
 versão compartilhada) **e** este arquivo.
 
+## Professor de IA — leia antes de mexer no tutor
+
+- **Comportamento do professor:** `docs/PROMPT_PROFESSOR.md` é a referência
+  (briefing do dono + adaptações e o porquê de cada uma). O texto enviado ao
+  modelo fica em `src/lib/ai/tutor.ts`; os dois mudam juntos.
+- **Perfil do aluno:** vem da entrevista de boas-vindas (`/boas-vindas`,
+  tabela `aluno_onboarding`) e só entra no prompt via `buildStudentContext`
+  (`src/lib/onboarding/contexto.ts`). Não monte esse texto em outro lugar.
+- A aula é por **voz**: respostas curtas, sem emoji nem markdown.
+- Testes que protegem essas regras: `npm test` (`test/onboarding.test.mjs`).
+
 ## Onde encontrar o escopo completo
 
 - `docs/ESCOPO.md` — versão em Markdown, controlada por este repositório.

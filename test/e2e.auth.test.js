@@ -43,7 +43,9 @@ async function signUpWithSupabase(email, password) {
 
 // Tests
 test("Cadastro: fluxo completo", async (t) => {
-  await t.test("1. Signup cria usuário no Supabase", async () => {
+  // Cria um usuário real e dispara e-mail de confirmação: só roda quando as
+  // credenciais forem passadas explicitamente no ambiente do teste.
+  await t.test("1. Signup cria usuário no Supabase", { skip: !SUPABASE_URL || !ANON_KEY }, async () => {
     const email = `test-${Date.now()}@test.com`;
     const password = "Teste@123";
 
@@ -154,10 +156,11 @@ test("Middleware: rotas públicas vs privadas", async (t) => {
 });
 
 test("APIs de cadastro", async (t) => {
-  await t.test("1. GET /api/tutores é público", async () => {
+  await t.test("1. GET /api/tutores exige sessão", async () => {
+    // O middleware deixa passar (a lista de tutores é usada no onboarding),
+    // mas a própria rota recusa quem não está logado — ver CORREÇÕES_REALIZADAS.md.
     const result = await apiCall("GET", "/api/tutores");
-    // Pode retornar 200 ou 404 (não importa) desde que seja pública
-    assert(result.status === 200 || result.status === 404);
+    assert.strictEqual(result.status, 401);
   });
 
   await t.test("2. POST /api/cadastro rejeita sem autenticação", async () => {
