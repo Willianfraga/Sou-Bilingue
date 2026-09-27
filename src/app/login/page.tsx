@@ -15,6 +15,11 @@ function FormularioDeLogin() {
   const [senha, setSenha] = useState("");
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarRecuperacao, setMostrarRecuperacao] = useState(false);
+  const [emailRecuperacao, setEmailRecuperacao] = useState("");
+  const [mensagemRecuperacao, setMensagemRecuperacao] = useState<string | null>(null);
+  const [enviandoRecuperacao, setEnviandoRecuperacao] = useState(false);
 
   async function entrar(e: React.FormEvent) {
     e.preventDefault();
@@ -29,17 +34,64 @@ function FormularioDeLogin() {
       });
 
       if (error) {
-        setErro("E-mail ou senha incorretos.");
+        const mensagem = String(error.message || "");
+        const erroDeInfra = /failed to fetch|fetch failed|could not resolve host|network|timeout|paused|service unavailable|dns/i.test(mensagem);
+
+        if (erroDeInfra) {
+          setErro("O serviço de autenticação está indisponível no momento. Verifique se o projeto Supabase está ativo e tente novamente.");
+        } else {
+          setErro("E-mail ou senha incorretos.");
+        }
+
         return;
       }
 
       const destino = searchParams.get("redirect") || "/";
       router.push(destino);
       router.refresh();
-    } catch {
-      setErro("Não consegui entrar agora. Tenta de novo?");
+    } catch (err) {
+      const mensagem = err instanceof Error ? err.message : String(err || "");
+      const erroDeInfra = /failed to fetch|fetch failed|could not resolve host|network|timeout|paused|service unavailable|dns/i.test(mensagem);
+
+      if (erroDeInfra) {
+        setErro("O serviço de autenticação está indisponível no momento. Verifique se o projeto Supabase está ativo e tente novamente.");
+      } else {
+        setErro("Não consegui entrar agora. Tenta de novo?");
+      }
     } finally {
       setEnviando(false);
+    }
+  }
+
+  async function enviarRecuperacao() {
+    setMensagemRecuperacao(null);
+
+    const emailDestino = (emailRecuperacao.trim() || email.trim()).toLowerCase();
+    if (!emailDestino) {
+      setMensagemRecuperacao("Informe o e-mail para receber o link de recuperação.");
+      return;
+    }
+
+    setEnviandoRecuperacao(true);
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.resetPasswordForEmail(emailDestino, {
+        redirectTo: `${window.location.origin}/auth/reset-password`,
+      });
+
+      if (error) {
+        setMensagemRecuperacao("Não foi possível enviar o link. Verifique o e-mail e tente novamente.");
+        return;
+      }
+
+      setMensagemRecuperacao("Link de recuperação enviado. Confira sua caixa de entrada.");
+      setEmailRecuperacao(emailDestino);
+      setMostrarRecuperacao(false);
+    } catch {
+      setMensagemRecuperacao("Não foi possível enviar o link agora. Tente novamente.");
+    } finally {
+      setEnviandoRecuperacao(false);
     }
   }
 
@@ -50,6 +102,9 @@ function FormularioDeLogin() {
 
       <section className="relative w-full max-w-md rounded-[2rem] border border-white/60 bg-white/95 p-7 shadow-2xl shadow-indigo-950/30 backdrop-blur sm:p-10">
         <div className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-700 text-3xl font-black text-white shadow-lg shadow-violet-600/30">
+            SB
+          </div>
           <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
             Faça seu login
           </h1>
@@ -78,17 +133,70 @@ function FormularioDeLogin() {
           <label htmlFor="senha" className="text-sm font-medium">
             Senha
           </label>
-          <input
-            id="senha"
-            type="password"
-            required
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            disabled={enviando}
-            placeholder="Sua senha"
-            className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-50"
-          />
+          <div className="relative">
+            <input
+              id="senha"
+              type={mostrarSenha ? "text" : "password"}
+              required
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              disabled={enviando}
+              placeholder="Sua senha"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-11 text-sm outline-none transition focus:border-violet-500 focus:bg-white focus:ring-4 focus:ring-violet-100 disabled:opacity-50"
+            />
+            <button
+              type="button"
+              aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+              onClick={() => setMostrarSenha(!mostrarSenha)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full px-2 py-1 text-xs font-bold text-indigo-700 hover:bg-indigo-50"
+            >
+              {mostrarSenha ? "Ocultar" : "Ver"}
+            </button>
+          </div>
         </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              setMostrarRecuperacao(!mostrarRecuperacao);
+              setMensagemRecuperacao(null);
+            }}
+            className="text-sm font-semibold text-indigo-700 hover:text-indigo-900 underline decoration-indigo-300 underline-offset-4 transition hover:decoration-indigo-700"
+          >
+            Esqueci minha senha
+          </button>
+        </div>
+
+        {mostrarRecuperacao && (
+          <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
+            <label className="text-xs font-black uppercase tracking-wide text-slate-600">
+              Recuperação de senha
+            </label>
+            <div className="mt-3 flex flex-col gap-3">
+              <input
+                type="email"
+                value={emailRecuperacao || email}
+                onChange={(e) => setEmailRecuperacao(e.target.value)}
+                disabled={enviandoRecuperacao}
+                placeholder="seu@email.com"
+                className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-4 focus:ring-violet-100"
+              />
+              <button
+                type="button"
+                onClick={enviarRecuperacao}
+                disabled={enviandoRecuperacao}
+                className="rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white transition hover:bg-slate-800 disabled:opacity-60"
+              >
+                {enviandoRecuperacao ? "Enviando..." : "Enviar link"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {mensagemRecuperacao && (
+          <p className="rounded-xl bg-blue-50 p-3 text-sm text-blue-700">{mensagemRecuperacao}</p>
+        )}
 
         {erro && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">{erro}</p>}
 

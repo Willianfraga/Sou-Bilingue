@@ -5,7 +5,7 @@ export const VOZ_POR_TUTOR: Record<string, string> = {
   "2dff69b8-0df7-4740-b67e-4caa7bf38ecc": "bIHbv24MWmeRgasZH58o", // Diego — Will
   "2fbd2c7b-8613-44c1-961c-542b72f250e7": "cgSgspJ2msm6clMCkdW9", // Mei — Jessica
   "3af0510b-a5b5-40d9-9772-fd0fb6ba6943": "pqHfZKP75CvOlQylNhV4", // Seu Antônio — Bill
-  "41396d05-5d7d-4913-866b-109f441b2e0b": "FGY2WhTYpPnrIDTdsKH5", // Luna — Laura
+  "41396d05-5d7d-4913-866b-109f441b2e0b": "EXAVITQu4vr4xnSDxMaL", // Luna — voz exclusiva sem fallback para Clara
   "dbed74f6-38e3-414e-8ad7-4e508c73e839": "TX3LPaxmHKxFdv7VOQHJ", // Theo — Liam
 };
 
@@ -39,15 +39,20 @@ function getVoiceSettings(tutorId: string): VoiceSettings {
 }
 
 export function getVoiceId(tutorId: string) {
-  return VOZ_POR_TUTOR[tutorId] ?? VOZ_POR_TUTOR["e315b919-9faf-4ebb-a786-db46a676c01e"];
+  const voz = VOZ_POR_TUTOR[tutorId];
+  if (!voz) {
+    throw new Error(`Nenhuma voz ElevenLabs compatível foi encontrada para o tutor ${tutorId}.`);
+  }
+  return voz;
 }
 
 export async function sintetizarVoz({ texto, tutorId }: { texto: string; tutorId: string }) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) throw new Error("ELEVENLABS_API_KEY não configurada.");
 
+  const voiceId = getVoiceId(tutorId);
   const resposta = await fetch(
-    `${ELEVENLABS_API_URL}/text-to-speech/${getVoiceId(tutorId)}/stream?output_format=mp3_44100_128`,
+    `${ELEVENLABS_API_URL}/text-to-speech/${voiceId}/stream?output_format=mp3_44100_128`,
     {
       method: "POST",
       headers: {

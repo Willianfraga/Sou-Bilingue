@@ -1,17 +1,23 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSessaoComRecuperacao } from "@/lib/auth/guards";
 
 // Renova a sessão a cada requisição e barra rota privada sem sessão. O RLS
 // do banco continua sendo a barreira real — isto aqui só evita mostrar uma
 // tela quebrada antes do usuário ser barrado (mesmo padrão do "academia flow").
 const CAMINHOS_PUBLICOS = [
   "/login",
+  "/cadastro", // § 12: público até completar onboarding
+  "/auth/reset-password", // recuperação de senha
   "/verificar", // § 06: verificação pública de certificado, sem login
   "/checkout", // ainda adiado (§ 12), mas fica público quando existir
   // Chamado por cron (n8n, Vercel Cron), sem sessão de usuário nenhuma — a
   // própria rota recusa quem não mandar o CRON_SECRET certo. Sem isto aqui,
   // o middleware barraria o cron antes mesmo da rota checar o token.
   "/api/jobs",
+  "/api/cadastro", // § 12: público, protegido por validação na rota
+  "/api/tutores", // público, seed apenas
+  "/api/auth", // endpoints de autenticação
 ];
 
 export async function middleware(request: NextRequest) {
@@ -45,6 +51,17 @@ export async function middleware(request: NextRequest) {
   // privado aqui, só deixa passar.
   const isPublico =
     path === "/" || CAMINHOS_PUBLICOS.some((p) => path.startsWith(p));
+
+  // Detectar usuário autenticado mas sem profile (situação anômala)
+  if (user && !isPublico) {
+    const { authSemProfile } = await getSessaoComRecuperacao();
+    if (authSemProfile) {
+      // Redirecionar para completar perfil
+      const url = request.nextUrl.clone();
+      url.pathname = "/cadastro";
+      return NextResponse.redirect(url);
+    }
+  }
 
   if (!user && !isPublico) {
     const url = request.nextUrl.clone();

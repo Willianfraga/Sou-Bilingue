@@ -9,6 +9,11 @@ export type Sessao = {
   papel: PapelUsuario;
 };
 
+export type SessaoComRecuperacao = {
+  sessao: Sessao | null;
+  authSemProfile: boolean; // true se user existe mas profile não
+};
+
 // Resolve o usuário logado + o papel dele (profiles.papel). Toda rota
 // autenticada começa por aqui — nunca confie em "quem é o usuário" vindo de
 // outro lugar (corpo da requisição, query string).
@@ -32,6 +37,43 @@ export async function getSessao(): Promise<Sessao | null> {
     email: user.email ?? "",
     nome: profile.nome,
     papel: profile.papel,
+  };
+}
+
+// Versão que detecta auth sem profile para recuperação
+export async function getSessaoComRecuperacao(): Promise<SessaoComRecuperacao> {
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { sessao: null, authSemProfile: false };
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("nome, papel")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) {
+    // Usuário autenticado mas sem profile — situação anômala
+    return {
+      sessao: null,
+      authSemProfile: true,
+    };
+  }
+
+  return {
+    sessao: {
+      userId: user.id,
+      email: user.email ?? "",
+      nome: profile.nome,
+      papel: profile.papel,
+    },
+    authSemProfile: false,
   };
 }
 

@@ -47,7 +47,7 @@ export default async function Home() {
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Link
-                  href="/cadastro"
+                  href="/cadastro/onboarding"
                   className="px-8 py-4 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all text-center"
                 >
                   Começar Gratuitamente
@@ -245,7 +245,7 @@ export default async function Home() {
                 </div>
 
                 <Link
-                  href="/cadastro"
+                  href="/cadastro/onboarding"
                   className={`w-full py-3 rounded-lg font-semibold transition-all text-center ${
                     plan.badge
                       ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-blue-500/50"
