@@ -32,7 +32,7 @@ como "atendidos" critérios que nunca foram testados.
   metadata (`src/lib/auth/profile.ts`). Quem confirmou em outro navegador e
   entra com senha tem o profile concluído sozinho em `/cadastro`.
 
-## Entrevista de boas-vindas (2026-09-27, testada, NÃO publicada)
+## Entrevista de boas-vindas (2026-09-27, publicada em produção — commit c081b4f)
 
 Onboarding pedagógico obrigatório antes das aulas: `/boas-vindas`, 15
 perguntas, rascunho automático, resumo e edição em `/aluno/perfil#preferencias`.
@@ -48,8 +48,8 @@ passam pela entrevista uma vez.
 
 `soubilingue.com.br`, `www.soubilingue.com.br` e `app.soubilingue.com.br`
 respondem com HTTPS e abrem o app (adicionados ao app `sou-bilingue` no Coolify,
-aplicado com restart, sem rebuild — continua no build `fa2d129`). As mudanças
-locais acima ainda não foram publicadas.
+aplicado com restart, sem rebuild — continua no build `fa2d129`). Tudo acima foi
+publicado em 27 set 2026 (commits e9fceac, 27f20cb, c081b4f).
 
 ## Pendente — ações manuais (só o dono do projeto consegue)
 
