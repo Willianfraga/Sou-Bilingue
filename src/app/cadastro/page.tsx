@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -12,6 +12,31 @@ export default function CadastroPage() {
   const [erro, setErro] = useState<string | null>(null);
   const [mensagem, setMensagem] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
+
+  // Quem chega aqui já logado e sem profile (e-mail confirmado em outro
+  // navegador, por exemplo — o middleware manda para cá) não pode refazer o
+  // signUp: conclui o profile com o nome informado no cadastro.
+  useEffect(() => {
+    let ativo = true;
+    (async () => {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      const nomeSalvo = String(user?.user_metadata?.nome ?? "").trim();
+      if (!ativo || !user || nomeSalvo.length < 2) return;
+
+      const resposta = await fetch("/api/cadastro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome: nomeSalvo }),
+      });
+      if (ativo && resposta.ok) router.replace("/cadastro/onboarding");
+    })().catch(() => {});
+    return () => {
+      ativo = false;
+    };
+  }, [router]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -37,6 +62,7 @@ export default function CadastroPage() {
         email: email.trim().toLowerCase(),
         password: senha,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
           data: {
             nome,
             papel: "aluno",
@@ -51,6 +77,15 @@ export default function CadastroPage() {
 
       if (data?.user?.identities?.length === 0) {
         setErro("Esse e-mail já está cadastrado. Faça login ou recupere a senha.");
+        return;
+      }
+
+      // Confirmação de e-mail ligada: sem sessão ainda. O profile é criado em
+      // /auth/callback quando a pessoa clicar no link do e-mail.
+      if (!data.session) {
+        setMensagem(
+          "Enviamos um link de confirmação para o seu e-mail. Abra o link neste mesmo navegador para continuar.",
+        );
         return;
       }
 

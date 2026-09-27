@@ -13,7 +13,11 @@ function FormularioDeLogin() {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [erro, setErro] = useState<string | null>(null);
+  const [erro, setErro] = useState<string | null>(
+    searchParams.get("erro") === "confirmacao"
+      ? "Não foi possível confirmar o e-mail. O link pode ter expirado ou ter sido aberto em outro navegador. Tente entrar com sua senha."
+      : null,
+  );
   const [enviando, setEnviando] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarRecuperacao, setMostrarRecuperacao] = useState(false);

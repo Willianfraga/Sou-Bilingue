@@ -1,12 +1,12 @@
 import { getUsuarioAutenticado } from "@/lib/auth/guards";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { garantirProfileAluno, nomeValido } from "@/lib/auth/profile";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => null);
     const nome = String(body?.nome ?? "").trim();
 
-    if (nome.length < 2 || nome.length > 120) {
+    if (!nomeValido(nome)) {
       return Response.json(
         { success: false, error: "Informe um nome entre 2 e 120 caracteres." },
         { status: 400 },
@@ -22,34 +22,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Não há policy de INSERT em profiles; a escrita passa pelo service role,
-    // restrita ao próprio user.id.
-    const supabase = createSupabaseAdminClient();
-
-    const { data: existente, error: erroBusca } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (erroBusca) {
-      console.error("Erro ao consultar profile:", erroBusca.message);
-      return Response.json(
-        { success: false, error: "Não foi possível criar o perfil agora." },
-        { status: 500 },
-      );
-    }
-
-    if (existente) {
-      return Response.json({ success: true });
-    }
-
-    const { error } = await supabase
-      .from("profiles")
-      .insert({ id: user.id, papel: "aluno", nome });
-
-    if (error) {
-      console.error("Erro ao criar profile do aluno:", error.message);
+    if (!(await garantirProfileAluno(user.id, nome))) {
       return Response.json(
         { success: false, error: "Não foi possível criar o perfil do aluno." },
         { status: 500 },

@@ -8,6 +8,7 @@ const CAMINHOS_PUBLICOS = [
   "/login",
   "/cadastro", // § 12: público até completar onboarding
   "/auth/reset-password", // recuperação de senha
+  "/auth/callback", // link de confirmação de e-mail do cadastro
   "/verificar", // § 06: verificação pública de certificado, sem login
   "/checkout", // ainda adiado (§ 12), mas fica público quando existir
   // Chamado por cron (n8n, Vercel Cron), sem sessão de usuário nenhuma — a
