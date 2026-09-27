@@ -1,6 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { getSessaoComRecuperacao } from "@/lib/auth/guards";
 
 // Renova a sessão a cada requisição e barra rota privada sem sessão. O RLS
 // do banco continua sendo a barreira real — isto aqui só evita mostrar uma
@@ -16,7 +15,7 @@ const CAMINHOS_PUBLICOS = [
   // o middleware barraria o cron antes mesmo da rota checar o token.
   "/api/jobs",
   "/api/cadastro", // § 12: público, protegido por validação na rota
-  "/api/tutores", // público, seed apenas
+  "/api/tutores", // a própria rota exige sessão
   "/api/auth", // endpoints de autenticação
 ];
 
@@ -52,11 +51,13 @@ export async function middleware(request: NextRequest) {
   const isPublico =
     path === "/" || CAMINHOS_PUBLICOS.some((p) => path.startsWith(p));
 
-  // Detectar usuário autenticado mas sem profile (situação anômala)
   if (user && !isPublico) {
-    const { authSemProfile } = await getSessaoComRecuperacao();
-    if (authSemProfile) {
-      // Redirecionar para completar perfil
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (!profile) {
       const url = request.nextUrl.clone();
       url.pathname = "/cadastro";
       return NextResponse.redirect(url);

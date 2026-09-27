@@ -9,6 +9,16 @@ export type Sessao = {
   papel: PapelUsuario;
 };
 
+// Usuário do Supabase Auth, com ou sem linha em profiles — para o cadastro,
+// que precisa agir antes de o profile existir.
+export async function getUsuarioAutenticado() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  return user;
+}
+
 export type SessaoComRecuperacao = {
   sessao: Sessao | null;
   authSemProfile: boolean; // true se user existe mas profile não

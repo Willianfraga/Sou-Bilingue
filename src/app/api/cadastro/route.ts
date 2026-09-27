@@ -1,53 +1,55 @@
-import { getSessao } from "@/lib/auth/guards";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getUsuarioAutenticado } from "@/lib/auth/guards";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
+    const body = await request.json().catch(() => null);
     const nome = String(body?.nome ?? "").trim();
 
-    if (!nome || nome.length < 2) {
+    if (nome.length < 2 || nome.length > 120) {
       return Response.json(
-        { success: false, error: "Nome deve ter pelo menos 2 caracteres." },
+        { success: false, error: "Informe um nome entre 2 e 120 caracteres." },
         { status: 400 },
       );
     }
 
-    // SEGURANÇA: Determinar o usuário pela sessão autenticada, nunca confiar no corpo
-    const sessao = await getSessao();
-    if (!sessao) {
+    // O ID vem da sessão; o corpo da requisição nunca decide quem é o usuário.
+    const user = await getUsuarioAutenticado();
+    if (!user) {
       return Response.json(
-        { success: false, error: "Não autenticado." },
+        { success: false, error: "Sua sessão não foi encontrada. Faça login para continuar." },
         { status: 401 },
       );
     }
 
-    // Verificar se o profile já existe (não duplicar)
-    const supabase = await createSupabaseServerClient();
-    const { data: profileExistente } = await supabase
+    // Não há policy de INSERT em profiles; a escrita passa pelo service role,
+    // restrita ao próprio user.id.
+    const supabase = createSupabaseAdminClient();
+
+    const { data: existente, error: erroBusca } = await supabase
       .from("profiles")
       .select("id")
-      .eq("id", sessao.userId)
-      .single();
+      .eq("id", user.id)
+      .maybeSingle();
 
-    if (profileExistente) {
+    if (erroBusca) {
+      console.error("Erro ao consultar profile:", erroBusca.message);
       return Response.json(
-        { success: false, error: "Perfil já existe para este usuário." },
-        { status: 409 },
+        { success: false, error: "Não foi possível criar o perfil agora." },
+        { status: 500 },
       );
     }
 
-    // Criar profile apenas para o usuário autenticado
+    if (existente) {
+      return Response.json({ success: true });
+    }
+
     const { error } = await supabase
       .from("profiles")
-      .insert({
-        id: sessao.userId,
-        papel: "aluno",
-        nome,
-      });
+      .insert({ id: user.id, papel: "aluno", nome });
 
     if (error) {
-      console.error("Erro ao criar profile do aluno:", error);
+      console.error("Erro ao criar profile do aluno:", error.message);
       return Response.json(
         { success: false, error: "Não foi possível criar o perfil do aluno." },
         { status: 500 },
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
 
     return Response.json({ success: true });
   } catch (error) {
-    console.error("Erro no endpoint de cadastro:", error);
+    console.error("Erro no endpoint de cadastro:", error instanceof Error ? error.message : error);
     return Response.json(
       { success: false, error: "Não foi possível completar o cadastro." },
       { status: 500 },
