@@ -115,7 +115,7 @@ describe("texto dos planos", () => {
     const pagina = ler("src/app/page.tsx");
     assert.match(pagina, /const CADASTRO = "\/cadastro";/);
     assert.equal(pagina.includes('href="/cadastro/onboarding"'), false, "não aponta para a página que só redireciona");
-    assert.match(ler("src/app/cadastro/page.tsx"), /router\.push\("\/cadastro\/onboarding\/idioma"\)/);
+    assert.match(ler("src/app/cadastro/page.tsx"), /router\.push\("\/checkout"\)/);
   });
 
   test("página de vendas lê os planos do banco, sem preço fixo no código", () => {

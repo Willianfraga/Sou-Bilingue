@@ -45,6 +45,15 @@ test("onboarding pelo servidor", async (t) => {
     assert.equal(pagina.status, 200);
   });
 
+  await t.test("assinatura (cancelar) abre mesmo antes da entrevista; etapas antigas vão ao checkout", async () => {
+    const assinatura = await chamar("/assinatura");
+    assert.equal(assinatura.status, 200);
+    assert.ok((await assinatura.text()).includes("Minha assinatura"));
+    const antiga = await chamar("/cadastro/onboarding/plano");
+    assert.ok([307, 308].includes(antiga.status));
+    assert.match(antiga.headers.get("location"), /\/checkout$/);
+  });
+
   await t.test("aula com IA é recusada antes da entrevista", async () => {
     const r = await chamar("/api/aula/chat", {
       method: "POST",

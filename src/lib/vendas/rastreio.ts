@@ -10,7 +10,6 @@ export const PARAMETROS_DE_CAMPANHA = [
   "utm_content",
   "src",
   "sck",
-  "coupon",
 ] as const;
 
 export type ParametroDeCampanha = (typeof PARAMETROS_DE_CAMPANHA)[number];
@@ -22,7 +21,6 @@ export const EVENTOS_DO_FUNIL = [
   "como_funciona",
   "planos_vistos",
   "plano_selecionado",
-  "cupom_na_url",
   "ida_ao_checkout",
   "compra_confirmada", // só o webhook grava este
 ] as const;
@@ -46,7 +44,7 @@ export function extrairCampanha(parametros: URLSearchParams | Record<string, unk
   const campanha: Campanha = {};
   for (const chave of PARAMETROS_DE_CAMPANHA) {
     const valor = limparParametro(ler(chave));
-    if (valor) campanha[chave] = chave === "coupon" ? valor.toUpperCase() : valor;
+    if (valor) campanha[chave] = valor;
   }
   return campanha;
 }

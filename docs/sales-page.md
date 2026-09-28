@@ -59,18 +59,25 @@ ambos em `src/lib/billing/planos.ts`.
 ## Pagamento e campanhas
 
 O pagamento é pelo **Asaas** (decisão de 27 set 2026; a Kiwify do pedido
-original não foi adotada). Fluxo: botão → `/cadastro` (conta) → idioma/plano/
-tutor → `/checkout` (plano escolhido já marcado) → página do Asaas → webhook
-confirma → acesso liberado.
+original não foi adotada). Fluxo curto: botão → `/cadastro` (conta) →
+`/checkout` (plano escolhido já marcado) → página do Asaas → webhook confirma
+→ entrevista de boas-vindas → aula. Detalhes em `docs/plans-and-credits.md`.
+
+**Vídeo de aula real:** campo "Vídeo de uma aula real" no admin (YouTube ou
+Vimeo). O player só carrega no clique (YouTube em modo sem cookies). Vazio =
+demonstração animada.
+
+**Depoimentos:** os alunos enviam em Meu perfil → "Conte como está sendo",
+marcando a autorização (só maiores de idade). Aparecem na página depois de
+aprovados em **/admin/depoimentos**; o aluno pode retirar a autorização a
+qualquer momento, e a retirada não pode ser revertida pelo admin.
 
 - `utm_source`, `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`,
-  `src`, `sck` e `coupon` da URL são guardados na sessão do navegador e
-  anexados aos botões (`data-campanha`).
-- **Cupom:** registrado nas métricas, **mas ainda não dá desconto** —
-  aplicá-lo mudaria a cobrança (e se somaria aos 50% do 1º mês). Decisão
-  pendente do dono do produto; os cupons por escola já existem em
-  `/admin/cupons`.
-- Links de campanha: `https://soubilingue.com.br/?utm_source=instagram&utm_campaign=lancamento&coupon=ESCOLA10`
+  `src` e `sck` da URL são guardados na sessão do navegador e anexados aos
+  botões (`data-campanha`).
+- **Cupom de desconto na URL: retirado** (decisão de 27 set 2026). `?coupon=`
+  é ignorado. Os cupons por escola antigos continuam só em `/admin/cupons`.
+- Links de campanha: `https://soubilingue.com.br/?utm_source=instagram&utm_campaign=lancamento&src=qr_escola`
 
 ## Métricas (sem dados pessoais)
 
@@ -84,7 +91,6 @@ webhook. Sessão = id aleatório no `sessionStorage`; sem cookies de terceiros.
 | `como_funciona` | clicou em "como funciona" |
 | `planos_vistos` | a seção de planos apareceu na tela |
 | `plano_selecionado` | clicou no botão de um plano |
-| `cupom_na_url` | chegou com `?coupon=` |
 | `ida_ao_checkout` | foi para a página de pagamento |
 | `compra_confirmada` | **só o webhook grava**, na ativação da assinatura |
 
@@ -110,5 +116,4 @@ Resumo dos últimos 30 dias no topo de /admin/pagina-de-vendas.
   rodapé não mostra suporte e a resposta de cancelamento fica sem canal.
 - Cancelamento pelo próprio aluno (hoje só via suporte).
 - Revisão jurídica de `/termos` e `/privacidade` (versões preliminares).
-- Decidir a regra do cupom da URL.
 - Depoimentos reais (com autorização).

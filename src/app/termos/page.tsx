@@ -27,7 +27,10 @@ export default function Termos() {
         <li>O 1º mês tem o desconto informado na página de planos; do 2º mês em diante vale o preço cheio exibido antes da compra.</li>
         <li>Cada plano inclui uma quantidade de horas de conversa por mês. Horas extras podem ser compradas à parte.</li>
         <li>O acesso é liberado após a confirmação do pagamento.</li>
-        <li>Para cancelar, fale com o suporte pelos contatos da página inicial.</li>
+        <li>
+          Você pode cancelar quando quiser, pelo próprio app, em Minha assinatura. As cobranças seguintes são canceladas na
+          hora e o acesso continua até o fim do período já pago.
+        </li>
       </ul>
 
       <h2>Certificado mensal</h2>

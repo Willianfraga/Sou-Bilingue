@@ -16,6 +16,7 @@ import {
   nomeDeExibicao,
   valorPrimeiraMensalidade,
 } from "@/lib/billing/planos";
+import { assinaturaDaAcesso } from "@/lib/billing/regras-cancelamento";
 
 // ============================================================================
 // Tipos
@@ -107,6 +108,8 @@ export async function getActiveSubscription(
     return null;
   }
 
+  // Cancelada pelo aluno: só dá acesso até o fim do período já pago.
+  if (!assinaturaDaAcesso(data, new Date())) return null;
   return data;
 }
 

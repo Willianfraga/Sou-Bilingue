@@ -40,7 +40,7 @@ export async function GET(request: Request) {
 
   const nome = String(user.user_metadata?.nome ?? "").trim();
   if (nomeValido(nome) && (await garantirProfileAluno(user.id, nome))) {
-    return NextResponse.redirect(`${base}/cadastro/onboarding/idioma`);
+    return NextResponse.redirect(`${base}/checkout`);
   }
 
   // Sem nome válido no metadata (ou falha ao gravar): a sessão já existe, então

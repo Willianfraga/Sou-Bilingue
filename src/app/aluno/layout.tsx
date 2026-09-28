@@ -10,6 +10,7 @@ const items = [
   { href: "/aluno", label: "Meu progresso" },
   { href: "/aluno/perfil", label: "Meu perfil" },
   { href: "/aluno/perfil#preferencias", label: "Minhas preferências" },
+  { href: "/assinatura", label: "Minha assinatura" },
   { href: "/aluno/licoes#escolher-idioma", label: "Escolher meu idioma" },
   { href: "/aluno/certificados", label: "Meus certificados" },
   { href: "/aluno/licoes", label: "Minhas lições" },

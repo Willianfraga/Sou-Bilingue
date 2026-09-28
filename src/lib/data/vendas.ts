@@ -73,7 +73,6 @@ export async function registrarEventoFunil(evento: {
     utm_content: c.utm_content ?? null,
     src: c.src ?? null,
     sck: c.sck ?? null,
-    cupom: c.coupon ?? null,
     aluno_id: evento.alunoId ?? null,
   });
   if (error) console.error("Falha ao registrar evento do funil:", error.message);

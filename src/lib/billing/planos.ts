@@ -30,6 +30,20 @@ export function publicoDoPlano(nome: string): string {
   return PUBLICO_DO_PLANO[nome] ?? "";
 }
 
+// Plano pago (tabela planos) → faixa usada pela certificação (alunos.plano,
+// dias de aula por semana em src/lib/types.ts). Gravado pelo webhook quando o
+// pagamento é confirmado.
+const PLANO_DA_CERTIFICACAO: Record<string, "basico" | "intermediario" | "avancado"> = {
+  teste_7dias: "basico",
+  essencial: "basico",
+  fluencia: "intermediario",
+  premium: "avancado",
+};
+
+export function planoDaCertificacao(nome: string): "basico" | "intermediario" | "avancado" {
+  return PLANO_DA_CERTIFICACAO[nome] ?? "basico";
+}
+
 // Plano destacado na vitrine (futuro teste A/B: trocar aqui).
 export const PLANO_RECOMENDADO = "fluencia";
 

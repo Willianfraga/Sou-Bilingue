@@ -190,10 +190,19 @@ export async function resumeSubscription(
   return updateSubscription(subscriptionId, { status: "ACTIVE" });
 }
 
+// Documentação oficial (docs.asaas.com/reference/remover-assinatura):
+// DELETE /v3/subscriptions/{id} encerra a assinatura e apaga as cobranças
+// pendentes; as já pagas continuam registradas. (A versão anterior fazia PUT
+// com status "CANCELLED", que o Asaas não aceita.)
 export async function cancelSubscription(
   subscriptionId: string
-): Promise<AsaasSubscription> {
-  return updateSubscription(subscriptionId, { status: "CANCELLED" });
+): Promise<{ deleted: boolean; id: string }> {
+  return request<{ deleted: boolean; id: string }>("DELETE", `/subscriptions/${subscriptionId}`);
+}
+
+// Remove uma cobrança avulsa ainda não paga (ex.: 1ª mensalidade pendente).
+export async function deletePayment(paymentId: string): Promise<{ deleted: boolean; id: string }> {
+  return request<{ deleted: boolean; id: string }>("DELETE", `/payments/${paymentId}`);
 }
 
 // ============================================================================

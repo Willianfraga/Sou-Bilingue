@@ -7,7 +7,7 @@ import { anexarCampanha, extrairCampanha, type Campanha } from "@/lib/vendas/ras
 // - Sessão: id aleatório no sessionStorage (some ao fechar a aba). Sem
 //   cookies de terceiros, sem dados pessoais.
 // - Cliques: qualquer elemento com data-evento="..." (e data-plano) registra.
-// - Links com data-campanha recebem utm_*, src, sck e coupon da URL.
+// - Links com data-campanha recebem utm_*, src e sck da URL.
 // - Plano escolhido fica no sessionStorage para o checkout pré-selecionar.
 
 const CHAVE_SESSAO = "sb:sessao";
@@ -64,7 +64,6 @@ export function Rastreador() {
     });
 
     enviarEvento("pagina_vista");
-    if (daUrl.coupon) enviarEvento("cupom_na_url");
 
     const aoClicar = (e: MouseEvent) => {
       const alvo = (e.target as HTMLElement).closest<HTMLElement>("[data-evento]");

@@ -10,7 +10,7 @@ const CAMPOS_TEXTO = [
   "heroSelo", "heroTitulo", "heroDestaque", "heroSubtitulo",
   "ctaPrincipal", "ctaSecundario", "ctaPlanos", "ctaFinal",
   "avisoPromocional", "suporteEmail", "suporteWhatsapp",
-  "seoTitulo", "seoDescricao", "variante",
+  "seoTitulo", "seoDescricao", "variante", "videoAula",
 ] as const;
 
 // Só admin (requirePapel + RLS app.is_admin no banco). Tudo passa por

@@ -2,6 +2,7 @@ import { validateWebhookSignature } from "@/lib/asaas/client";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { criarAssinaturaRecorrente } from "@/lib/billing/subscription";
 import { registrarEventoFunil } from "@/lib/data/vendas";
+import { planoDaCertificacao } from "@/lib/billing/planos";
 
 type EventoAsaas = {
   id?: string;
@@ -129,6 +130,13 @@ export async function POST(request: Request) {
           const { error: activeError } = await supabase.from("subscriptions")
             .update({ status: "ativa", atualizada_em: new Date().toISOString() }).eq("id", assinatura.id);
           if (activeError) throw activeError;
+          // Plano pago → faixa da certificação (antes vinha da etapa "Plano"
+          // do cadastro, que saiu no caminho curto).
+          if (plano?.nome) {
+            const { error: planoError } = await supabase.from("alunos")
+              .update({ plano: planoDaCertificacao(plano.nome) }).eq("id", assinatura.aluno_id);
+            if (planoError) throw planoError;
+          }
           // Conversão só conta aqui, com o pagamento confirmado (uma vez por
           // assinatura: só na transição para "ativa").
           await registrarEventoFunil({ nome: "compra_confirmada", plano: plano?.nome, alunoId: assinatura.aluno_id });

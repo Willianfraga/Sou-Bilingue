@@ -66,19 +66,19 @@ describe("conteúdo editável", () => {
 });
 
 describe("campanha e eventos", () => {
-  test("extrai UTM, src, sck e cupom; ignora o resto", () => {
+  test("extrai UTM, src e sck; ignora o resto (inclusive cupom)", () => {
     const c = extrairCampanha(new URLSearchParams("utm_source=ig&utm_campaign=escola_x&src=qr1&sck=abc&coupon=escola10&email=a@b.c"));
-    assert.deepEqual(c, { utm_source: "ig", utm_campaign: "escola_x", src: "qr1", sck: "abc", coupon: "ESCOLA10" });
+    assert.deepEqual(c, { utm_source: "ig", utm_campaign: "escola_x", src: "qr1", sck: "abc" });
   });
 
   test("valores perigosos são limpos", () => {
-    const c = extrairCampanha({ utm_source: '"><script>x</script>', coupon: "a".repeat(300) });
+    const c = extrairCampanha({ utm_source: '"><script>x</script>', utm_term: "a".repeat(300) });
     assert.equal(c.utm_source.includes("<"), false);
-    assert.equal(c.coupon.length, 100);
+    assert.equal(c.utm_term.length, 100);
   });
 
   test("anexa a campanha ao link sem sobrescrever o que já existe", () => {
-    assert.equal(anexarCampanha("/cadastro", { utm_source: "ig", coupon: "X" }), "/cadastro?utm_source=ig&coupon=X");
+    assert.equal(anexarCampanha("/cadastro", { utm_source: "ig", sck: "X" }), "/cadastro?utm_source=ig&sck=X");
     assert.equal(anexarCampanha("/cadastro?plano=premium&utm_source=site", { utm_source: "ig" }), "/cadastro?plano=premium&utm_source=site");
     assert.equal(anexarCampanha("/cadastro", {}), "/cadastro");
   });
@@ -100,9 +100,22 @@ describe("página de vendas (estático)", () => {
   const pagina = ler("src/app/page.tsx");
 
   test("sem promessas que o produto não cumpre", () => {
-    for (const proibido of [/7 dias grátis/i, /sem cartão/i, /gratuitamente/i, /método comprovado/i, /cancele quando quiser/i, /garantia de/i]) {
+    for (const proibido of [/7 dias grátis/i, /sem cartão/i, /gratuitamente/i, /método comprovado/i, /garantia de/i]) {
       assert.equal(proibido.test(pagina), false, String(proibido));
     }
+  });
+
+  test("'cancele quando quiser' só aparece porque o cancelamento pelo app existe", () => {
+    assert.match(pagina, /Cancele quando quiser, pelo próprio app/);
+    assert.match(ler("src/app/assinatura/actions.ts"), /cancelarAssinaturaDoAluno\(sessao\.userId/);
+  });
+
+  test("vídeo só entra quando cadastrado; senão, a demonstração", () => {
+    assert.match(pagina, /\{video \? <VideoAula video=\{video\}[^}]*\/> : <DemoConversa/);
+  });
+
+  test("depoimentos: aprovados pelos alunos + manuais, no máximo 9", () => {
+    assert.match(pagina, /\[\.\.\.aprovados, \.\.\.c\.depoimentos\]\.slice\(0, 9\)/);
   });
 
   test("preços vêm do banco e o plano leva o nome ao cadastro", () => {
@@ -112,7 +125,7 @@ describe("página de vendas (estático)", () => {
   });
 
   test("depoimentos só aparecem se houver conteúdo real", () => {
-    assert.match(pagina, /\{c\.depoimentos\.length > 0 && \(/);
+    assert.match(pagina, /\{depoimentos\.length > 0 && \(/);
   });
 
   test("links do rodapé existem (termos e privacidade)", () => {

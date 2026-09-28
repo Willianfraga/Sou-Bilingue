@@ -25,8 +25,16 @@ test('o onboarding do aluno expõe o endpoint POST com idioma, plano e tutorId',
   assert.equal(onboardingRoute.includes('tutorId'), true);
 });
 
-test('a tela de cadastro encaminha o novo usuário para o onboarding de aluno', () => {
+// Caminho curto (27 set 2026): cadastro → checkout; a entrevista de
+// boas-vindas vem depois do pagamento.
+test('a tela de cadastro encaminha o novo usuário direto ao checkout', () => {
   const cadastroPageFile = path.join(__dirname, '..', 'src', 'app', 'cadastro', 'page.tsx');
   const cadastroPage = fs.readFileSync(cadastroPageFile, 'utf8');
-  assert.equal(cadastroPage.includes('/cadastro/onboarding'), true);
+  assert.equal(cadastroPage.includes('router.push("/checkout")'), true);
+  assert.equal(cadastroPage.includes('/cadastro/onboarding'), false);
+});
+
+test('as 5 etapas antigas redirecionam para o checkout', () => {
+  const config = fs.readFileSync(path.join(__dirname, '..', 'next.config.mjs'), 'utf8');
+  assert.match(config, /source: "\/cadastro\/onboarding\/:etapa\*", destination: "\/checkout"/);
 });

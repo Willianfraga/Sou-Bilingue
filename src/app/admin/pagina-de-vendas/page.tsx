@@ -12,7 +12,6 @@ const ETAPAS_FUNIL: Array<[string, string]> = [
   ["como_funciona", "Viram \"como funciona\""],
   ["planos_vistos", "Viram os planos"],
   ["plano_selecionado", "Escolheram um plano"],
-  ["cupom_na_url", "Chegaram com cupom"],
   ["ida_ao_checkout", "Foram ao pagamento"],
   ["compra_confirmada", "Compras confirmadas (webhook)"],
 ];
@@ -113,7 +112,12 @@ export default async function PaginaDeVendasAdmin({
         </fieldset>
 
         <fieldset className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-5">
-          <legend className="px-1 font-bold">Depoimentos (só reais, com autorização)</legend>
+          <legend className="px-1 font-bold">Depoimentos manuais (só reais, com autorização)</legend>
+          <p className="text-xs text-neutral-500">
+            Os depoimentos enviados pelos alunos no app são aprovados em{" "}
+            <a href="/admin/depoimentos" className="font-semibold text-violet-700 hover:underline">Depoimentos</a>. Use este
+            campo só para depoimentos autorizados recebidos por outro canal.
+          </p>
           <Campo
             nome="depoimentos"
             rotulo="Um depoimento por bloco"
@@ -121,6 +125,17 @@ export default async function PaginaDeVendasAdmin({
             max={8000}
             linhas={8}
             ajuda="1ª linha = Nome | contexto (ex.: Ana | aluna de inglês há 3 meses); linhas seguintes = texto. Vazio = a seção não aparece."
+          />
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-5">
+          <legend className="px-1 font-bold">Vídeo de uma aula real</legend>
+          <Campo
+            nome="videoAula"
+            rotulo="Link do vídeo (YouTube ou Vimeo)"
+            valor={c.videoAula}
+            max={200}
+            ajuda="Grave a tela de uma aula sua (com o áudio), publique no YouTube como 'Não listado' e cole o link. Vazio = a página mostra a demonstração animada."
           />
         </fieldset>
 

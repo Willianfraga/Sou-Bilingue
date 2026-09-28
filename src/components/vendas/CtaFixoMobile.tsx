@@ -24,7 +24,7 @@ export function CtaFixoMobile({ texto, href }: { texto: string; href: string }) 
   if (fechado || !visivel) return null;
   return (
     <div className="fixed inset-x-3 bottom-3 z-40 flex items-center gap-2 rounded-2xl bg-slate-950/90 p-2 shadow-2xl ring-1 ring-white/10 backdrop-blur md:hidden">
-      <a href={anexarCampanha(href, campanhaSalva())} data-evento="cta_principal" className="vendas-cta flex-1 py-3 text-sm">
+      <a href={anexarCampanha(href, campanhaSalva())} data-evento="cta_principal" className="vendas-cta min-h-[52px] flex-1 py-3 text-base">
         {texto}
       </a>
       <button

@@ -1,5 +1,16 @@
 # Histórico de mudanças
 
+## 27 set 2026 — cancelamento pelo app, depoimentos, vídeo e caminho curto
+
+- Cancelamento pelo próprio aluno em `/assinatura` (migration 0017); corrigida
+  a chamada de cancelamento do Asaas (era PUT com status inválido; agora
+  DELETE, conforme a documentação oficial).
+- Depoimentos enviados pelos alunos com autorização e aprovados no admin.
+- Espaço para vídeo de aula real (YouTube/Vimeo, carregado só no clique).
+- Caminho curto: cadastro → checkout; as 5 etapas antigas redirecionam.
+- Cupom de desconto na URL retirado.
+- Botões de chamada para ação maiores.
+
 ## 27 set 2026 — nova página de vendas
 
 - Redesenho completo (`docs/sales-page.md`): topo escuro futurista com a

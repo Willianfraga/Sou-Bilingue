@@ -2,6 +2,8 @@ import { CampoPerfil } from "@/components/aluno/CampoPerfil";
 import { requireSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { getOnboardingDoAluno } from "@/lib/data/onboarding";
+import { getMeuDepoimento } from "@/lib/data/depoimentos";
+import { enviarMeuDepoimento, retirarMeuDepoimento } from "./actions";
 import { getTutorPorId } from "@/lib/data/tutores";
 import { PERGUNTAS, PREFIRO_NAO_RESPONDER, rotuloDaOpcao, type Pergunta, type ValorResposta } from "@/lib/onboarding/questionario";
 import { NOME_DO_IDIOMA, NOME_DO_PLANO } from "@/lib/types";
@@ -24,11 +26,25 @@ function textoDaResposta(pergunta: Pergunta, valor: ValorResposta | undefined): 
   return (Array.isArray(valor) ? valor : [valor]).map((v) => rotuloDaOpcao(pergunta.id, v)).join(", ");
 }
 
-// Perfil e tutor já vêm do banco de verdade. Sem edição ainda — "Trocar"
-// fica desabilitado até o fluxo de edição existir.
-export default async function Perfil() {
+const MENSAGENS_DEPOIMENTO: Record<string, string> = {
+  enviado: "Obrigado! Seu depoimento vai para revisão antes de aparecer na página.",
+  retirado: "Autorização retirada. O depoimento não aparece mais na página.",
+  invalido: "Confira os campos do depoimento.",
+  menor: "Depoimentos de menores de idade precisam da autorização do responsável — por enquanto não aceitamos.",
+  tentativas: "Muitas tentativas seguidas. Aguarde alguns minutos.",
+  falha: "Não foi possível enviar agora. Tente de novo.",
+};
+
+// Perfil, preferências de aula, assinatura e depoimento.
+export default async function Perfil({
+  searchParams,
+}: {
+  searchParams: Promise<{ depoimento?: string; msg?: string }>;
+}) {
   const sessao = await requireSessao();
+  const aviso = await searchParams;
   const perfil = await getPerfilDoAluno(sessao.userId);
+  const meuDepoimento = await getMeuDepoimento(sessao.userId);
 
   if (!perfil) {
     return <p className="text-neutral-500">Perfil não encontrado.</p>;
@@ -91,14 +107,64 @@ export default async function Perfil() {
         </div>
       </section>
 
-      <button
-        type="button"
-        disabled
-        title="Edição ainda não implementada"
-        className="w-fit cursor-not-allowed rounded-md border border-neutral-200 px-4 py-2 text-sm text-neutral-400"
-      >
-        Editar perfil
-      </button>
+      <section aria-labelledby="titulo-assinatura" className="rounded-lg border border-neutral-200 p-5">
+        <h2 id="titulo-assinatura" className="text-lg font-bold">Assinatura</h2>
+        <p className="mt-1 text-sm text-neutral-500">Veja seu plano ou cancele quando quiser, sem precisar falar com ninguém.</p>
+        <a href="/assinatura" className="mt-3 inline-block text-sm font-semibold text-violet-700 hover:underline">
+          Minha assinatura →
+        </a>
+      </section>
+
+      <section id="depoimento" aria-labelledby="titulo-depoimento" className="scroll-mt-8 rounded-lg border border-neutral-200 p-5">
+        <h2 id="titulo-depoimento" className="text-lg font-bold">Conte como está sendo</h2>
+        {aviso.depoimento && MENSAGENS_DEPOIMENTO[aviso.depoimento] && (
+          <p role="status" className="mt-3 rounded-md bg-violet-50 px-3 py-2 text-sm text-violet-900">
+            {aviso.depoimento === "invalido" && aviso.msg ? aviso.msg : MENSAGENS_DEPOIMENTO[aviso.depoimento]}
+          </p>
+        )}
+        {meuDepoimento && meuDepoimento.status !== "retirado" ? (
+          <div className="mt-3 text-sm">
+            <p className="text-neutral-600">
+              {meuDepoimento.status === "aprovado"
+                ? "Seu depoimento está publicado na página do Sou Bilíngue. Obrigado!"
+                : meuDepoimento.status === "recusado"
+                  ? "Seu depoimento não foi publicado."
+                  : "Recebemos seu depoimento. Ele aparece na página depois de uma revisão."}
+            </p>
+            <blockquote className="mt-2 rounded-md bg-neutral-50 p-3 text-neutral-700">&ldquo;{meuDepoimento.texto}&rdquo;</blockquote>
+            <form action={retirarMeuDepoimento} className="mt-3">
+              <button type="submit" className="text-sm text-neutral-500 underline hover:text-neutral-800">
+                Retirar minha autorização e remover o depoimento
+              </button>
+            </form>
+          </div>
+        ) : (
+          <form action={enviarMeuDepoimento} className="mt-3 flex flex-col gap-3">
+            <p className="text-sm text-neutral-500">
+              Sua experiência ajuda outras pessoas a perderem o medo de falar. Escreva só se quiser, com as suas palavras.
+            </p>
+            <div>
+              <label htmlFor="dep-nome" className="text-sm font-semibold">Como quer aparecer</label>
+              <input id="dep-nome" name="nome" required maxLength={60} defaultValue={sessao.nome.split(/\s+/)[0]} className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label htmlFor="dep-contexto" className="text-sm font-semibold">Contexto (opcional)</label>
+              <input id="dep-contexto" name="contexto" maxLength={80} placeholder="Ex.: aluna de inglês há 2 meses" className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label htmlFor="dep-texto" className="text-sm font-semibold">Seu depoimento</label>
+              <textarea id="dep-texto" name="texto" required minLength={20} maxLength={500} rows={4} className="mt-1 w-full rounded-md border border-neutral-300 px-3 py-2 text-sm" />
+            </div>
+            <label className="flex items-start gap-2 text-sm">
+              <input type="checkbox" name="autorizo" value="sim" required className="mt-1" />
+              Autorizo o Sou Bilíngue a publicar este depoimento, com o nome e o contexto acima, na página do app. Posso retirar a autorização quando quiser.
+            </label>
+            <button type="submit" className="w-fit rounded-md bg-violet-700 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-800">
+              Enviar depoimento
+            </button>
+          </form>
+        )}
+      </section>
     </div>
   );
 }

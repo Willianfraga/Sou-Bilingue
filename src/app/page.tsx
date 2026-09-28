@@ -6,6 +6,7 @@ import { Animacoes } from "@/components/vendas/Animacoes";
 import { ComoFunciona } from "@/components/vendas/ComoFunciona";
 import { CtaFixoMobile } from "@/components/vendas/CtaFixoMobile";
 import { DemoConversa } from "@/components/vendas/DemoConversa";
+import { VideoAula } from "@/components/vendas/VideoAula";
 import { Rastreador } from "@/components/vendas/Rastreador";
 import { getSessao, rotaDoPapel } from "@/lib/auth/guards";
 import { getPlanos } from "@/lib/billing/subscription";
@@ -20,7 +21,9 @@ import {
   publicoDoPlano,
   valorPrimeiraMensalidade,
 } from "@/lib/billing/planos";
+import { getDepoimentosPublicados } from "@/lib/data/depoimentos";
 import { getConteudoVendas } from "@/lib/data/vendas";
+import { videoIncorporado } from "@/lib/vendas/conteudo";
 
 // Página de vendas — estrutura e regras em docs/sales-page.md.
 // Textos editáveis: /admin/pagina-de-vendas. Preços e horas: tabela planos.
@@ -116,7 +119,10 @@ export default async function PaginaDeVendas() {
   const sessao = await getSessao();
   if (sessao) redirect(rotaDoPapel(sessao.papel));
 
-  const [c, planosDoBanco] = await Promise.all([getConteudoVendas(), getPlanos()]);
+  const [c, planosDoBanco, aprovados] = await Promise.all([getConteudoVendas(), getPlanos(), getDepoimentosPublicados()]);
+  // Depoimentos: os enviados pelos alunos e aprovados + os manuais do admin.
+  const depoimentos = [...aprovados, ...c.depoimentos].slice(0, 9);
+  const video = c.videoAula ? videoIncorporado(c.videoAula) : null;
   const planos = planosDoBanco
     .filter((p) => !PLANOS_DE_TESTE.has(p.nome))
     .map((p) => ({
@@ -175,13 +181,14 @@ export default async function PaginaDeVendas() {
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">{c.heroSubtitulo}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Cta>{c.ctaPrincipal} →</Cta>
+              <Cta className="vendas-cta-destaque">{c.ctaPrincipal} →</Cta>
               <Cta secundario href="#como-funciona" evento="como_funciona">{c.ctaSecundario}</Cta>
             </div>
             <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-300">
               {menorPrimeira !== null && (
                 <li>✓ 1º mês com {DESCONTO_PRIMEIRA_MENSALIDADE}% de desconto — a partir de {formatarPreco(menorPrimeira)}</li>
               )}
+              <li>✓ Cancele quando quiser, pelo próprio app</li>
               <li>✓ Pagamento seguro pelo Asaas</li>
               <li>✓ Funciona no navegador do celular</li>
             </ul>
@@ -326,7 +333,7 @@ export default async function PaginaDeVendas() {
               </div>
             </div>
             <div>
-              <DemoConversa nomeTutor="Clara" fotoTutor="/tutores/anime/clara.png" />
+              {video ? <VideoAula video={video} titulo="Uma aula real no Sou Bilíngue" /> : <DemoConversa nomeTutor="Clara" fotoTutor="/tutores/anime/clara.png" />}
               <div className="mt-6 text-center lg:text-left">
                 <Cta>Começar minha jornada →</Cta>
               </div>
@@ -363,12 +370,12 @@ export default async function PaginaDeVendas() {
         </section>
 
         {/* ================= DEPOIMENTOS (só com conteúdo real) ================= */}
-        {c.depoimentos.length > 0 && (
+        {depoimentos.length > 0 && (
           <section className="bg-white py-24" data-revelar>
             <div className="mx-auto max-w-6xl px-5 sm:px-8">
               <Titulo selo="Quem já pratica">O que dizem nossos alunos</Titulo>
               <ul className="grid gap-4 md:grid-cols-3">
-                {c.depoimentos.map((d, i) => (
+                {depoimentos.map((d, i) => (
                   <li key={i} className="vendas-cartao">
                     <p aria-hidden className="text-4xl font-black leading-none text-fuchsia-300">&ldquo;</p>
                     <blockquote className="mt-2 text-slate-700">{d.texto}</blockquote>
@@ -470,9 +477,9 @@ export default async function PaginaDeVendas() {
               </ul>
             )}
             <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-slate-500">
-              O próximo passo é criar sua conta; depois você escolhe idioma e professor, e o pagamento acontece na página
-              segura do Asaas (Pix, cartão ou boleto). As aulas são liberadas assim que o pagamento for confirmado. Para cancelar,
-              fale com o suporte.
+              O próximo passo é criar sua conta e pagar na página segura do Asaas (Pix, cartão ou boleto). Depois, uma
+              entrevista curta personaliza suas aulas. O acesso é liberado assim que o pagamento é confirmado, e você pode
+              cancelar quando quiser pelo próprio app.
             </p>
           </div>
         </section>
@@ -485,7 +492,7 @@ export default async function PaginaDeVendas() {
               ["💳", "Pagamento seguro", "Feito na página do Asaas. Não recebemos nem guardamos dados do seu cartão."],
               ["🏷️", `1º mês com ${DESCONTO_PRIMEIRA_MENSALIDADE}% off`, "O desconto aparece antes de pagar; os meses seguintes têm o preço cheio informado."],
               ["🔒", "Seus dados protegidos", "Pedimos só o necessário e cada aluno acessa apenas os próprios dados."],
-              ["✏️", "Você no controle", "Edite suas preferências de aula quando quiser, direto no seu perfil."],
+              ["✋", "Cancele pelo app", "Sem ligação e sem letra miúda: as cobranças seguintes param na hora e o acesso vai até o fim do período pago."],
             ].map(([i, t, d]) => (
               <li key={t} className="vendas-cartao">
                 <span aria-hidden className="text-3xl">{i}</span>
@@ -526,7 +533,7 @@ export default async function PaginaDeVendas() {
               Crie sua conta, conte seus objetivos e comece a praticar com um professor que respeita o seu ritmo.
             </p>
             <div className="relative mt-8">
-              <Cta>{c.ctaFinal} →</Cta>
+              <Cta className="vendas-cta-destaque">{c.ctaFinal} →</Cta>
             </div>
           </div>
         </section>

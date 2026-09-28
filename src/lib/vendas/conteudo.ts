@@ -26,6 +26,7 @@ export type ConteudoVendas = {
   suporteWhatsapp: string; // só dígitos com DDI; vazio = sem link
   perguntas: Pergunta[];
   depoimentos: Depoimento[];
+  videoAula: string; // link do YouTube/Vimeo de uma aula real; vazio = demonstração animada
   seoTitulo: string;
   seoDescricao: string;
 };
@@ -83,7 +84,7 @@ export const CONTEUDO_PADRAO: ConteudoVendas = {
     {
       pergunta: "Posso cancelar?",
       resposta:
-        "A assinatura é mensal. Para cancelar, fale com o nosso suporte pelos contatos no rodapé desta página.",
+        "Sim, quando quiser e pelo próprio app, em Minha assinatura — sem precisar falar com ninguém. As próximas cobranças são canceladas na hora e você continua com acesso até o fim do período que já pagou.",
     },
     {
       pergunta: "Meus dados estão seguros?",
@@ -92,6 +93,7 @@ export const CONTEUDO_PADRAO: ConteudoVendas = {
     },
   ],
   depoimentos: [],
+  videoAula: "",
   seoTitulo: "Sou Bilíngue — aulas de idiomas por conversa com professor de IA",
   seoDescricao:
     "Aprenda inglês, espanhol, francês, italiano ou mandarim conversando por voz com um professor virtual paciente, que adapta cada aula ao seu nível e aos seus interesses.",
@@ -114,7 +116,38 @@ const LIMITES: Record<string, number> = {
   suporteWhatsapp: 30, // aceita formatação; só os dígitos são guardados
   seoTitulo: 70,
   seoDescricao: 170,
+  videoAula: 200,
 };
+
+// Link de vídeo → player incorporado. Só YouTube (modo sem cookies) e Vimeo;
+// qualquer outro endereço é recusado (nada de iframe de origem arbitrária).
+export type VideoIncorporado = { plataforma: "youtube" | "vimeo"; id: string; embed: string; capa?: string };
+
+export function videoIncorporado(url: string): VideoIncorporado | null {
+  let u: URL;
+  try {
+    u = new URL(url.trim());
+  } catch {
+    return null;
+  }
+  if (u.protocol !== "https:") return null;
+  const host = u.hostname.replace(/^www\.|^m\./, "");
+  let id: string | null = null;
+  if (host === "youtu.be") id = u.pathname.slice(1).split("/")[0];
+  else if (host === "youtube.com" || host === "youtube-nocookie.com") {
+    id = u.searchParams.get("v") ?? u.pathname.match(/^\/(?:shorts|embed|live)\/([^/]+)/)?.[1] ?? null;
+  } else if (host === "vimeo.com" || host === "player.vimeo.com") {
+    const vimeo = u.pathname.match(/(?:\/video)?\/(\d{6,12})(?:\/|$)/)?.[1];
+    return vimeo ? { plataforma: "vimeo", id: vimeo, embed: `https://player.vimeo.com/video/${vimeo}?dnt=1&autoplay=1` } : null;
+  }
+  if (!id || !/^[A-Za-z0-9_-]{11}$/.test(id)) return null;
+  return {
+    plataforma: "youtube",
+    id,
+    embed: `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`,
+    capa: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+  };
+}
 
 function texto(valor: unknown, max: number): string {
   if (typeof valor !== "string") return "";
@@ -155,6 +188,27 @@ export function textoParaDepoimentos(texto: string): Depoimento[] {
   });
 }
 
+// Depoimento enviado pelo aluno (formulário do perfil). Mesmos limites da
+// tabela depoimentos (migration 0017).
+export type ResultadoDepoimento =
+  | { ok: true; dados: { nome_exibicao: string; contexto: string; texto: string } }
+  | { ok: false; erro: string };
+
+export function validarDepoimentoDoAluno(entrada: {
+  nome: unknown;
+  contexto: unknown;
+  texto: unknown;
+  autorizo: unknown;
+}): ResultadoDepoimento {
+  if (entrada.autorizo !== "sim") return { ok: false, erro: "Marque a autorização para podermos publicar." };
+  const nome = texto(entrada.nome, 60);
+  const contexto = texto(entrada.contexto, 80);
+  const corpo = texto(entrada.texto, 500);
+  if (nome.length < 2) return { ok: false, erro: "Diga como quer aparecer (pelo menos 2 letras)." };
+  if (corpo.length < 20) return { ok: false, erro: "Escreva pelo menos uma frase (20 caracteres)." };
+  return { ok: true, dados: { nome_exibicao: nome, contexto, texto: corpo } };
+}
+
 // Valida e completa o conteúdo vindo do banco ou do formulário. Campo
 // inválido volta ao padrão (página nunca quebra por conteúdo ruim).
 export function normalizarConteudo(entrada: unknown): ConteudoVendas {
@@ -169,6 +223,7 @@ export function normalizarConteudo(entrada: unknown): ConteudoVendas {
     if (!r[obrigatorio]) r[obrigatorio] = CONTEUDO_PADRAO[obrigatorio];
   }
   if (!emailValido(r.suporteEmail)) r.suporteEmail = "";
+  if (r.videoAula && !videoIncorporado(r.videoAula)) r.videoAula = "";
   r.suporteWhatsapp = r.suporteWhatsapp.replace(/\D/g, "");
   if (r.suporteWhatsapp && (r.suporteWhatsapp.length < 10 || r.suporteWhatsapp.length > 15)) r.suporteWhatsapp = "";
 
