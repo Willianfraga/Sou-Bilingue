@@ -113,14 +113,14 @@ describe("texto dos planos", () => {
 
   test("botões da página de vendas levam ao cadastro (visitante ainda não tem conta)", () => {
     const pagina = ler("src/app/page.tsx");
-    assert.match(pagina, /href="\/cadastro"/);
+    assert.match(pagina, /const CADASTRO = "\/cadastro";/);
     assert.equal(pagina.includes('href="/cadastro/onboarding"'), false, "não aponta para a página que só redireciona");
     assert.match(ler("src/app/cadastro/page.tsx"), /router\.push\("\/cadastro\/onboarding\/idioma"\)/);
   });
 
   test("página de vendas lê os planos do banco, sem preço fixo no código", () => {
     const pagina = ler("src/app/page.tsx");
-    assert.match(pagina, /await getPlanos\(\)/);
+    assert.match(pagina, /getPlanos\(\)/);
     assert.equal(/R\$ \d/.test(pagina), false, "nenhum preço escrito à mão");
   });
 });

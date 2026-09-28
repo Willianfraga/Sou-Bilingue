@@ -19,6 +19,20 @@ const NOME_DE_EXIBICAO: Record<string, string> = {
   premium: "Premium",
 };
 
+// Para quem cada plano foi pensado (texto da página de vendas).
+const PUBLICO_DO_PLANO: Record<string, string> = {
+  essencial: "Para criar o hábito com algumas conversas por semana.",
+  fluencia: "Para quem quer praticar quase todos os dias.",
+  premium: "Para quem quer mais horas de conversa e imersão.",
+};
+
+export function publicoDoPlano(nome: string): string {
+  return PUBLICO_DO_PLANO[nome] ?? "";
+}
+
+// Plano destacado na vitrine (futuro teste A/B: trocar aqui).
+export const PLANO_RECOMENDADO = "fluencia";
+
 export function nomeDeExibicao(nome: string): string {
   return NOME_DE_EXIBICAO[nome] ?? nome.charAt(0).toUpperCase() + nome.slice(1);
 }

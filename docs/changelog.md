@@ -1,5 +1,19 @@
 # Histórico de mudanças
 
+## 27 set 2026 — nova página de vendas
+
+- Redesenho completo (`docs/sales-page.md`): topo escuro futurista com a
+  professora virtual, demonstração de conversa, como funciona interativo,
+  comparação, planos do banco, FAQ e botão fixo no celular.
+- Removidas promessas falsas da página antiga ("7 dias grátis", "Sem cartão",
+  "Cancele quando quiser", "Método comprovado"); links "#" do rodapé
+  substituídos por `/termos` e `/privacidade` (preliminares).
+- Área `/admin/pagina-de-vendas` e tabela `pagina_vendas` (migration 0016).
+- Métricas do funil sem dados pessoais (`eventos_funil`); compra só conta
+  pelo webhook. Parâmetros de campanha preservados até o checkout, que abre
+  com o plano escolhido.
+- Build com um processo só (`next.config.mjs`) por causa da pouca memória.
+
 ## 27 set 2026 — Fase 0 (auditoria e segurança) + preços
 
 **Segurança**

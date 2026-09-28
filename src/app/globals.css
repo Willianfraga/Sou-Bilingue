@@ -10,4 +10,54 @@
   .btn-premium-wide {
     @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/70 bg-white px-5 py-4 text-sm font-extrabold text-indigo-700 shadow-lg shadow-indigo-950/15 transition duration-200 hover:-translate-y-0.5 hover:bg-indigo-50 hover:shadow-xl focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0;
   }
+
+  /* ---------- Página de vendas (docs/sales-page.md) ---------- */
+  .vendas-cta {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 bg-[length:200%_100%] px-6 py-4 text-base font-extrabold text-white shadow-lg shadow-fuchsia-900/30 transition duration-300 hover:-translate-y-0.5 hover:bg-[position:100%_0] hover:shadow-xl hover:shadow-fuchsia-700/40 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-fuchsia-300/60 active:translate-y-0 active:scale-[0.98];
+  }
+  .vendas-cta-secundario {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/5 px-6 py-4 text-base font-bold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/15 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/40;
+  }
+  .vendas-cartao {
+    @apply rounded-3xl bg-white p-6 shadow-[0_18px_50px_-24px_rgba(76,29,149,0.35)] ring-1 ring-violet-100 transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_-24px_rgba(76,29,149,0.45)];
+  }
+  .vendas-selo {
+    @apply inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1 text-xs font-extrabold uppercase tracking-[0.14em] text-violet-700;
+  }
+}
+
+@keyframes flutuar {
+  0%, 100% { transform: translateY(0) rotate(var(--giro, 0deg)); }
+  50% { transform: translateY(-12px) rotate(var(--giro, 0deg)); }
+}
+@keyframes brilho-lento {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+@keyframes piscar-cursor {
+  50% { opacity: 0; }
+}
+
+.flutuar { animation: flutuar 6s ease-in-out infinite; }
+.flutuar-lento { animation: flutuar 9s ease-in-out infinite; }
+.brilho-lento { animation: brilho-lento 8s ease-in-out infinite; }
+.cursor-digitando::after { content: "▍"; margin-left: 2px; animation: piscar-cursor 1s steps(1) infinite; }
+
+/* Entrada das seções ao rolar: só esconde quando o JS está ativo
+   (classe posta por <Animacoes/>), então sem JS tudo aparece normal. */
+.animar [data-revelar] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.animar [data-revelar].visivel {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flutuar, .flutuar-lento, .brilho-lento { animation: none; }
+  .cursor-digitando::after { animation: none; }
+  .animar [data-revelar] { opacity: 1; transform: none; transition: none; }
+  .vendas-cta, .vendas-cta-secundario, .vendas-cartao { transition: none; }
 }

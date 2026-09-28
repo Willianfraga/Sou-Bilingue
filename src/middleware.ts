@@ -19,6 +19,9 @@ const CAMINHOS_PUBLICOS = [
   // exige o token do provedor (validateWebhookSignature). Sem isto o
   // middleware redirecionava para /login e nenhum pagamento era confirmado.
   "/api/webhooks",
+  "/api/eventos", // métricas anônimas da página de vendas (limite por IP)
+  "/termos",
+  "/privacidade",
   "/api/cadastro", // § 12: público, protegido por validação na rota
   "/api/tutores", // a própria rota exige sessão
   "/api/auth", // endpoints de autenticação

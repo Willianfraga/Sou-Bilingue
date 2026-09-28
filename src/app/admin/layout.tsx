@@ -3,6 +3,7 @@ import { requirePapel } from "@/lib/auth/guards";
 
 const items = [
   { href: "/admin", label: "Assinaturas" },
+  { href: "/admin/pagina-de-vendas", label: "Página de vendas" },
   { href: "/admin/conteudo", label: "Conteúdo (CMS)" },
   { href: "/admin/certificacao", label: "Motor de certificação" },
   { href: "/admin/cupons", label: "Cupons e QR Codes" },

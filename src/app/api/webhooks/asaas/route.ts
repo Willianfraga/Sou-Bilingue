@@ -1,6 +1,7 @@
 import { validateWebhookSignature } from "@/lib/asaas/client";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { criarAssinaturaRecorrente } from "@/lib/billing/subscription";
+import { registrarEventoFunil } from "@/lib/data/vendas";
 
 type EventoAsaas = {
   id?: string;
@@ -123,13 +124,16 @@ export async function POST(request: Request) {
       if (paymentError) throw paymentError;
 
       if (aprovado) {
+        const plano = Array.isArray(assinatura.planos) ? assinatura.planos[0] : assinatura.planos;
         if (assinatura.status !== "ativa") {
           const { error: activeError } = await supabase.from("subscriptions")
             .update({ status: "ativa", atualizada_em: new Date().toISOString() }).eq("id", assinatura.id);
           if (activeError) throw activeError;
+          // Conversão só conta aqui, com o pagamento confirmado (uma vez por
+          // assinatura: só na transição para "ativa").
+          await registrarEventoFunil({ nome: "compra_confirmada", plano: plano?.nome, alunoId: assinatura.aluno_id });
         }
         // Idempotente: webhook repetido não cria segunda assinatura recorrente.
-        const plano = Array.isArray(assinatura.planos) ? assinatura.planos[0] : assinatura.planos;
         if (!assinatura.asaas_subscription_id && plano && assinatura.asaas_customer_id) {
           const proximo = new Date();
           proximo.setMonth(proximo.getMonth() + 1);

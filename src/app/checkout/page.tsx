@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { processCheckout, getPlanosList } from "./actions";
+import { CHAVE_PLANO, enviarEvento } from "@/components/vendas/Rastreador";
 import {
   DESCONTO_PRIMEIRA_MENSALIDADE,
   formatarPreco,
@@ -31,10 +32,16 @@ export default function CheckoutPage() {
       try {
         const data = await getPlanosList();
         setPlanos(data);
-        // Selecionar primeiro plano por padrão
-        if (data.length > 0) {
-          setSelectedPlan(data[0].id);
+        // Plano escolhido na página de vendas (sessionStorage); senão, o primeiro.
+        let escolhido: string | null = null;
+        try {
+          escolhido = window.sessionStorage.getItem(CHAVE_PLANO);
+        } catch {
+          // storage bloqueado
         }
+        const doVendas = data.find((p) => p.nome === escolhido);
+        if (doVendas) setSelectedPlan(doVendas.id);
+        else if (data.length > 0) setSelectedPlan(data[0].id);
       } catch (err) {
         setError("Erro ao carregar planos");
         console.error(err);
@@ -62,6 +69,7 @@ export default function CheckoutPage() {
     try {
       const result = await processCheckout(selectedPlan);
       if (result.success && result.checkoutUrl) {
+        enviarEvento("ida_ao_checkout", { plano: planos.find((p) => p.id === selectedPlan)?.nome });
         // Redirecionar para o checkout do Asaas
         window.location.href = result.checkoutUrl;
       } else {
