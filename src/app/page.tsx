@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Animacoes } from "@/components/vendas/Animacoes";
+import { AssistenteVendas } from "@/components/vendas/AssistenteVendas";
 import { ComoFunciona } from "@/components/vendas/ComoFunciona";
 import { CtaFixoMobile } from "@/components/vendas/CtaFixoMobile";
 import { DemoConversa } from "@/components/vendas/DemoConversa";
@@ -24,6 +25,7 @@ import {
 import { getDepoimentosPublicados } from "@/lib/data/depoimentos";
 import { getConteudoVendas } from "@/lib/data/vendas";
 import { videoIncorporado } from "@/lib/vendas/conteudo";
+import { BENEFICIOS, COMPARACAO, OBJECOES, TUTORES } from "@/lib/vendas/produto";
 
 // Página de vendas — estrutura e regras em docs/sales-page.md.
 // Textos editáveis: /admin/pagina-de-vendas. Preços e horas: tabela planos.
@@ -40,44 +42,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const CADASTRO = "/cadastro";
-
-const TUTORES = [
-  { nome: "Clara", foto: "/tutores/anime/clara.png", perfil: "Adulta, calorosa" },
-  { nome: "Seu Antônio", foto: "/tutores/anime/antonio.png", perfil: "Sereno, bem-humorado" },
-  { nome: "Mei", foto: "/tutores/anime/mei.png", perfil: "Jovem, leve" },
-  { nome: "Diego", foto: "/tutores/anime/diego.png", perfil: "Jovem, comunicativo" },
-  { nome: "Luna", foto: "/tutores/anime/luna.png", perfil: "Para crianças" },
-  { nome: "Theo", foto: "/tutores/anime/theo.png", perfil: "Para crianças" },
-];
-
-const OBJECOES = [
-  { dor: "Tenho vergonha de falar.", resposta: "Aqui não tem plateia: é você e um professor paciente, que nunca te constrange por errar." },
-  { dor: "Não tenho tempo.", resposta: "A aula acontece quando você puder, a qualquer hora, em sessões do tamanho da sua rotina." },
-  { dor: "Já tentei outros apps e não evoluí.", resposta: "Exercício solto não ensina a conversar. Aqui você fala de verdade, sobre o que gosta." },
-  { dor: "Meu nível é muito baixo.", resposta: "A conversa começa em português e o idioma entra aos poucos, no seu ritmo." },
-  { dor: "Não sei por onde começar.", resposta: "Uma entrevista curta monta seu perfil e o professor sugere o primeiro assunto." },
-  { dor: "Não consigo manter a rotina.", resposta: "Metas semanais e um certificado mensal verificável ajudam a manter a constância." },
-];
-
-const BENEFICIOS = [
-  { icone: "🎯", titulo: "Aulas sobre o que você gosta", texto: "Viagens, games, trabalho, séries: os exemplos saem dos seus interesses." },
-  { icone: "🗣️", titulo: "Conversação de verdade", texto: "Você fala por voz e ouve as respostas — pratica pronúncia e escuta ao mesmo tempo." },
-  { icone: "🤝", titulo: "Correção respeitosa", texto: "Na hora, no fim da frase ou só no final: você escolhe como quer ser corrigido." },
-  { icone: "🛟", titulo: "Seguro para errar", texto: "Travou? Vem uma pista ou duas opções. Errar faz parte e é tratado assim." },
-  { icone: "⏱️", titulo: "No seu horário", texto: "Sem agenda fixa: pratique de manhã, no almoço ou à noite, no celular ou no computador." },
-  { icone: "📈", titulo: "Evolução acompanhada", texto: "Horas praticadas, constância semanal e dificuldade que sobe aos poucos." },
-  { icone: "🏅", titulo: "Certificado mensal", texto: "Cumpriu a meta de todas as semanas do mês? Ganha um certificado com código de verificação." },
-  { icone: "➕", titulo: "Horas extras quando quiser", texto: "Precisa praticar mais num mês? Compre horas extras direto no app." },
-];
-
-const COMPARACAO: Array<{ item: string; sb: string; curso: string; app: string }> = [
-  { item: "Horário", sb: "Quando você quiser", curso: "Turma com horário fixo", app: "Quando você quiser" },
-  { item: "Conversa por voz", sb: "Em toda aula", curso: "Divide o tempo com a turma", app: "Pouca ou nenhuma" },
-  { item: "Assuntos da aula", sb: "Seus interesses e objetivos", curso: "Apostila da turma", app: "Trilha igual para todos" },
-  { item: "Jeito de corrigir", sb: "Você escolhe", curso: "Depende do professor", app: "Certo ou errado" },
-  { item: "Falar sem plateia", sb: "Sim", curso: "Não", app: "Sim" },
-  { item: "Professor humano", sb: "Não — professor virtual", curso: "Sim", app: "Não" },
-];
 
 function Cta({
   children,
@@ -550,14 +514,22 @@ export default async function PaginaDeVendas() {
           <nav aria-label="Rodapé" className="flex flex-wrap gap-x-8 gap-y-3 text-sm">
             <a href="/termos" className="hover:text-white">Termos de uso</a>
             <a href="/privacidade" className="hover:text-white">Privacidade</a>
+            <a href="/reembolso" className="hover:text-white">Cancelamento e reembolso</a>
+            <a href="/contato" className="hover:text-white">Contato</a>
             {c.suporteEmail && <a href={`mailto:${c.suporteEmail}`} className="hover:text-white">Suporte: {c.suporteEmail}</a>}
             {whatsapp && <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="hover:text-white">WhatsApp do suporte</a>}
           </nav>
         </div>
-        <p className="mx-auto mt-10 max-w-6xl text-xs">© {new Date().getFullYear()} Sou Bilíngue. Professores virtuais com inteligência artificial.</p>
+        <p className="mx-auto mt-10 max-w-6xl text-xs">
+          © {new Date().getFullYear()} Sou Bilíngue. Professores virtuais com inteligência artificial.
+          {c.empresaNome && ` ${c.empresaNome}`}
+          {c.empresaCnpj && ` · CNPJ ${c.empresaCnpj}`}
+          {c.empresaEndereco && ` · ${c.empresaEndereco}`}
+        </p>
       </footer>
 
       <CtaFixoMobile texto={c.ctaPrincipal} href={CADASTRO} />
+      {c.assistenteAtivo && <AssistenteVendas pagina="vendas" acimaDoCtaMobile />}
     </div>
   );
 }

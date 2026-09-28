@@ -24,6 +24,13 @@ export type ConteudoVendas = {
   avisoPromocional: string; // faixa no topo; vazio = sem faixa
   suporteEmail: string; // vazio = sem link de e-mail
   suporteWhatsapp: string; // só dígitos com DDI; vazio = sem link
+  horarioAtendimento: string; // página /contato; vazio = não mostra
+  // Identificação do fornecedor (Decreto 7.962/2013, art. 2º): página
+  // /contato e rodapé. Vazio = "em breve" (preencher antes de vender).
+  empresaNome: string;
+  empresaCnpj: string;
+  empresaEndereco: string;
+  assistenteAtivo: boolean; // assistente de dúvidas nas páginas de venda
   perguntas: Pergunta[];
   depoimentos: Depoimento[];
   videoAula: string; // link do YouTube/Vimeo de uma aula real; vazio = demonstração animada
@@ -45,6 +52,11 @@ export const CONTEUDO_PADRAO: ConteudoVendas = {
   avisoPromocional: "",
   suporteEmail: "",
   suporteWhatsapp: "",
+  horarioAtendimento: "",
+  empresaNome: "",
+  empresaCnpj: "",
+  empresaEndereco: "",
+  assistenteAtivo: true,
   perguntas: [
     {
       pergunta: "Tenho vergonha de falar. Isso é para mim?",
@@ -119,6 +131,10 @@ const LIMITES: Record<string, number> = {
   avisoPromocional: 140,
   suporteEmail: 120,
   suporteWhatsapp: 30, // aceita formatação; só os dígitos são guardados
+  horarioAtendimento: 120,
+  empresaNome: 120,
+  empresaCnpj: 20,
+  empresaEndereco: 200,
   seoTitulo: 70,
   seoDescricao: 170,
   videoAula: 200,
@@ -228,6 +244,7 @@ export function normalizarConteudo(entrada: unknown): ConteudoVendas {
     if (!r[obrigatorio]) r[obrigatorio] = CONTEUDO_PADRAO[obrigatorio];
   }
   if (!emailValido(r.suporteEmail)) r.suporteEmail = "";
+  if (typeof e.assistenteAtivo === "boolean") r.assistenteAtivo = e.assistenteAtivo;
   if (r.videoAula && !videoIncorporado(r.videoAula)) r.videoAula = "";
   r.suporteWhatsapp = r.suporteWhatsapp.replace(/\D/g, "");
   if (r.suporteWhatsapp && (r.suporteWhatsapp.length < 10 || r.suporteWhatsapp.length > 15)) r.suporteWhatsapp = "";

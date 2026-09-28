@@ -220,7 +220,7 @@ export default function CheckoutPage() {
                   Arrependeu-se? Em até 7 dias corridos após a confirmação do 1º pagamento, você pede o reembolso integral
                   pelo app, em Minha assinatura. Depois disso não há reembolso automático; cobrança indevida, duplicada ou
                   falha no serviço podem ser enviadas para análise.{" "}
-                  <a href="/termos#cancelamento" className="underline">Política completa</a>.
+                  <a href="/reembolso" className="underline">Política completa</a>.
                 </p>
               </>
             );

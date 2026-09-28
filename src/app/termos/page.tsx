@@ -49,6 +49,10 @@ export default function Termos() {
         </li>
         <li>O andamento do pedido (solicitado, em análise, em processamento, reembolsado ou negado) aparece em Minha assinatura.</li>
       </ul>
+      <p>
+        Detalhes, hipóteses de devolução e base legal na <a href="/reembolso">Política de Cancelamento e Reembolso</a>. Fale
+        com a gente pela página de <a href="/contato">Contato</a>.
+      </p>
 
       <h2>Certificado mensal</h2>
       <p>

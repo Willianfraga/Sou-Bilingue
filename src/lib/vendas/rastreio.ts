@@ -22,6 +22,8 @@ export const EVENTOS_DO_FUNIL = [
   "planos_vistos",
   "plano_selecionado",
   "ida_ao_checkout",
+  "assistente_aberto",
+  "assistente_pergunta",
   "compra_confirmada", // só o webhook grava este
 ] as const;
 

@@ -226,8 +226,8 @@ export default async function MinhaAssinatura({
       )}
 
       <p className="text-xs text-neutral-500">
-        Política completa de cancelamento e reembolso nos{" "}
-        <Link href="/termos#cancelamento" className="underline">Termos de uso</Link>.
+        Regras completas na{" "}
+        <Link href="/reembolso" className="underline">Política de cancelamento e reembolso</Link>.
       </p>
     </main>
   );

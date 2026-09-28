@@ -38,6 +38,10 @@
   0%, 100% { opacity: 0.55; transform: scale(1); }
   50% { opacity: 0.85; transform: scale(1.06); }
 }
+@keyframes vendas-surgir {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
 @keyframes piscar-cursor {
   50% { opacity: 0; }
 }

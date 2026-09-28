@@ -1,46 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-// Fluxo real do produto, em 6 passos clicáveis (abas acessíveis por teclado).
-const PASSOS = [
-  {
-    titulo: "Você conta quem é",
-    texto:
-      "Uma entrevista curta de boas-vindas: como prefere ser chamado, seu nível, objetivos, assuntos favoritos e como gosta de ser corrigido. Nada de dados desnecessários.",
-    detalhe: "15 perguntas, uma por vez, com opção \"Prefiro não responder\".",
-  },
-  {
-    titulo: "Seu perfil é montado",
-    texto:
-      "As respostas viram um perfil de aprendizagem que acompanha todas as aulas. Você pode editar quando quiser.",
-    detalhe: "Nível, interesses, temas a evitar e preferência de correção.",
-  },
-  {
-    titulo: "A conversa começa no seu nível",
-    texto:
-      "O professor virtual começa em português e traz o idioma aos poucos. Uma pergunta por vez, em frases curtas, sobre assuntos de que você gosta.",
-    detalhe: "Você escolhe o tema — ou deixa o professor escolher.",
-  },
-  {
-    titulo: "Ajuda e correção na hora certa",
-    texto:
-      "Travou? Ele dá uma pista, oferece opções ou mostra um exemplo. Errou? Ele corrige com gentileza, do jeito que você pediu.",
-    detalhe: "Prioriza o erro que atrapalha a comunicação, sem lista de erros.",
-  },
-  {
-    titulo: "Seu progresso fica registrado",
-    texto:
-      "O app acompanha suas horas e sua constância. Cumpriu a meta de todas as semanas do mês? Você recebe um certificado mensal verificável.",
-    detalhe: "Certificado com código público de verificação.",
-  },
-  {
-    titulo: "As próximas aulas se adaptam",
-    texto:
-      "O professor lembra do que você compartilhou e aumenta a dificuldade aos poucos, conforme você acerta.",
-    detalhe: "Sem repetir a mesma atividade seguida.",
-  },
-];
+import { PASSOS } from "@/lib/vendas/produto";
 
 export function ComoFunciona() {
   const [ativo, setAtivo] = useState(0);

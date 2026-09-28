@@ -13,6 +13,8 @@ const ETAPAS_FUNIL: Array<[string, string]> = [
   ["planos_vistos", "Viram os planos"],
   ["plano_selecionado", "Escolheram um plano"],
   ["ida_ao_checkout", "Foram ao pagamento"],
+  ["assistente_aberto", "Abriram o assistente de dúvidas"],
+  ["assistente_pergunta", "Perguntas ao assistente"],
   ["compra_confirmada", "Compras confirmadas (webhook)"],
 ];
 
@@ -140,9 +142,25 @@ export default async function PaginaDeVendasAdmin({
         </fieldset>
 
         <fieldset className="grid gap-4 rounded-lg border border-neutral-200 p-5 sm:grid-cols-2">
-          <legend className="px-1 font-bold">Suporte (aparece no rodapé)</legend>
+          <legend className="px-1 font-bold">Contato (página /contato e rodapé)</legend>
           <Campo nome="suporteEmail" rotulo="E-mail de suporte" valor={c.suporteEmail} max={120} />
           <Campo nome="suporteWhatsapp" rotulo="WhatsApp (com DDI e DDD)" valor={c.suporteWhatsapp} max={30} ajuda="Ex.: +55 11 99999-9999" />
+          <Campo nome="horarioAtendimento" rotulo="Horário de atendimento" valor={c.horarioAtendimento} max={120} ajuda="Ex.: segunda a sexta, das 9h às 18h" />
+          <Campo nome="empresaNome" rotulo="Nome empresarial (razão social)" valor={c.empresaNome} max={120} />
+          <Campo nome="empresaCnpj" rotulo="CNPJ (ou CPF, se for pessoa física)" valor={c.empresaCnpj} max={20} />
+          <Campo nome="empresaEndereco" rotulo="Endereço físico" valor={c.empresaEndereco} max={200} ajuda="O Decreto 7.962/2013 exige nome, CNPJ/CPF e endereço visíveis no site de venda." />
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-2 rounded-lg border border-neutral-200 p-5">
+          <legend className="px-1 font-bold">Assistente de dúvidas</legend>
+          <label className="flex items-start gap-2 text-sm">
+            <input type="checkbox" name="assistenteAtivo" value="sim" defaultChecked={c.assistenteAtivo} className="mt-1" />
+            Mostrar o assistente (IA) na página de vendas, no cadastro, no checkout e no contato.
+          </label>
+          <p className="text-xs text-neutral-500">
+            Ele responde só com as informações do app (planos do banco, perguntas frequentes e políticas). Cada pergunta consome
+            créditos da Anthropic; desligue aqui se precisar.
+          </p>
         </fieldset>
 
         <fieldset className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-5">

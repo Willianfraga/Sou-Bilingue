@@ -22,6 +22,9 @@ const CAMINHOS_PUBLICOS = [
   "/api/eventos", // métricas anônimas da página de vendas (limite por IP)
   "/termos",
   "/privacidade",
+  "/reembolso",
+  "/contato",
+  "/api/assistente", // assistente de dúvidas público (limite por IP e teto diário na rota)
   "/api/cadastro", // § 12: público, protegido por validação na rota
   "/api/tutores", // a própria rota exige sessão
   "/api/auth", // endpoints de autenticação

@@ -9,7 +9,8 @@ import { CONTEUDO_PADRAO, textoParaDepoimentos, textoParaPerguntas } from "@/lib
 const CAMPOS_TEXTO = [
   "heroSelo", "heroTitulo", "heroDestaque", "heroSubtitulo",
   "ctaPrincipal", "ctaSecundario", "ctaPlanos", "ctaFinal",
-  "avisoPromocional", "suporteEmail", "suporteWhatsapp",
+  "avisoPromocional", "suporteEmail", "suporteWhatsapp", "horarioAtendimento",
+  "empresaNome", "empresaCnpj", "empresaEndereco",
   "seoTitulo", "seoDescricao", "variante", "videoAula",
 ] as const;
 
@@ -20,6 +21,7 @@ export async function salvarPaginaDeVendas(formData: FormData) {
 
   const entrada: Record<string, unknown> = {};
   for (const campo of CAMPOS_TEXTO) entrada[campo] = String(formData.get(campo) ?? "");
+  entrada.assistenteAtivo = formData.get("assistenteAtivo") === "sim";
   entrada.perguntas = textoParaPerguntas(String(formData.get("perguntas") ?? ""));
   entrada.depoimentos = textoParaDepoimentos(String(formData.get("depoimentos") ?? ""));
 

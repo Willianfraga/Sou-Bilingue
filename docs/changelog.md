@@ -1,5 +1,13 @@
 # Histórico de mudanças
 
+## 27 set 2026 — assistente de dúvidas, política de reembolso e contato
+
+- Assistente com IA da página de vendas até o checkout (`docs/assistente-vendas.md`): responde só com dados reais (planos do banco, FAQ, fatos do produto, políticas), faz perguntas para entender o visitante, convite proativo, liga/desliga no admin, limites por IP e teto diário. Nada da conversa é gravado.
+- Página pública `/reembolso` com a política e a base legal (CDC e Decreto 7.962/2013).
+- Página `/contato` com canais, horário e dados da empresa preenchidos no admin (vazio = "em breve").
+- Fatos do produto (professores, passos, benefícios, comparação) movidos para `src/lib/vendas/produto.ts`, usados pela página e pelo assistente.
+- Migration 0019 (aplicada): eventos `assistente_aberto` e `assistente_pergunta` no funil.
+
 ## 27 set 2026 — reembolso (7 dias) separado do cancelamento
 
 - **Correção urgente:** o banco recusava assinatura `pendente`, então nenhum
