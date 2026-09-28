@@ -1,7 +1,11 @@
 import { getUsuarioAutenticado } from "@/lib/auth/guards";
 import { garantirProfileAluno, nomeValido } from "@/lib/auth/profile";
+import { LIMITES, ipDoCliente, limitar, respostaLimiteExcedido } from "@/lib/seguranca/limite";
 
 export async function POST(request: Request) {
+  const limite = limitar(`cadastro:${ipDoCliente(request.headers)}`, LIMITES.cadastro.maximo, LIMITES.cadastro.janelaMs);
+  if (!limite.permitido) return respostaLimiteExcedido(limite.tenteEmSegundos);
+
   try {
     const body = await request.json().catch(() => null);
     const nome = String(body?.nome ?? "").trim();

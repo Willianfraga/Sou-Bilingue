@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { requireSessao } from "@/lib/auth/guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createNewSubscription, getPlano, getPlanos } from "@/lib/billing/subscription";
-import { getSubscriptionInvoiceUrl } from "@/lib/asaas/client";
+import { getPayment, getSubscriptionInvoiceUrl } from "@/lib/asaas/client";
 
 /**
  * Buscar lista de planos disponíveis
@@ -49,7 +49,7 @@ export async function processCheckout(
     // 4. Verificar se já tem assinatura ativa
     const { data: existingSubscription } = await supabase
       .from("subscriptions")
-      .select("id, status, asaas_subscription_id")
+      .select("id, status, asaas_subscription_id, asaas_primeira_cobranca_id")
       .eq("aluno_id", sessao.userId)
       .in("status", ["ativa", "pendente"])
       .order("criada_em", { ascending: false })
@@ -59,6 +59,11 @@ export async function processCheckout(
     if (existingSubscription) {
       if (existingSubscription.status === "ativa") {
         return { success: false, error: "Você já possui uma assinatura ativa" };
+      }
+      // Pendente com 1ª mensalidade com desconto: devolve a mesma fatura.
+      if (existingSubscription.asaas_primeira_cobranca_id) {
+        const cobranca = await getPayment(existingSubscription.asaas_primeira_cobranca_id);
+        if (cobranca.invoiceUrl) return { success: true, checkoutUrl: cobranca.invoiceUrl };
       }
       if (existingSubscription.asaas_subscription_id) {
         return {
@@ -84,16 +89,13 @@ export async function processCheckout(
       aluno.cpf_cnpj
     );
 
-    if (!result.success || !result.subscription) {
+    if (!result.success || !result.checkoutUrl) {
       return { success: false, error: result.error || "Erro ao criar assinatura" };
     }
 
-    // 7. Gerar link de checkout do Asaas
-    const checkoutUrl = await getSubscriptionInvoiceUrl(
-      result.subscription.asaas_subscription_id || "",
-    );
-
-    return { success: true, checkoutUrl };
+    // 7. Fatura do Asaas: 1ª mensalidade com desconto (ou a da assinatura,
+    // no plano de teste)
+    return { success: true, checkoutUrl: result.checkoutUrl };
   } catch (error) {
     console.error("Erro ao processar checkout:", error);
     return {

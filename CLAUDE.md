@@ -168,8 +168,8 @@ versão compartilhada) **e** este arquivo.
     continua adiado** (mesma decisão 14, funil QR→venda→checkout) — as únicas
     contas que existem são as 4 de teste (`scripts/seed-usuarios-teste.mjs`:
     admin@, aluno.adulto@, responsavel@, aluno.menor@, todas @soubilingue.com.br,
-    senha `Teste@123`). Trocar/remover esse script antes de qualquer divulgação
-    real. `scripts/seed-dados-teste.mjs` complementa com cotas_semanais e
+    senha em `TEST_ACCOUNTS_PASSWORD` no `.env.local` — nunca no repositório,
+    que é público; a senha antiga vazou e foi trocada em 27 set 2026). `scripts/seed-dados-teste.mjs` complementa com cotas_semanais e
     certificados de exemplo pros dois alunos.
 
     **Interface do aluno inteira já lê do banco de verdade** (progresso,
@@ -283,9 +283,10 @@ commitado. Nessa ordem, o que falta:
    não só conta de teste semeada na mão.
 4. Servidor local pode estar rodando ainda de sessões anteriores
    (`localhost:3000`) — se não estiver, `npm run dev` na pasta do projeto.
-   Contas de teste em `scripts/seed-usuarios-teste.mjs` (senha `Teste@123`
-   pra todas): `admin@`, `aluno.adulto@`, `aluno.menor@`, `responsavel@`,
-   todas `@soubilingue.com.br`.
+   Contas de teste em `scripts/seed-usuarios-teste.mjs` (senha em
+   `TEST_ACCOUNTS_PASSWORD`, fora do repositório): `admin@`, `aluno.adulto@`,
+   `aluno.menor@`, `responsavel@`, todas `@soubilingue.com.br`. Testes
+   automáticos usam alunos temporários (`test/suporte/alunos-temporarios.js`).
 5. **Cuidado com custo de IA:** `/api/aula/chat` usa `claude-haiku-4-5` por
    padrão agora (era Opus, trocado em 19 ago por custo — ver seção acima).
    Chave da Anthropic também foi trocada por uma dedicada e zerada. Não volte

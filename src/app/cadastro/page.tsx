@@ -31,7 +31,7 @@ export default function CadastroPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome: nomeSalvo }),
       });
-      if (ativo && resposta.ok) router.replace("/cadastro/onboarding");
+      if (ativo && resposta.ok) router.replace("/cadastro/onboarding/idioma");
     })().catch(() => {});
     return () => {
       ativo = false;
@@ -106,7 +106,7 @@ export default function CadastroPage() {
       }
 
       setMensagem("Conta criada com sucesso. Agora escolha seu perfil de idioma.");
-      setTimeout(() => router.push("/cadastro/onboarding"), 500);
+      setTimeout(() => router.push("/cadastro/onboarding/idioma"), 500);
     } catch (err) {
       setErro(err instanceof Error ? err.message : "Não foi possível criar sua conta.");
     } finally {

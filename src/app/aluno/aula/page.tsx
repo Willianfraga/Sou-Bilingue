@@ -4,6 +4,7 @@ import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { getTutorPorId, getTutores } from "@/lib/data/tutores";
 import { NOME_DO_IDIOMA } from "@/lib/types";
 import { getActiveSubscription } from "@/lib/billing/subscription";
+import { alunoTemVozPremium } from "@/lib/billing/voz";
 import { SeletorIdioma } from "@/components/aluno/SeletorIdioma";
 import { SeletorTutor } from "@/components/aluno/SeletorTutor";
 
@@ -56,6 +57,7 @@ export default async function Aula({
         alunoId={sessao.userId}
         horasRestantes={assinatura.horas_restantes}
         horasTotal={assinatura.horas_total}
+        vozPremium={await alunoTemVozPremium(sessao.userId)}
         tavusDisponivel={process.env.TAVUS_ENABLED === "true" && Boolean(process.env.TAVUS_API_KEY && process.env.TAVUS_PERSONA_ID && process.env.TAVUS_REPLICA_ID)}
       />
     </div>

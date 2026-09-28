@@ -92,6 +92,17 @@ test("onboarding pelo servidor", async (t) => {
     assert.equal(aula.status, 200);
   });
 
+  await t.test("sem plano ativo, as rotas de IA recusam com 402 (sem gerar custo)", async () => {
+    const chat = await chamar("/api/aula/chat", {
+      method: "POST",
+      body: JSON.stringify({ mensagens: [{ role: "user", content: "oi" }] }),
+    });
+    assert.equal(chat.status, 402);
+    assert.equal((await chat.json()).destino, "/checkout");
+    const voz = await chamar("/api/aula/voz", { method: "POST", body: JSON.stringify({ texto: "oi" }) });
+    assert.equal(voz.status, 402);
+  });
+
   await t.test("entrevista concluída não reaparece, mas pode ser editada", async () => {
     const r = await chamar("/boas-vindas");
     assert.equal(r.status, 307);

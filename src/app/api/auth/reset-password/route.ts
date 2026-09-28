@@ -1,6 +1,14 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { LIMITES, ipDoCliente, limitar, respostaLimiteExcedido } from "@/lib/seguranca/limite";
 
 export async function POST(request: Request) {
+  const limite = limitar(
+    `recuperarSenha:${ipDoCliente(request.headers)}`,
+    LIMITES.recuperarSenha.maximo,
+    LIMITES.recuperarSenha.janelaMs,
+  );
+  if (!limite.permitido) return respostaLimiteExcedido(limite.tenteEmSegundos);
+
   try {
     const body = await request.json();
     const { token, password, passwordConfirm } = body;

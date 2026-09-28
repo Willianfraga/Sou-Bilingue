@@ -47,7 +47,7 @@ test("Cadastro: fluxo completo", async (t) => {
   // credenciais forem passadas explicitamente no ambiente do teste.
   await t.test("1. Signup cria usuário no Supabase", { skip: !SUPABASE_URL || !ANON_KEY }, async () => {
     const email = `test-${Date.now()}@test.com`;
-    const password = "Teste@123";
+    const password = `t-${crypto.randomUUID()}`;
 
     const { user, error } = await signUpWithSupabase(email, password);
 

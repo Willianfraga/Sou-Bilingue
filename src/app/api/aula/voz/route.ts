@@ -2,6 +2,8 @@ import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { sintetizarVoz } from "@/lib/voice/elevenlabs";
 import { recordAIUsage } from "@/lib/ai/usage";
+import { alunoTemVozPremium } from "@/lib/billing/voz";
+import { bloqueioDeAula } from "@/lib/billing/acesso";
 
 export const runtime = "nodejs";
 
@@ -14,6 +16,15 @@ export async function POST(request: Request) {
   const perfil = await getPerfilDoAluno(sessao.userId);
   if (!perfil) {
     return Response.json({ erro: "Perfil do aluno não encontrado." }, { status: 404 });
+  }
+
+  const bloqueio = await bloqueioDeAula(sessao.userId, "aulaVoz");
+  if (bloqueio) return bloqueio;
+
+  // Plano sem voz premium: nem chega a chamar a ElevenLabs (custo). O
+  // navegador do aluno fala com a voz dele — ver src/lib/billing/voz.ts.
+  if (!(await alunoTemVozPremium(sessao.userId))) {
+    return Response.json({ erro: "Seu plano usa a voz do navegador.", vozDoNavegador: true }, { status: 403 });
   }
 
   const corpo = (await request.json().catch(() => null)) as { texto?: unknown } | null;

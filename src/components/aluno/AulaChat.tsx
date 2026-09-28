@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import Image from "next/image";
+import { dividirFalaPorIdioma } from "@/lib/voice/navegador";
 
 type Mensagem = { role: "user" | "assistant"; content: string; lida?: boolean };
 type Estado = "pronta" | "falando" | "ouvindo" | "pensando" | "pausada" | "erro";
@@ -14,11 +15,14 @@ export function AulaChat({
   idiomaDaVoz,
   fotoTutor,
   temaInicial,
+  vozPremium = true,
 }: {
   tituloTutor: string;
   idiomaDaVoz: string;
   fotoTutor?: string;
   temaInicial?: string;
+  // false = voz gratuita do navegador (plano sem voz premium)
+  vozPremium?: boolean;
 }) {
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [estado, setEstado] = useState<Estado>("pronta");
@@ -291,12 +295,22 @@ export function AulaChat({
     }
     setEstado("falando");
     window.speechSynthesis.cancel();
-    const fala = new SpeechSynthesisUtterance(texto);
-    fala.lang = idiomaDaVoz;
-    fala.rate = 0.95;
-    fala.onend = () => ouvir();
-    fala.onerror = () => ouvir();
-    window.speechSynthesis.speak(fala);
+    // Português com voz brasileira; exemplos entre aspas no idioma estudado.
+    const trechos = dividirFalaPorIdioma(texto, idiomaDaVoz);
+    if (trechos.length === 0) {
+      ouvir();
+      return;
+    }
+    trechos.forEach((trecho, i) => {
+      const fala = new SpeechSynthesisUtterance(trecho.texto);
+      fala.lang = trecho.idioma;
+      fala.rate = trecho.idioma === "pt-BR" ? 1 : 0.9;
+      if (i === trechos.length - 1) {
+        fala.onend = () => ouvir();
+        fala.onerror = () => ouvir();
+      }
+      window.speechSynthesis.speak(fala);
+    });
   }
 
   async function falar(texto: string) {
@@ -305,6 +319,12 @@ export function AulaChat({
     setEstado("falando");
     window.speechSynthesis?.cancel();
     audioRef.current?.pause();
+
+    // Plano sem voz premium (src/lib/billing/voz.ts): nem chama a ElevenLabs.
+    if (!vozPremium) {
+      falarNoNavegador(texto);
+      return;
+    }
 
     try {
       const resposta = await fetch("/api/aula/voz", {
@@ -376,8 +396,10 @@ export function AulaChat({
       }
       await responder(
         temaInicial
-          ? `Quero praticar este tema: ${temaInicial}. Ajude-me de forma leve e conversacional.`
-          : "Quero uma conversa livre. Escolha você um assunto ligado aos meus interesses e já comece a conversa, sem me perguntar o que eu quero aprender.",
+          ? `Ok, estou pronto, vamos começar a aula. Quero praticar: ${temaInicial}.`
+          : // Sem tema, o prompt do professor (src/lib/ai/tutor.ts) já manda o
+            // tutor escolher um assunto dos interesses do aluno e começar.
+            "Ok, estou pronto, vamos começar a aula.",
       );
     } catch {
       setErro("Precisamos do acesso ao microfone para iniciar a conversa automatica.");

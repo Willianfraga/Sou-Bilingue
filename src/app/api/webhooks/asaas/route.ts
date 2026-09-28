@@ -1,11 +1,38 @@
 import { validateWebhookSignature } from "@/lib/asaas/client";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { criarAssinaturaRecorrente } from "@/lib/billing/subscription";
 
 type EventoAsaas = {
   id?: string;
   event?: string;
-  payment?: { id?: string; value?: number; subscription?: string | { id?: string }; externalReference?: string };
+  payment?: {
+    id?: string;
+    value?: number;
+    status?: string;
+    billingType?: string;
+    subscription?: string | { id?: string };
+    externalReference?: string;
+  };
 };
+
+// Campos do evento guardados em webhook_events (sem dados pessoais).
+function resumoDoEvento(evento: EventoAsaas) {
+  const p = evento.payment;
+  return {
+    id: evento.id,
+    event: evento.event,
+    payment: p
+      ? {
+          id: p.id,
+          value: p.value,
+          status: p.status,
+          billingType: p.billingType,
+          subscription: typeof p.subscription === "string" ? p.subscription : p.subscription?.id,
+          externalReference: p.externalReference,
+        }
+      : undefined,
+  };
+}
 
 export async function POST(request: Request) {
   const token = request.headers.get("asaas-access-token") || undefined;
@@ -24,14 +51,31 @@ export async function POST(request: Request) {
   }
 
   const supabase = createSupabaseAdminClient();
+  // Guarda só o que o processamento e a auditoria usam — o evento do Asaas
+  // traz dados do comprador (nome, e-mail, CPF) que não precisam ficar aqui.
   const { error: registroError } = await supabase.from("webhook_events").insert({
     provider: "asaas", event_id: evento.id, event_type: evento.event,
-    payload: evento, status: "processando",
+    payload: resumoDoEvento(evento), status: "processando",
   });
   if (registroError?.code === "23505") {
-    return Response.json({ success: true, duplicate: true });
+    // Reenvio do mesmo evento. Já processado: responde ok sem repetir nada.
+    // Falhou antes (ou travou em "processando" por mais de 5 min): reclama o
+    // evento de forma atômica e processa de novo — o resto do fluxo é
+    // idempotente (upsert por asaas_payment_id, checagem de status, etc.).
+    const travadoAntesDe = new Date(Date.now() - 5 * 60_000).toISOString();
+    const { data: reclamado, error: claimError } = await supabase.from("webhook_events")
+      .update({ status: "processando", process_error: null, atualizado_em: new Date().toISOString() })
+      .eq("provider", "asaas").eq("event_id", evento.id)
+      .or(`status.eq.erro,and(status.eq.processando,atualizado_em.lt.${travadoAntesDe})`)
+      .select("id, tentativas");
+    if (claimError) return Response.json({ error: "Falha ao registrar evento" }, { status: 500 });
+    if (!reclamado?.length) return Response.json({ success: true, duplicate: true });
+    await supabase.from("webhook_events")
+      .update({ tentativas: (reclamado[0].tentativas ?? 1) + 1 })
+      .eq("id", reclamado[0].id);
+  } else if (registroError) {
+    return Response.json({ error: "Falha ao registrar evento" }, { status: 500 });
   }
-  if (registroError) return Response.json({ error: "Falha ao registrar evento" }, { status: 500 });
 
   try {
     const payment = evento.payment;
@@ -53,6 +97,55 @@ export async function POST(request: Request) {
           .update({ status: evento.event === "PAYMENT_DELETED" ? "expirada" : "pending" })
           .eq("id", topupMatch[1]).eq("asaas_invoice_id", payment.id);
         if (error) throw error;
+      }
+    }
+
+    // 1ª mensalidade com desconto (cobrança avulsa). Paga: libera o plano e só
+    // então cria a assinatura recorrente, preço cheio, vencendo em um mês.
+    const primeiraMatch = payment?.externalReference?.match(/^soubilingue:primeira:([0-9a-f-]{36})$/i);
+    if (payment?.id && primeiraMatch && eventosPagamento.includes(evento.event)) {
+      const { data: assinatura, error } = await supabase.from("subscriptions")
+        .select("id, aluno_id, status, plano_id, asaas_customer_id, asaas_subscription_id, asaas_primeira_cobranca_id, planos(nome, preco)")
+        .eq("id", primeiraMatch[1]).maybeSingle();
+      if (error) throw error;
+      if (!assinatura) throw new Error(`Assinatura não encontrada: ${primeiraMatch[1]}`);
+      if (assinatura.asaas_primeira_cobranca_id !== payment.id) {
+        throw new Error("Cobrança não corresponde à 1ª mensalidade registrada");
+      }
+
+      const aprovado = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(evento.event);
+      const { error: paymentError } = await supabase.from("payments").upsert({
+        asaas_payment_id: payment.id, aluno_id: assinatura.aluno_id,
+        subscription_id: assinatura.id, tipo: "assinatura", valor: payment.value ?? 0,
+        status: aprovado ? "pago" : "recusado",
+        data_pagamento: aprovado ? new Date().toISOString().slice(0, 10) : null,
+      }, { onConflict: "asaas_payment_id" });
+      if (paymentError) throw paymentError;
+
+      if (aprovado) {
+        if (assinatura.status !== "ativa") {
+          const { error: activeError } = await supabase.from("subscriptions")
+            .update({ status: "ativa", atualizada_em: new Date().toISOString() }).eq("id", assinatura.id);
+          if (activeError) throw activeError;
+        }
+        // Idempotente: webhook repetido não cria segunda assinatura recorrente.
+        const plano = Array.isArray(assinatura.planos) ? assinatura.planos[0] : assinatura.planos;
+        if (!assinatura.asaas_subscription_id && plano && assinatura.asaas_customer_id) {
+          const proximo = new Date();
+          proximo.setMonth(proximo.getMonth() + 1);
+          const recorrente = await criarAssinaturaRecorrente({
+            alunoId: assinatura.aluno_id,
+            planoId: assinatura.plano_id,
+            nomePlano: plano.nome,
+            preco: Number(plano.preco),
+            customerId: assinatura.asaas_customer_id,
+            primeiroVencimento: proximo,
+          });
+          const { error: recError } = await supabase.from("subscriptions")
+            .update({ asaas_subscription_id: recorrente.id, atualizada_em: new Date().toISOString() })
+            .eq("id", assinatura.id);
+          if (recError) throw recError;
+        }
       }
     }
 
@@ -79,15 +172,17 @@ export async function POST(request: Request) {
     }
 
     const { error } = await supabase.from("webhook_events")
-      .update({ status: "processado", processado_em: new Date().toISOString() })
+      .update({ status: "processado", processado_em: new Date().toISOString(), atualizado_em: new Date().toISOString() })
       .eq("provider", "asaas").eq("event_id", evento.id);
     if (error) throw error;
     return Response.json({ success: true });
   } catch (error) {
-    const mensagem = error instanceof Error ? error.message : "Erro desconhecido";
-    await supabase.from("webhook_events").update({ status: "erro", process_error: mensagem })
+    // Só a mensagem: o objeto de erro do Asaas pode trazer dados do comprador.
+    const mensagem = (error instanceof Error ? error.message : "Erro desconhecido").slice(0, 500);
+    await supabase.from("webhook_events")
+      .update({ status: "erro", process_error: mensagem, atualizado_em: new Date().toISOString() })
       .eq("provider", "asaas").eq("event_id", evento.id);
-    console.error("Falha ao processar webhook Asaas", error);
+    console.error("Falha ao processar webhook Asaas:", evento.event, evento.id, mensagem);
     return Response.json({ error: "Falha ao processar evento" }, { status: 500 });
   }
 }

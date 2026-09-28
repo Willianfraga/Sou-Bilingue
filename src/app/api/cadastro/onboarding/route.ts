@@ -1,11 +1,15 @@
 import { getUsuarioAutenticado } from "@/lib/auth/guards";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Idioma, Plano } from "@/lib/types";
+import { LIMITES, ipDoCliente, limitar, respostaLimiteExcedido } from "@/lib/seguranca/limite";
 
 const IDIOMAS_PERMITIDOS = new Set(["espanhol", "frances", "ingles", "mandarim", "italiano"]);
 const PLANOS_PERMITIDOS = new Set(["basico", "intermediario", "avancado"]);
 
 export async function POST(request: Request) {
+  const limite = limitar(`cadastro:${ipDoCliente(request.headers)}`, LIMITES.cadastro.maximo, LIMITES.cadastro.janelaMs);
+  if (!limite.permitido) return respostaLimiteExcedido(limite.tenteEmSegundos);
+
   try {
     const body = await request.json().catch(() => null);
     const idioma = String(body?.idioma ?? "") as Idioma;

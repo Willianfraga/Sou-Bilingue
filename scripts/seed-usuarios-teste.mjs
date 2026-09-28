@@ -5,13 +5,17 @@
 // Rodar (a partir da raiz do projeto, com as variáveis de .env.local carregadas):
 //   export $(grep -v '^#' .env.local | xargs -d '\n') && node scripts/seed-usuarios-teste.mjs
 //
-// Senha de teste igual pra todas as contas — está em texto puro aqui de
-// propósito porque não existe usuário real nenhum ainda. Trocar/remover
-// este script antes de qualquer divulgação real (§ 08 Fase 1).
+// A senha vem de TEST_ACCOUNTS_PASSWORD (só no ambiente local, nunca no
+// repositório — ele é público). Em 27 set 2026 a senha antiga, que estava
+// escrita aqui, foi trocada em produção por estar exposta no GitHub.
 
 import { createClient } from "@supabase/supabase-js";
 
-const SENHA_TESTE = "Teste@123";
+const SENHA_TESTE = process.env.TEST_ACCOUNTS_PASSWORD;
+if (!SENHA_TESTE || SENHA_TESTE.length < 16) {
+  console.error("Defina TEST_ACCOUNTS_PASSWORD (16+ caracteres) no .env.local antes de rodar.");
+  process.exit(1);
+}
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,

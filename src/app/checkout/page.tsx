@@ -2,6 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { processCheckout, getPlanosList } from "./actions";
+import {
+  DESCONTO_PRIMEIRA_MENSALIDADE,
+  formatarPreco,
+  horasPorSemana,
+  nomeDeExibicao,
+  valorPrimeiraMensalidade,
+} from "@/lib/billing/planos";
 
 interface Plan {
   id: string;
@@ -114,22 +121,32 @@ export default function CheckoutPage() {
             )}
 
             {/* Plan Name */}
-            <h3 className="mb-2 text-xl font-bold capitalize">{plan.nome}</h3>
+            <h3 className="mb-2 text-xl font-bold">{nomeDeExibicao(plan.nome)}</h3>
 
             {/* Price */}
             <div className="mb-4">
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">
-                  R$ {plan.preco.toFixed(2).replace(".", ",")}
-                </span>
-                <span className="text-neutral-600">/mês</span>
-              </div>
+              {valorPrimeiraMensalidade(plan.preco, plan.nome) < plan.preco ? (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                    1º mês com {DESCONTO_PRIMEIRA_MENSALIDADE}% de desconto
+                  </p>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold">
+                      {formatarPreco(valorPrimeiraMensalidade(plan.preco, plan.nome))}
+                    </span>
+                    <span className="text-sm text-neutral-500 line-through">{formatarPreco(plan.preco)}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-neutral-600">depois {formatarPreco(plan.preco)}/mês</p>
+                </>
+              ) : (
+                <span className="text-3xl font-bold">{formatarPreco(plan.preco)}</span>
+              )}
             </div>
 
             {/* Hours */}
             <div className="mb-6 rounded-lg bg-blue-50 px-3 py-2">
               <p className="text-sm font-semibold text-blue-900">
-                {plan.horas_mensais}h de conversação
+                {plan.horas_mensais}h de conversação por mês ({horasPorSemana(plan.horas_mensais)})
               </p>
             </div>
 
@@ -164,10 +181,8 @@ export default function CheckoutPage() {
               <>
                 <div className="mb-4 space-y-2 border-b border-neutral-200 pb-4">
                   <div className="flex justify-between">
-                    <span>Plano {plan.nome}</span>
-                    <span className="font-semibold">
-                      R$ {plan.preco.toFixed(2).replace(".", ",")}
-                    </span>
+                    <span>Plano {nomeDeExibicao(plan.nome)}</span>
+                    <span className="font-semibold">{formatarPreco(plan.preco)}/mês</span>
                   </div>
                   <div className="flex justify-between text-sm text-neutral-600">
                     <span>Horas mensais</span>
@@ -178,9 +193,15 @@ export default function CheckoutPage() {
                 <div className="flex justify-between">
                   <span className="font-bold">Total (primeira mensalidade)</span>
                   <span className="text-2xl font-bold">
-                    R$ {plan.preco.toFixed(2).replace(".", ",")}
+                    {formatarPreco(valorPrimeiraMensalidade(plan.preco, plan.nome))}
                   </span>
                 </div>
+                {valorPrimeiraMensalidade(plan.preco, plan.nome) < plan.preco && (
+                  <p className="mt-2 text-sm text-neutral-600">
+                    {DESCONTO_PRIMEIRA_MENSALIDADE}% de desconto no 1º mês. A partir do 2º mês,{" "}
+                    {formatarPreco(plan.preco)}/mês, cobrado automaticamente.
+                  </p>
+                )}
 
                 <p className="mt-4 text-xs text-neutral-600">
                   ✓ Sem taxa de setup

@@ -14,6 +14,7 @@ interface AulaChatComHorasProps {
   horasRestantes: number;
   horasTotal: number;
   tavusDisponivel?: boolean;
+  vozPremium?: boolean;
 }
 
 /**
@@ -30,6 +31,7 @@ export function AulaChatComHoras({
   horasRestantes,
   horasTotal,
   tavusDisponivel = false,
+  vozPremium = true,
 }: AulaChatComHorasProps) {
   const [modo, setModo] = useState<"video" | "leve">(tavusDisponivel ? "video" : "leve");
   return (
@@ -57,7 +59,7 @@ export function AulaChatComHoras({
         {modo === "video" && tavusDisponivel ? (
           <TavusAula tituloTutor={tituloTutor} />
         ) : (
-          <AulaChat tituloTutor={tituloTutor} idiomaDaVoz={idiomaDaVoz} fotoTutor={fotoTutor} temaInicial={temaInicial} />
+          <AulaChat tituloTutor={tituloTutor} idiomaDaVoz={idiomaDaVoz} fotoTutor={fotoTutor} temaInicial={temaInicial} vozPremium={vozPremium} />
         )}
       </main>
     </div>

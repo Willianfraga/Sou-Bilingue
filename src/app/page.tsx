@@ -1,10 +1,35 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessao, rotaDoPapel } from "@/lib/auth/guards";
+import { getPlanos } from "@/lib/billing/subscription";
+import {
+  DESCONTO_PRIMEIRA_MENSALIDADE,
+  PLANOS_DE_TESTE,
+  formatarPreco,
+  horasPorSemana,
+  nomeDeExibicao,
+  planoTemVozPremium,
+  valorPrimeiraMensalidade,
+} from "@/lib/billing/planos";
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const sessao = await getSessao();
   if (sessao) redirect(rotaDoPapel(sessao.papel));
+
+  // Mesma fonte do checkout (tabela planos): preço, horas e desconto nunca
+  // divergem entre a página de vendas e a cobrança.
+  const planos = (await getPlanos())
+    .filter((p) => !PLANOS_DE_TESTE.has(p.nome))
+    .map((p) => ({
+      name: nomeDeExibicao(p.nome),
+      price: formatarPreco(valorPrimeiraMensalidade(Number(p.preco), p.nome)),
+      original: formatarPreco(Number(p.preco)),
+      hours: `${p.horas_mensais} horas/mês (${horasPorSemana(p.horas_mensais)})`,
+      voz: planoTemVozPremium(p.nome) ? "Voz premium do tutor" : "Voz padrão do navegador",
+      badge: p.nome === "fluencia",
+    }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -47,7 +72,7 @@ export default async function Home() {
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Link
-                  href="/cadastro/onboarding"
+                  href="/cadastro"
                   className="px-8 py-4 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all text-center"
                 >
                   Começar Gratuitamente
@@ -164,38 +189,10 @@ export default async function Home() {
       <section id="planos" className="py-20 px-6 border-t border-slate-700/50">
         <div className="max-w-7xl mx-auto">
           <h3 className="text-3xl font-bold text-white text-center mb-4">Planos Simples e Claros</h3>
-          <p className="text-center text-slate-400 mb-16 text-lg">Primeiro mês com 50% de desconto. Sem compromisso.</p>
+          <p className="text-center text-slate-400 mb-16 text-lg">Primeiro mês com {DESCONTO_PRIMEIRA_MENSALIDADE}% de desconto. Sem compromisso.</p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Básico",
-                price: "R$ 24,50",
-                original: "R$ 49",
-                days: "3 dias/semana",
-                hours: "6 horas/semana",
-                level: "A1 - A2",
-                badge: false,
-              },
-              {
-                name: "Intermediário",
-                price: "R$ 39,50",
-                original: "R$ 79",
-                days: "5 dias/semana",
-                hours: "10 horas/semana",
-                level: "B1 - B2",
-                badge: true,
-              },
-              {
-                name: "Avançado",
-                price: "R$ 59,50",
-                original: "R$ 119",
-                days: "7 dias/semana",
-                hours: "14 horas/semana",
-                level: "C1+",
-                badge: false,
-              },
-            ].map((plan, i) => (
+            {planos.map((plan, i) => (
               <div
                 key={i}
                 className={`relative rounded-2xl border p-8 transition-all ${
@@ -224,15 +221,11 @@ export default async function Home() {
                 <div className="space-y-3 mb-8">
                   <div className="flex items-center gap-3">
                     <span className="text-blue-400">✓</span>
-                    <span className="text-slate-300">{plan.days}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-blue-400">✓</span>
                     <span className="text-slate-300">{plan.hours}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-blue-400">✓</span>
-                    <span className="text-slate-300">Nível {plan.level}</span>
+                    <span className="text-slate-300">{plan.voz}</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-blue-400">✓</span>
@@ -245,7 +238,7 @@ export default async function Home() {
                 </div>
 
                 <Link
-                  href="/cadastro/onboarding"
+                  href="/cadastro"
                   className={`w-full py-3 rounded-lg font-semibold transition-all text-center ${
                     plan.badge
                       ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-lg hover:shadow-blue-500/50"

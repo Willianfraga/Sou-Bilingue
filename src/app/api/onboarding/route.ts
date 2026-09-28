@@ -9,6 +9,7 @@ import {
 import { ROTA_PRIMEIRA_AULA } from "@/lib/onboarding/fluxo";
 import { validarRespostas } from "@/lib/onboarding/questionario";
 import type { Idioma } from "@/lib/types";
+import { LIMITES, limitar, respostaLimiteExcedido } from "@/lib/seguranca/limite";
 
 // Entrevista de boas-vindas. O aluno vem sempre da sessão — o corpo da
 // requisição só traz respostas, nunca "de quem" elas são. Nenhum log aqui
@@ -17,6 +18,8 @@ import type { Idioma } from "@/lib/types";
 async function alunoDaSessao() {
   const sessao = await getSessao();
   if (!sessao || sessao.papel !== "aluno") return { erro: erro(401, "Faça login como aluno para continuar.") };
+  const limite = limitar(`onboarding:${sessao.userId}`, LIMITES.onboarding.maximo, LIMITES.onboarding.janelaMs);
+  if (!limite.permitido) return { erro: respostaLimiteExcedido(limite.tenteEmSegundos) };
   const perfil = await getPerfilDoAluno(sessao.userId);
   if (!perfil) return { erro: erro(409, "Conclua o cadastro antes da entrevista.") };
   return { sessao, perfil };

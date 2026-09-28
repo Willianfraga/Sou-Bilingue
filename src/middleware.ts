@@ -15,6 +15,10 @@ const CAMINHOS_PUBLICOS = [
   // própria rota recusa quem não mandar o CRON_SECRET certo. Sem isto aqui,
   // o middleware barraria o cron antes mesmo da rota checar o token.
   "/api/jobs",
+  // Webhooks de pagamento chegam sem sessão (servidor do Asaas). A rota
+  // exige o token do provedor (validateWebhookSignature). Sem isto o
+  // middleware redirecionava para /login e nenhum pagamento era confirmado.
+  "/api/webhooks",
   "/api/cadastro", // § 12: público, protegido por validação na rota
   "/api/tutores", // a própria rota exige sessão
   "/api/auth", // endpoints de autenticação

@@ -277,7 +277,8 @@ describe("prompt do professor (docs/PROMPT_PROFESSOR.md)", () => {
   test("aula sem tema pede ao tutor para escolher, sem perguntar de novo", () => {
     const chat = ler("src/components/aluno/AulaChat.tsx");
     assert.equal(chat.includes("Pergunte o que eu gostaria de aprender hoje"), false);
-    assert.match(chat, /Escolha você um assunto ligado aos meus interesses/);
+    assert.match(chat, /"Ok, estou pronto, vamos começar a aula\."/);
+    assert.match(ler("src/lib/ai/tutor.ts"), /escolha voce mesmo um assunto ligado aos interesses do perfil/);
   });
 
   test("a rota real do chat monta o contexto com buildStudentContext e envia ao prompt", () => {

@@ -8,6 +8,7 @@ import { recordAIUsage } from "@/lib/ai/usage";
 import { getOnboardingDoAluno } from "@/lib/data/onboarding";
 import { buildStudentContext, nomeParaOTutor } from "@/lib/onboarding/contexto";
 import { onboardingConcluido } from "@/lib/onboarding/fluxo";
+import { bloqueioDeAula } from "@/lib/billing/acesso";
 
 export const runtime = "nodejs";
 
@@ -38,6 +39,9 @@ export async function POST(request: Request) {
       { status: 403 },
     );
   }
+
+  const bloqueio = await bloqueioDeAula(sessao.userId, "aulaChat");
+  if (bloqueio) return bloqueio;
 
   const { mensagens, tema } = (await request.json()) as {
     mensagens: MensagemCliente[];
@@ -74,7 +78,15 @@ export async function POST(request: Request) {
           cache_control: { type: "ephemeral" },
         },
       ],
-      messages: mensagens.map((m) => ({ role: m.role, content: m.content })),
+      // Segundo ponto de cache na última mensagem: o histórico inteiro entra
+      // no cache e a próxima fala só paga os tokens novos. Sozinho, o prompt
+      // do sistema fica abaixo do mínimo cacheável do Haiku 4.5 (4.096
+      // tokens) e o cache nunca acontecia — ver docs/CUSTOS_IA.md.
+      messages: mensagens.map((m, i): Anthropic.MessageParam =>
+        i === mensagens.length - 1
+          ? { role: m.role, content: [{ type: "text", text: m.content, cache_control: { type: "ephemeral" } }] }
+          : { role: m.role, content: m.content },
+      ),
     });
 
     const texto = resposta.content

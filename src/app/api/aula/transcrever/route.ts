@@ -1,6 +1,7 @@
 import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { recordAIUsage } from "@/lib/ai/usage";
+import { bloqueioDeAula } from "@/lib/billing/acesso";
 
 export const runtime = "nodejs";
 
@@ -14,6 +15,9 @@ export async function POST(request: Request) {
   if (!perfil) {
     return Response.json({ erro: "Perfil do aluno não encontrado." }, { status: 404 });
   }
+
+  const bloqueio = await bloqueioDeAula(sessao.userId, "aulaTranscricao");
+  if (bloqueio) return bloqueio;
 
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {

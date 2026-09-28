@@ -21,6 +21,7 @@ function carregarEnv() {
     anon: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     service: env.SUPABASE_SERVICE_ROLE_KEY,
     baseUrl: env.TEST_BASE_URL || "http://localhost:3000",
+    asaasWebhookToken: env.ASAAS_WEBHOOK_TOKEN,
   };
 }
 
