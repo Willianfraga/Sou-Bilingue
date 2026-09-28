@@ -200,6 +200,14 @@ export async function cancelSubscription(
   return request<{ deleted: boolean; id: string }>("DELETE", `/subscriptions/${subscriptionId}`);
 }
 
+// Estorno (docs.asaas.com/reference/estornar-cobranca): POST
+// /v3/payments/{id}/refund; sem "value" = integral. O resultado final chega
+// pelo webhook (PAYMENT_REFUNDED, PAYMENT_REFUND_IN_PROGRESS,
+// PAYMENT_REFUND_DENIED) — a resposta daqui não marca nada como reembolsado.
+export async function refundPayment(paymentId: string, description: string): Promise<AsaasPayment> {
+  return request<AsaasPayment>("POST", `/payments/${paymentId}/refund`, { description: description.slice(0, 200) });
+}
+
 // Remove uma cobrança avulsa ainda não paga (ex.: 1ª mensalidade pendente).
 export async function deletePayment(paymentId: string): Promise<{ deleted: boolean; id: string }> {
   return request<{ deleted: boolean; id: string }>("DELETE", `/payments/${paymentId}`);

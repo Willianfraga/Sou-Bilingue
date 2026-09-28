@@ -84,7 +84,12 @@ export const CONTEUDO_PADRAO: ConteudoVendas = {
     {
       pergunta: "Posso cancelar?",
       resposta:
-        "Sim, quando quiser e pelo próprio app, em Minha assinatura — sem precisar falar com ninguém. As próximas cobranças são canceladas na hora e você continua com acesso até o fim do período que já pagou.",
+        "Sim, quando quiser e pelo próprio app, em Minha assinatura — sem precisar falar com ninguém. As próximas cobranças são canceladas na hora e você continua com acesso até o fim do período que já pagou. Cancelar a renovação não devolve o que já foi pago; para isso existe o pedido de reembolso.",
+    },
+    {
+      pergunta: "E se eu me arrepender? Tem reembolso?",
+      resposta:
+        "Sim. Em até 7 dias corridos após a confirmação do 1º pagamento, você pede o reembolso integral pelo próprio app, em Minha assinatura, sem precisar dizer o motivo — e recebe um número de protocolo. Depois desse prazo não há reembolso automático, mas casos como cobrança indevida, cobrança em duplicidade ou falha na prestação do serviço podem ser enviados para análise pelo mesmo lugar.",
     },
     {
       pergunta: "Meus dados estão seguros?",

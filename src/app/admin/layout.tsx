@@ -5,6 +5,7 @@ const items = [
   { href: "/admin", label: "Assinaturas" },
   { href: "/admin/pagina-de-vendas", label: "Página de vendas" },
   { href: "/admin/depoimentos", label: "Depoimentos" },
+  { href: "/admin/reembolsos", label: "Reembolsos" },
   { href: "/admin/conteudo", label: "Conteúdo (CMS)" },
   { href: "/admin/certificacao", label: "Motor de certificação" },
   { href: "/admin/cupons", label: "Cupons e QR Codes" },

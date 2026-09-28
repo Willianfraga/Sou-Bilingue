@@ -68,11 +68,17 @@ Checkout (/checkout) ──> cobrança no Asaas ──> aluno paga na página do
   de auditoria financeira.
 - `payments`, `subscriptions`, `hour_topups`: nunca apagados em cancelamento,
   reembolso ou chargeback — o status muda, o histórico fica.
+- `reembolsos` e `reembolso_eventos` (trilha só de acréscimo): política e
+  estados em `docs/refund-policy.md`.
 
 ## Checklist antes de vender de verdade
 
 - [ ] Trocar todas as chaves que foram expostas (ver `docs/changelog.md`, 27 set).
 - [ ] `ASAAS_API_URL` e `ASAAS_API_KEY` de produção no Coolify.
 - [ ] Webhook do Asaas apontando para `https://app.soubilingue.com.br/api/webhooks/asaas`
-      com o token igual a `ASAAS_WEBHOOK_TOKEN`.
+      com o token igual a `ASAAS_WEBHOOK_TOKEN`, e com os eventos de pagamento
+      **e de estorno** (`PAYMENT_REFUNDED`, `PAYMENT_PARTIALLY_REFUNDED`,
+      `PAYMENT_REFUND_IN_PROGRESS`, `PAYMENT_REFUND_DENIED`) marcados.
+- [ ] Revisão jurídica dos termos e da política de reembolso (`docs/refund-policy.md`).
+- [ ] Testar um estorno real no sandbox pelo app (Minha assinatura → Solicitar reembolso).
 - [ ] Um pagamento real de ponta a ponta (valor mínimo) antes da divulgação.

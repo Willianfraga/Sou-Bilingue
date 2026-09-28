@@ -3,6 +3,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { criarAssinaturaRecorrente } from "@/lib/billing/subscription";
 import { registrarEventoFunil } from "@/lib/data/vendas";
 import { planoDaCertificacao } from "@/lib/billing/planos";
+import { aplicarEventoDeEstorno } from "@/lib/billing/reembolso";
+import { statusDoEventoAsaas } from "@/lib/billing/regras-reembolso";
 
 type EventoAsaas = {
   id?: string;
@@ -34,6 +36,27 @@ function resumoDoEvento(evento: EventoAsaas) {
         }
       : undefined,
   };
+}
+
+// Grava o pagamento sem mexer no que já foi decidido: a data da 1ª
+// confirmação é o início do prazo de 7 dias (reenvio não pode empurrá-la) e
+// um pagamento estornado não volta a "pago". Devolve false se já estornado.
+async function registrarPagamento(
+  supabase: ReturnType<typeof createSupabaseAdminClient>,
+  p: { asaasPaymentId: string; alunoId: string; subscriptionId: string; valor: number; aprovado: boolean },
+) {
+  const { data: atual, error: leituraError } = await supabase.from("payments")
+    .select("status, data_pagamento").eq("asaas_payment_id", p.asaasPaymentId).maybeSingle();
+  if (leituraError) throw leituraError;
+  if (atual?.status === "estornado") return false;
+  const { error } = await supabase.from("payments").upsert({
+    asaas_payment_id: p.asaasPaymentId, aluno_id: p.alunoId,
+    subscription_id: p.subscriptionId, tipo: "assinatura", valor: p.valor,
+    status: p.aprovado ? "pago" : "recusado",
+    data_pagamento: p.aprovado ? (atual?.data_pagamento ?? new Date().toISOString().slice(0, 10)) : null,
+  }, { onConflict: "asaas_payment_id" });
+  if (error) throw error;
+  return true;
 }
 
 export async function POST(request: Request) {
@@ -116,15 +139,12 @@ export async function POST(request: Request) {
       }
 
       const aprovado = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(evento.event);
-      const { error: paymentError } = await supabase.from("payments").upsert({
-        asaas_payment_id: payment.id, aluno_id: assinatura.aluno_id,
-        subscription_id: assinatura.id, tipo: "assinatura", valor: payment.value ?? 0,
-        status: aprovado ? "pago" : "recusado",
-        data_pagamento: aprovado ? new Date().toISOString().slice(0, 10) : null,
-      }, { onConflict: "asaas_payment_id" });
-      if (paymentError) throw paymentError;
+      const vigente = await registrarPagamento(supabase, {
+        asaasPaymentId: payment.id, alunoId: assinatura.aluno_id,
+        subscriptionId: assinatura.id, valor: payment.value ?? 0, aprovado,
+      });
 
-      if (aprovado) {
+      if (aprovado && vigente) {
         const plano = Array.isArray(assinatura.planos) ? assinatura.planos[0] : assinatura.planos;
         if (assinatura.status !== "ativa") {
           const { error: activeError } = await supabase.from("subscriptions")
@@ -168,19 +188,22 @@ export async function POST(request: Request) {
       if (!subscription) throw new Error(`Assinatura não encontrada: ${subscriptionId}`);
 
       const aprovado = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(evento.event);
-      const { error: paymentError } = await supabase.from("payments").upsert({
-        asaas_payment_id: payment.id, aluno_id: subscription.aluno_id,
-        subscription_id: subscription.id, tipo: "assinatura", valor: payment.value ?? 0,
-        status: aprovado ? "pago" : "recusado",
-        data_pagamento: aprovado ? new Date().toISOString().slice(0, 10) : null,
-      }, { onConflict: "asaas_payment_id" });
-      if (paymentError) throw paymentError;
+      const vigente = await registrarPagamento(supabase, {
+        asaasPaymentId: payment.id, alunoId: subscription.aluno_id,
+        subscriptionId: subscription.id, valor: payment.value ?? 0, aprovado,
+      });
 
-      if (aprovado && subscription.status !== "ativa") {
+      if (aprovado && vigente && subscription.status !== "ativa") {
         const { error: activeError } = await supabase.from("subscriptions")
           .update({ status: "ativa", atualizada_em: new Date().toISOString() }).eq("id", subscription.id);
         if (activeError) throw activeError;
       }
+    }
+
+    // Estorno (pedido pelo app ou feito no painel do Asaas). Repetido ou fora
+    // de ordem não faz o status voltar; confirmado encerra o acesso.
+    if (payment?.id && statusDoEventoAsaas(evento.event)) {
+      await aplicarEventoDeEstorno(payment.id, evento.event);
     }
 
     const { error } = await supabase.from("webhook_events")

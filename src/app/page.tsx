@@ -479,7 +479,8 @@ export default async function PaginaDeVendas() {
             <p className="mx-auto mt-8 max-w-3xl text-center text-sm text-slate-500">
               O próximo passo é criar sua conta e pagar na página segura do Asaas (Pix, cartão ou boleto). Depois, uma
               entrevista curta personaliza suas aulas. O acesso é liberado assim que o pagamento é confirmado, e você pode
-              cancelar quando quiser pelo próprio app.
+              cancelar quando quiser pelo próprio app. Arrependeu-se? Em até 7 dias após o 1º pagamento, o reembolso é
+              integral, pedido pelo app.
             </p>
           </div>
         </section>
@@ -492,7 +493,7 @@ export default async function PaginaDeVendas() {
               ["💳", "Pagamento seguro", "Feito na página do Asaas. Não recebemos nem guardamos dados do seu cartão."],
               ["🏷️", `1º mês com ${DESCONTO_PRIMEIRA_MENSALIDADE}% off`, "O desconto aparece antes de pagar; os meses seguintes têm o preço cheio informado."],
               ["🔒", "Seus dados protegidos", "Pedimos só o necessário e cada aluno acessa apenas os próprios dados."],
-              ["✋", "Cancele pelo app", "Sem ligação e sem letra miúda: as cobranças seguintes param na hora e o acesso vai até o fim do período pago."],
+              ["✋", "Cancele pelo app", "Sem ligação e sem letra miúda: as cobranças seguintes param na hora e o acesso vai até o fim do período pago. Em até 7 dias após o 1º pagamento, reembolso integral."],
             ].map(([i, t, d]) => (
               <li key={t} className="vendas-cartao">
                 <span aria-hidden className="text-3xl">{i}</span>

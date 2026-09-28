@@ -67,4 +67,16 @@ test("webhook do Asaas", async (t) => {
     assert.equal(r.status, "erro");
     assert.equal(r.tentativas, 2);
   });
+
+  await t.test("estorno de cobrança que não é deste app: aceito sem criar reembolso", async () => {
+    const id = `evt_teste_${crypto.randomUUID()}`;
+    const pagamento = `pay_${id}`;
+    for (const [eventId, event] of [[`${id}_p`, "PAYMENT_REFUND_IN_PROGRESS"], [id, "PAYMENT_REFUNDED"]]) {
+      ids.push(eventId);
+      assert.equal((await enviar({ id: eventId, event, payment: { id: pagamento, value: 1 } })).status, 200, event);
+    }
+    assert.equal((await registro(id)).status, "processado");
+    const { data } = await admin().from("reembolsos").select("id").eq("asaas_payment_id", pagamento);
+    assert.deepEqual(data, []);
+  });
 });

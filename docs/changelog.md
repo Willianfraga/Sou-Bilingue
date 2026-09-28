@@ -1,5 +1,29 @@
 # Histórico de mudanças
 
+## 27 set 2026 — reembolso (7 dias) separado do cancelamento
+
+- **Correção urgente:** o banco recusava assinatura `pendente`, então nenhum
+  checkout conseguia começar (restrição `subscriptions_status_check`
+  restaurada do backup). Corrigido na migration 0018.
+- Pedido de reembolso em `/assinatura`, separado de "Cancelar renovação":
+  - dentro dos 7 dias: integral, sem motivo, com senha e protocolo; estorno
+    enviado ao Asaas;
+  - depois dos 7 dias: motivo obrigatório e análise do admin.
+- Estados `REQUESTED` → `UNDER_REVIEW` / `APPROVED` / `REJECTED` →
+  `PROCESSING` → `REFUNDED` / `FAILED`. "Reembolsado" só é marcado pelo
+  webhook do Asaas.
+- Webhook:
+  - trata os eventos de estorno;
+  - evento repetido ou fora de ordem não regride o estado;
+  - um reenvio de confirmação não reativa um pagamento estornado nem muda a
+    data do 1º pagamento (que é o início do prazo).
+- `/admin/reembolsos`: aprovar, negar, reprocessar e anotar, sempre com
+  justificativa, numa trilha só de acréscimo (`reembolso_eventos`).
+- Política exibida na página de vendas (FAQ e "Sem surpresas"), no checkout,
+  nos termos (`/termos#cancelamento`) e em Minha assinatura.
+- Tabelas `reembolsos` e `reembolso_eventos` (migration 0018, aplicada).
+- Detalhes em `docs/refund-policy.md`.
+
 ## 27 set 2026 — cancelamento pelo app, depoimentos, vídeo e caminho curto
 
 - Cancelamento pelo próprio aluno em `/assinatura` (migration 0017); corrigida
