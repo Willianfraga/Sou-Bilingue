@@ -26,8 +26,8 @@ export type AreaAdmin = {
 
 export const AREAS_ADMIN: AreaAdmin[] = [
   { id: "visao-geral", rotulo: "Visão geral", href: "/admin", grupo: "Operação", funcoes: ["financeiro", "suporte", "pedagogico", "moderador", "analista"], pronta: true },
-  { id: "alunos", rotulo: "Alunos", href: "/admin/alunos", grupo: "Operação", funcoes: ["suporte", "pedagogico", "analista"], pronta: false },
-  { id: "tutores", rotulo: "Tutores de IA", href: "/admin/tutores", grupo: "Operação", funcoes: ["pedagogico", "analista"], pronta: false },
+  { id: "alunos", rotulo: "Alunos", href: "/admin/alunos", grupo: "Operação", funcoes: ["suporte", "pedagogico", "analista"], pronta: true },
+  { id: "tutores", rotulo: "Tutores de IA", href: "/admin/tutores", grupo: "Operação", funcoes: ["pedagogico", "analista"], pronta: true },
   { id: "conversas", rotulo: "Conversas", href: "/admin/conversas", grupo: "Operação", funcoes: ["suporte", "moderador"], pronta: false },
 
   { id: "aprendizagem", rotulo: "Aprendizagem", href: "/admin/aprendizagem", grupo: "Aprendizagem", funcoes: ["pedagogico", "analista"], pronta: false },

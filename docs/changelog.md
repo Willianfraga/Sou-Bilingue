@@ -1,5 +1,17 @@
 # Histórico de mudanças
 
+## 29 set 2026 — painel administrativo: alunos e tutores
+
+- Alunos:
+  - lista com busca, filtros, paginação e alertas para revisão humana;
+  - ficha com consumo, receita, margem, entrevista e pagamentos;
+  - ações: suspender/reativar, exportar dados (LGPD) e anonimizar (pedido
+    de exclusão), com motivo e auditoria.
+- Tutores: status, métricas por tutor no período, edição com motivo e
+  histórico.
+- Conta suspensa perde a sessão na hora.
+- Migration 0023 (aplicada).
+
 ## 29 set 2026 — painel administrativo: fundação e visão geral
 
 - Funções administrativas (geral, financeiro, suporte, pedagógico, moderador, analista), checadas em toda página e ação do painel e no banco.

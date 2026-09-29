@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import { ipDoCliente } from "@/lib/seguranca/limite";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { limparParaAuditoria } from "./auditoria-limpeza";
@@ -24,6 +23,7 @@ export async function registrarAuditoria(r: RegistroDeAuditoria): Promise<void> 
   try {
     let ip: string | null = null;
     try {
+      const { headers } = await import("next/headers");
       ip = ipDoCliente(await headers()).slice(0, 64);
     } catch {
       // fora de uma requisição (testes/jobs)

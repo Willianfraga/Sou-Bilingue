@@ -279,3 +279,39 @@ describe("proteção do painel (estático)", () => {
     assert.match(ler("supabase/migrations/0021_retencao_conversas.sql"), /apagar_textos_antigos\(90\)/);
   });
 });
+
+describe("alunos e tutores (regras)", async () => {
+  const { mascararEmail } = await import("../src/lib/admin/alunos-regras.ts");
+  const { validarEdicaoTutor } = await import("../src/lib/admin/tutores-regras.ts");
+
+  test("e-mail mascarado na lista", () => {
+    assert.equal(mascararEmail("willian@yahoo.com"), "wi***@yahoo.com");
+    assert.equal(mascararEmail(null), "—");
+  });
+
+  test("editar tutor exige motivo e status válido; limpa HTML", () => {
+    assert.equal(validarEdicaoTutor({ nome: "Clara", descricao: "", status: "ativo", motivo: "" }).ok, false);
+    assert.equal(validarEdicaoTutor({ nome: "Clara", descricao: "", status: "apagado", motivo: "ajuste de texto" }).ok, false);
+    const r = validarEdicaoTutor({ nome: "<b>Clara</b>", descricao: "x", status: "pausado", motivo: "revisão pedagógica" });
+    assert.equal(r.ok, true);
+    assert.equal(r.dados.nome.includes("<"), false);
+  });
+
+  test("ações sensíveis exigem função certa e ficam na auditoria", () => {
+    const a = ler("src/app/admin/alunos/[id]/actions.ts");
+    assert.match(a, /acao === "anonimizar" \? sessao\.funcoes\.includes\("geral"\)/);
+    assert.match(a, /resultado: "negado"/);
+    const alunos = ler("src/lib/admin/alunos.ts");
+    for (const acao of ["aluno.suspender", "aluno.reativar", "aluno.anonimizar", "aluno.exportar_dados"]) assert.ok(alunos.includes(acao), acao);
+    assert.match(ler("src/app/admin/alunos/[id]/page.tsx"), /acao: "aluno\.visualizar"/);
+    assert.match(ler("src/lib/admin/tutores.ts"), /acao: "tutor\.editar"/);
+  });
+
+  test("anonimização preserva registros financeiros e exige renovação cancelada", () => {
+    const sql = ler("supabase/migrations/0023_admin_alunos_tutores.sql");
+    const fn = sql.slice(sql.indexOf("create or replace function public.admin_anonimizar_aluno"));
+    assert.equal(/delete from (payments|subscriptions|reembolsos|ai_usage_events|hour_topups)/.test(fn), false);
+    assert.match(fn, /Cancele a renovação antes de anonimizar/);
+    assert.match(ler("src/lib/auth/guards.ts"), /profile\.suspenso_em\) return null/);
+  });
+});

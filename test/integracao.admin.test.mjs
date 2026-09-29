@@ -76,3 +76,52 @@ test("painel: conversas, consumo e métricas no banco", { skip: pular }, async (
     assert.ok(rpc.error, "função de métricas só para o servidor");
   });
 });
+
+test("painel: suspender, reativar e anonimizar aluno", { skip: pular }, async (t) => {
+  const { suspenderAluno, reativarAluno, anonimizarAluno, detalheAluno } = await import("../src/lib/admin/alunos.ts");
+  const adm = admin();
+  const aluno = await criarAlunoTemporario("anon");
+  const { data: umAdmin } = await adm.from("admin_funcoes").select("admin_id").limit(1).single();
+  t.after(async () => {
+    await adm.from("admin_auditoria").delete().eq("entidade_id", aluno.id);
+    await adm.auth.admin.deleteUser(aluno.id);
+  });
+
+  await t.test("suspensão bloqueia o login e exige motivo", async () => {
+    assert.equal((await suspenderAluno(umAdmin.admin_id, aluno.id, "")).ok, false);
+    assert.equal((await suspenderAluno(umAdmin.admin_id, aluno.id, "Abuso de uso")).ok, true);
+    const tentativa = await clienteLogado(aluno).then(() => "entrou", (e) => String(e.message));
+    assert.notEqual(tentativa, "entrou");
+    assert.equal((await reativarAluno(umAdmin.admin_id, aluno.id, "Revisado com o aluno")).ok, true);
+    await clienteLogado(aluno); // volta a entrar
+  });
+
+  await t.test("anonimização: recusa com renovação ativa; depois apaga dados pessoais e guarda pagamentos", async () => {
+    const { data: plano } = await adm.from("planos").select("id").eq("nome", "essencial").single();
+    const hoje = new Date().toISOString().slice(0, 10);
+    const { data: sub } = await adm.from("subscriptions").insert({ aluno_id: aluno.id, plano_id: plano.id, status: "ativa", ciclo_inicio: hoje, ciclo_fim: hoje, horas_total: 12, horas_utilizadas: 0 }).select("id").single();
+    await adm.from("payments").insert({ aluno_id: aluno.id, subscription_id: sub.id, tipo: "assinatura", valor: 29.9, status: "pago", data_pagamento: hoje, asaas_payment_id: `teste_anon_${sub.id}` });
+    await adm.from("student_memories").insert({ aluno_id: aluno.id, chave: "hobby", valor: "futebol" });
+
+    assert.equal((await anonimizarAluno(umAdmin.admin_id, aluno.id, "Pedido do titular por e-mail em 29/09", "errado")).ok, false, "exige digitar ANONIMIZAR");
+    const bloqueado = await anonimizarAluno(umAdmin.admin_id, aluno.id, "Pedido do titular por e-mail em 29/09", "ANONIMIZAR");
+    assert.equal(bloqueado.ok, false, "renovação ativa bloqueia");
+
+    await adm.from("subscriptions").update({ cancelamento_solicitado_em: new Date().toISOString(), acesso_ate: hoje }).eq("id", sub.id);
+    const r = await anonimizarAluno(umAdmin.admin_id, aluno.id, "Pedido do titular por e-mail em 29/09", "ANONIMIZAR");
+    assert.equal(r.ok, true);
+
+    const d = await detalheAluno(aluno.id);
+    assert.equal(d.perfil.nome, "Aluno anonimizado");
+    assert.match(d.perfil.email, /@soubilingue\.invalid$/);
+    const { data: mem } = await adm.from("student_memories").select("id").eq("aluno_id", aluno.id);
+    assert.deepEqual(mem, []);
+    const { data: pags } = await adm.from("payments").select("valor").eq("aluno_id", aluno.id);
+    assert.equal(pags.length, 1, "pagamento continua guardado");
+    const lido = await adm.auth.admin.getUserById(aluno.id);
+    assert.equal(lido.error, null, "o serviço de login continua lendo o usuário anonimizado");
+    const { data: aud } = await adm.from("admin_auditoria").select("acao, resultado").eq("entidade_id", aluno.id);
+    assert.ok(aud.some((a) => a.acao === "aluno.anonimizar" && a.resultado === "ok"));
+    assert.ok(aud.some((a) => a.acao === "aluno.suspender" && a.resultado === "ok"));
+  });
+});

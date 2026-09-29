@@ -37,10 +37,12 @@ export async function getSessao(): Promise<Sessao | null> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("nome, papel")
+    .select("nome, papel, suspenso_em")
     .eq("id", user.id)
     .single();
-  if (!profile) return null;
+  // Conta suspensa pelo painel (ou anonimizada) vale na hora, sem esperar o
+  // token de login expirar.
+  if (!profile || profile.suspenso_em) return null;
 
   return {
     userId: user.id,

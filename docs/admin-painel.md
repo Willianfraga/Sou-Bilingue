@@ -82,6 +82,56 @@ em andamento. As decisões do dono estão no fim deste documento.
   (que alterava preço sem auditoria) volta na área Configurações, com
   confirmação e auditoria.
 
+## Alunos e tutores (Fase B)
+
+- **Lista de alunos** (`public.admin_alunos`, migration 0023):
+  - busca por nome ou e-mail, filtros e paginação no servidor;
+  - e-mail mascarado na lista;
+  - dinheiro (custo, receita) só para as funções financeira e de análise.
+- **Alertas** (pistas para revisão humana, nunca decisão automática):
+  - sem atividade há 14 dias com assinatura ativa;
+  - 90% ou mais das horas do ciclo usadas;
+  - 3 ou mais falhas de IA em 7 dias;
+  - cancelamento agendado.
+- **Ficha do aluno:**
+  - perfil, entrevista, estudo e metas, consumo de IA;
+  - receita e margem estimada;
+  - assinaturas, pagamentos e reembolsos;
+  - conversas: só dados técnicos (a leitura do texto vem na Fase D);
+  - **abrir a ficha fica registrado na auditoria.**
+- **Ações:**
+
+  | Ação | Quem pode | O que faz |
+  |---|---|---|
+  | Suspender / reativar | suporte ou geral | Bloqueia o login no Auth (`ban_duration`) e a sessão atual (`getSessao` ignora perfil suspenso). Não cancela cobrança; a tela avisa. |
+  | Exportar dados (LGPD, JSON) | suporte ou geral | Gera o arquivo com os dados do aluno; fica registrado. |
+  | Anonimizar | só geral | Exige digitar ANONIMIZAR, motivo e renovação já cancelada. Apaga nome, e-mail, entrevista, memórias, depoimento, texto das conversas, IP e user-agent; bloqueia a conta. Mantém pagamentos, reembolsos e consumo sem identificação. **Irreversível.** |
+
+  Apagar o aluno de verdade apagaria em cascata pagamentos e consumo, por
+  isso a exclusão é feita por anonimização. O bloqueio usa a data
+  2999-12-31, e não "infinity", porque o serviço de login não lê
+  "infinity".
+- **Tutores:**
+  - status (rascunho, teste, ativo, pausado, arquivado);
+  - métricas do período: alunos, conversas, mensagens, erros, tempo de
+    resposta, tokens e custo;
+  - edição com motivo (geral ou pedagógico) e histórico de alterações pela
+    auditoria;
+  - todos usam o mesmo prompt (versão em `src/lib/ai/tutor.ts`). Versões
+    por tutor e playground ficam para a Fase E.
+
+## Achados que não são do painel
+
+- `subscriptions.horas_utilizadas` não é atualizado com o uso real. A conta
+  do dono mostra 0 de 30 h usadas, com 11,9 h de estudo registradas em
+  `usage_sessions`. Isso afeta o alerta "perto do limite" e vai ser
+  resolvido na Fase 3 (limites e créditos).
+- A assinatura "Premium ativa" da conta do dono não tem assinatura no Asaas
+  nem pagamento: é de teste e entra no MRR. A tela mostra "sem assinatura
+  no Asaas".
+- As respostas da entrevista aparecem como códigos (ex.: `fim_da_frase`).
+  Rótulos amigáveis: melhoria futura.
+
 ## O que não existe no app (não é mostrado nem inventado)
 
 - Cursos, módulos, quizzes, exercícios, taxa de acerto e notas por
@@ -100,7 +150,7 @@ em andamento. As decisões do dono estão no fim deste documento.
 | Fase | Conteúdo | Situação |
 |---|---|---|
 | A | Funções, auditoria, layout, preços de IA, instrumentação (falhas, tutor, latência, conversas), valor líquido, correções | Feita |
-| B | Visão geral (feita), Alunos, Tutores | Em andamento |
+| B | Visão geral, Alunos, Tutores | Feita |
 | C | Custos e ferramentas, Assinaturas e receitas, Financeiro (demonstrativo mensal, margens, ponto de equilíbrio), alertas de orçamento | A fazer |
 | D | Conversas (central e visualização auditada), sinalizações, moderação, suporte, avaliação da aula | A fazer |
 | E | Versões do prompt no banco + playground, Aprendizagem, Configurações | A fazer |
