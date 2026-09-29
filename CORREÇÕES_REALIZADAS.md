@@ -1,5 +1,8 @@
 # Estado das correções — Sou Bilíngue
 
+> **Documento atualizado:** leia primeiro [`docs/ESTADO_ATUAL.md`](docs/ESTADO_ATUAL.md) (estado do projeto em 29/09/2026). Este arquivo é histórico e pode estar desatualizado.
+
+
 Atualizado em 2026-09-27. Este arquivo substitui a versão anterior, que marcava
 como "atendidos" critérios que nunca foram testados.
 

@@ -1,5 +1,8 @@
 # 🌐 Sou Bilingue — Plataforma SaaS de Ensino de Idiomas
 
+> **Documento atualizado:** leia primeiro [`docs/ESTADO_ATUAL.md`](docs/ESTADO_ATUAL.md) (estado do projeto em 29/09/2026). Este arquivo é histórico e pode estar desatualizado.
+
+
 **Status:** ✅ Completo e pronto para produção  
 **Última atualização:** 22 de agosto de 2026  
 **Build:** 100% sucesso (0 erros TypeScript)
@@ -59,7 +62,7 @@ Acessa em **http://localhost:3000**
 ### Credenciais de Teste
 
 **Email:** `aluno@soubilingue.dev`  
-**Senha:** `Teste@2026!`  
+**Senha:** `(não versionada — defina localmente)`  
 **Tutor:** Clara (Espanhol - Intermediário)
 
 ---

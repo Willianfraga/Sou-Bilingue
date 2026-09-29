@@ -11,7 +11,7 @@
 
 ```
 Email:    aluno@soubilingue.dev
-Senha:    Teste@2026!
+Senha:    (não versionada — defina localmente pelo script de seed; nunca coloque senha em arquivo do repositório)
 ```
 
 ### Perfil do Aluno

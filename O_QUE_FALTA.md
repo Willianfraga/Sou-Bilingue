@@ -1,5 +1,8 @@
 # ✅ O que Falta Fazer — Sou Bilingue
 
+> **Documento atualizado:** leia primeiro [`docs/ESTADO_ATUAL.md`](docs/ESTADO_ATUAL.md) (estado do projeto em 29/09/2026). Este arquivo é histórico e pode estar desatualizado.
+
+
 **Data:** 22 de agosto de 2026  
 **Status:** Projeto pronto, faltam testes e deploy
 

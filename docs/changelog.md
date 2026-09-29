@@ -1,5 +1,10 @@
 # Histórico de mudanças
 
+## 29 set 2026 — documentação consolidada
+
+- `docs/ESTADO_ATUAL.md`: documento principal com tudo o que está pronto, arquitetura, migrations, testes, cuidados, pendências e decisões. Os arquivos antigos da raiz e o `CLAUDE.md` apontam para ele.
+- Segurança: removida uma senha de conta de teste antiga que estava em 4 arquivos de documentação (a conta não existe mais no banco); o teste de segurança passa a barrar essa senha também.
+
 ## 29 set 2026 — painel administrativo: custos, financeiro e receitas (Fase C)
 
 - **Custos e ferramentas:**

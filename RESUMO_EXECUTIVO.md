@@ -1,5 +1,8 @@
 # 📊 Resumo Executivo — SouBilingue v1.0
 
+> **Documento atualizado:** leia primeiro [`docs/ESTADO_ATUAL.md`](docs/ESTADO_ATUAL.md) (estado do projeto em 29/09/2026). Este arquivo é histórico e pode estar desatualizado.
+
+
 **Data:** 22 de agosto de 2026  
 **Responsável:** Claude Code  
 **Status:** ✅ Pronto para produção
@@ -69,7 +72,7 @@ Tutores:
 Alunos:
   1. Lucas Melo
      - Email: aluno@soubilingue.dev
-     - Senha: Teste@2026!
+     - Senha: (não versionada — defina localmente)
      - Plano: Intermediário
      - Tutor: Clara
 ```
@@ -214,7 +217,7 @@ npm run dev
 
 **Credenciais:**
 - Email: aluno@soubilingue.dev
-- Senha: Teste@2026!
+- Senha: (não versionada — defina localmente)
 
 ### Variáveis necessárias (.env.local)
 ```

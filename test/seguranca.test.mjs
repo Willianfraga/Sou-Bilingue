@@ -110,9 +110,10 @@ describe("segredos e dependências", () => {
   test("nenhuma senha de conta conhecida no repositório", () => {
     // git grep: código 1 = nada encontrado (o esperado).
     // Montada em partes para este arquivo não conter a senha antiga (trocada).
-    const senhaAntiga = ["Teste", "@", "123"].join("");
-    const r = spawnSync("git", ["grep", "-l", senhaAntiga], { cwd: RAIZ });
-    assert.equal(r.status, 1, `encontrado em: ${r.stdout}`);
+    for (const senhaAntiga of [["Teste", "@", "123"].join(""), ["Teste", "@", "2026", "!"].join("")]) {
+      const r = spawnSync("git", ["grep", "-l", "-F", senhaAntiga], { cwd: RAIZ });
+      assert.equal(r.status, 1, `encontrado em: ${r.stdout}`);
+    }
   });
 
   test("Next.js com a correção da falha crítica de imagem (>= 15.5.26)", () => {

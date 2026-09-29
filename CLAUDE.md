@@ -1,5 +1,7 @@
 # SouBilingue — contexto do projeto
 
+> **Antes de qualquer trabalho:** leia `docs/ESTADO_ATUAL.md` (o que está pronto, onde está cada coisa, cuidados, pendências) e `docs/changelog.md`. O repositório é PÚBLICO: nunca versionar senha, token ou chave, nem em documentação.
+
 App de aprendizado de idiomas por conversa com IA. Diferencial: em vez de recompensa
 em dinheiro, o aluno que cumprir a cota de aulas de **todas as semanas do mês**
 recebe automaticamente um **certificado de conclusão mensal** em PDF, verificável
