@@ -1,4 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { criarClienteAnthropic } from "@/lib/ai/cliente";
 import { getPlanos } from "@/lib/billing/subscription";
 import { recordAIUsage, resumoDoErro } from "@/lib/ai/usage";
 import { getConteudoVendas } from "@/lib/data/vendas";
@@ -10,7 +11,7 @@ import { LIMITES_ASSISTENTE, montarPromptDoAssistente, validarConversa } from "@
 // ferramenta (ele só conversa). Nada do que o visitante escreve é gravado;
 // o log guarda só a contagem de tokens. Conhecimento: src/lib/vendas/assistente.ts.
 
-const client = new Anthropic({ timeout: 25_000, maxRetries: 1 });
+const client = criarClienteAnthropic({ timeout: 25_000, maxRetries: 1 });
 const DIA_MS = 24 * 60 * 60_000;
 
 export async function POST(request: Request) {

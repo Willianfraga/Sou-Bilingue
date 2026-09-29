@@ -121,7 +121,12 @@ async function verificarAnthropic(e) {
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
-      headers: { "x-api-key": e.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+      headers: {
+        "x-api-key": e.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+        ...(/^wrkspc_[A-Za-z0-9]+$/.test(e.ANTHROPIC_WORKSPACE_ID ?? "") ? { "anthropic-workspace-id": e.ANTHROPIC_WORKSPACE_ID } : {}),
+      },
       body: JSON.stringify({ model: e.ANTHROPIC_MODEL || "claude-haiku-4-5-20251001", max_tokens: 1, messages: [{ role: "user", content: "ok" }] }),
       signal: AbortSignal.timeout(20_000),
     });

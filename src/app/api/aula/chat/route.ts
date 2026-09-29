@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { VERSAO_PROMPT_PROFESSOR, buildSystemPrompt } from "@/lib/ai/tutor";
+import { criarClienteAnthropic } from "@/lib/ai/cliente";
 import { registrarFalaDoAluno, registrarRespostaDoTutor } from "@/lib/ai/conversas";
 import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
@@ -15,7 +16,7 @@ export const runtime = "nodejs";
 
 // Lê ANTHROPIC_API_KEY do ambiente — a chave nunca chega ao browser (mesma
 // regra do projeto "academia flow": segredo só existe no servidor).
-const client = new Anthropic();
+const client = criarClienteAnthropic();
 
 type MensagemCliente = { role: "user" | "assistant"; content: string };
 

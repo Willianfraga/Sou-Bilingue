@@ -108,3 +108,19 @@ describe("verificador e agente (estático)", () => {
     for (const regra of ["PÚBLICO", "npm run saude", "Pare e peça aprovação", "anonimização", "docs/ESTADO_ATUAL.md"]) assert.ok(a.includes(regra), regra);
   });
 });
+
+describe("cliente da Anthropic", async () => {
+  const { cabecalhosDaAnthropic } = await import("../src/lib/ai/cliente.ts");
+  test("envia o ID do workspace só quando é válido", () => {
+    assert.deepEqual(cabecalhosDaAnthropic("wrkspc_01AbC"), { "anthropic-workspace-id": "wrkspc_01AbC" });
+    assert.deepEqual(cabecalhosDaAnthropic(""), {});
+    assert.deepEqual(cabecalhosDaAnthropic(undefined), {});
+    assert.deepEqual(cabecalhosDaAnthropic("qualquer coisa"), {});
+  });
+  test("aula e assistente usam o cliente compartilhado", () => {
+    for (const r of ["src/app/api/aula/chat/route.ts", "src/app/api/assistente/route.ts"]) {
+      assert.match(ler(r), /criarClienteAnthropic\(/, r);
+      assert.equal(/new Anthropic\(/.test(ler(r)), false, r);
+    }
+  });
+});

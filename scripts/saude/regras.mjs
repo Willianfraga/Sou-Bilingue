@@ -109,7 +109,7 @@ export function avaliarAnthropic(resultado) {
   if (resultado.ok) return item("ok", "ia", "conta Anthropic respondendo (tem créditos)");
   const msg = String(resultado.mensagem ?? "");
   if (/credit balance/i.test(msg)) return item("problema", "ia", "Anthropic sem créditos: tutora e assistente de vendas não respondem — recarregar em console.anthropic.com/settings/billing");
-  if (/not scoped to a workspace/i.test(msg)) return item("problema", "ia", "chave da Anthropic criada fora de um workspace — no Console, abra Workspaces → (seu workspace) → API Keys → Create Key e use essa");
+  if (/not scoped to a workspace/i.test(msg)) return item("problema", "ia", "chave da Anthropic criada fora de um workspace — crie a chave dentro de um workspace (Console → Workspaces → API Keys) ou defina ANTHROPIC_WORKSPACE_ID (wrkspc_...) no .env.local e no Coolify");
   if (resultado.status === 401) return item("problema", "ia", "chave da Anthropic inválida ou revogada (a do .env.local; confira também a do Coolify)");
   if (resultado.status === 429 || resultado.status === 529) return item("aviso", "ia", `Anthropic ocupada agora (HTTP ${resultado.status}) — tente de novo em instantes`);
   return item("problema", "ia", `Anthropic respondeu com erro (HTTP ${resultado.status ?? "?"})`);
