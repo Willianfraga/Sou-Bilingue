@@ -51,6 +51,7 @@ describe("regras de saúde", () => {
     assert.equal(avaliarAnthropic({ ok: true }).nivel, "ok");
     assert.equal(avaliarAnthropic({ status: 401, mensagem: "invalid x-api-key" }).nivel, "problema");
     assert.equal(avaliarAnthropic({ status: 529 }).nivel, "aviso");
+    assert.match(avaliarAnthropic({ status: 400, mensagem: "This API key is not scoped to a workspace" }).texto, /workspace/);
     assert.equal(avaliarAnthropic({ semChave: true }).nivel, "aviso");
   });
 
