@@ -1,8 +1,10 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { getCupons, getOrigemCadastros } from "@/lib/data/admin";
 
 // § 12: de qual QR/escola/cupom veio cada aluno — sem nenhum trabalho manual
 // de rastreio.
 export default async function OrigemDosCadastros() {
+  await requireArea("origem");
   const origens = await getOrigemCadastros();
   const cupons = await getCupons();
 

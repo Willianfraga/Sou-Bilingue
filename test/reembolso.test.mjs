@@ -163,7 +163,7 @@ describe("integração no código", () => {
   });
 
   test("ações do admin exigem papel admin e justificativa", () => {
-    assert.match(ler("src/app/admin/reembolsos/actions.ts"), /requirePapel\("admin"\)/);
+    assert.match(ler("src/app/admin/reembolsos/actions.ts"), /requireArea\("reembolsos"\)/);
     assert.match(ler("src/lib/billing/reembolso.ts"), /justificativa \(mínimo 5 caracteres\)/);
   });
 

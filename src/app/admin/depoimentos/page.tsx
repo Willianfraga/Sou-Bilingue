@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { getDepoimentosParaModeracao } from "@/lib/data/depoimentos";
 import { moderar } from "./actions";
 
@@ -13,6 +14,7 @@ const ROTULO: Record<string, string> = {
 // Depoimentos enviados pelos alunos (com autorização). Só os aprovados
 // aparecem na página de vendas. Autorização retirada não pode ser revertida.
 export default async function DepoimentosAdmin() {
+  await requireArea("depoimentos");
   const lista = await getDepoimentosParaModeracao();
 
   return (

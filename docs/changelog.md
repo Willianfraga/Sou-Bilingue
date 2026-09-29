@@ -1,5 +1,16 @@
 # Histórico de mudanças
 
+## 29 set 2026 — painel administrativo: fundação e visão geral
+
+- Funções administrativas (geral, financeiro, suporte, pedagógico, moderador, analista), checadas em toda página e ação do painel e no banco.
+- Auditoria administrativa (`/admin/logs`, exportação CSV), sem dados sensíveis.
+- Novo layout: menu lateral agrupado e recolhível, gaveta no celular, trilha de navegação.
+- Visão geral com dados reais e comparação com o período anterior; filtros por período, idioma, plano e tutor; confirmado × estimado × parcial.
+- Custos de IA por serviço, origem, modelo e tutor; preços em tabela com histórico; câmbio PTAX do Banco Central.
+- Conversas das aulas guardadas por 90 dias (privacidade atualizada); falhas, tutor e tempo de resposta da IA registrados; custo do assistente de vendas medido.
+- Correções: aluno podia inserir consumo de IA falso; Assinaturas lia tabela legada; dashboard antigo nunca funcionou (removido).
+- Migrations 0020, 0021 e 0022 (aplicadas). Detalhes em `docs/admin-painel.md`.
+
 ## 27 set 2026 — assistente de dúvidas, política de reembolso e contato
 
 - Assistente com IA da página de vendas até o checkout (`docs/assistente-vendas.md`): responde só com dados reais (planos do banco, FAQ, fatos do produto, políticas), faz perguntas para entender o visitante, convite proativo, liga/desliga no admin, limites por IP e teto diário. Nada da conversa é gravado.

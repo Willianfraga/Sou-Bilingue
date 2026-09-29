@@ -12,6 +12,7 @@ type EventoAsaas = {
   payment?: {
     id?: string;
     value?: number;
+    netValue?: number; // valor após a taxa do Asaas (confirmado pelo provedor)
     status?: string;
     billingType?: string;
     subscription?: string | { id?: string };
@@ -29,6 +30,7 @@ function resumoDoEvento(evento: EventoAsaas) {
       ? {
           id: p.id,
           value: p.value,
+          netValue: p.netValue,
           status: p.status,
           billingType: p.billingType,
           subscription: typeof p.subscription === "string" ? p.subscription : p.subscription?.id,
@@ -43,7 +45,7 @@ function resumoDoEvento(evento: EventoAsaas) {
 // um pagamento estornado não volta a "pago". Devolve false se já estornado.
 async function registrarPagamento(
   supabase: ReturnType<typeof createSupabaseAdminClient>,
-  p: { asaasPaymentId: string; alunoId: string; subscriptionId: string; valor: number; aprovado: boolean },
+  p: { asaasPaymentId: string; alunoId: string; subscriptionId: string; valor: number; valorLiquido?: number; aprovado: boolean },
 ) {
   const { data: atual, error: leituraError } = await supabase.from("payments")
     .select("status, data_pagamento").eq("asaas_payment_id", p.asaasPaymentId).maybeSingle();
@@ -54,6 +56,7 @@ async function registrarPagamento(
     subscription_id: p.subscriptionId, tipo: "assinatura", valor: p.valor,
     status: p.aprovado ? "pago" : "recusado",
     data_pagamento: p.aprovado ? (atual?.data_pagamento ?? new Date().toISOString().slice(0, 10)) : null,
+    ...(typeof p.valorLiquido === "number" ? { valor_liquido: p.valorLiquido } : {}),
   }, { onConflict: "asaas_payment_id" });
   if (error) throw error;
   return true;
@@ -141,7 +144,7 @@ export async function POST(request: Request) {
       const aprovado = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(evento.event);
       const vigente = await registrarPagamento(supabase, {
         asaasPaymentId: payment.id, alunoId: assinatura.aluno_id,
-        subscriptionId: assinatura.id, valor: payment.value ?? 0, aprovado,
+        subscriptionId: assinatura.id, valor: payment.value ?? 0, valorLiquido: payment.netValue, aprovado,
       });
 
       if (aprovado && vigente) {
@@ -190,7 +193,7 @@ export async function POST(request: Request) {
       const aprovado = ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"].includes(evento.event);
       const vigente = await registrarPagamento(supabase, {
         asaasPaymentId: payment.id, alunoId: subscription.aluno_id,
-        subscriptionId: subscription.id, valor: payment.value ?? 0, aprovado,
+        subscriptionId: subscription.id, valor: payment.value ?? 0, valorLiquido: payment.netValue, aprovado,
       });
 
       if (aprovado && vigente && subscription.status !== "ativa") {

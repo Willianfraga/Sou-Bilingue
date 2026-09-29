@@ -2,13 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { requirePapel } from "@/lib/auth/guards";
+import { registrarAuditoria } from "@/lib/admin/auditoria";
+import { requireArea } from "@/lib/admin/sessao";
 import { anotarReembolso, decidirReembolso, reprocessarReembolso } from "@/lib/billing/reembolso";
 
 // Toda decisão manual grava admin (da sessão), data e justificativa em
 // reembolso_eventos. O id vem do formulário, mas só identifica o pedido.
 export async function agirNoReembolso(formData: FormData) {
-  const sessao = await requirePapel("admin");
+  const sessao = await requireArea("reembolsos");
   const id = String(formData.get("id") ?? "");
   const acao = formData.get("acao");
   const texto = String(formData.get("texto") ?? "");
@@ -23,6 +24,15 @@ export async function agirNoReembolso(formData: FormData) {
           ? await anotarReembolso(id, sessao.userId, texto)
           : { ok: false as const, erro: "Ação inválida." };
 
+  await registrarAuditoria({
+    adminId: sessao.userId,
+    acao: `reembolso.${String(acao).slice(0, 20)}`,
+    entidade: "reembolso",
+    entidadeId: id,
+    motivo: texto,
+    resultado: r.ok ? "ok" : "erro",
+    depois: r.ok ? undefined : { erro: r.erro },
+  });
   revalidatePath("/admin/reembolsos");
   redirect(r.ok ? "/admin/reembolsos?ok=1" : `/admin/reembolsos?erro=${encodeURIComponent(r.erro)}`);
 }

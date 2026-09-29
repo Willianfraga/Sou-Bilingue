@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { formatarPreco } from "@/lib/billing/planos";
 import { listarReembolsosParaAdmin } from "@/lib/billing/reembolso";
 import { MOTIVOS_DE_EXCECAO, ROTULO_STATUS, formatarDataHoraBrasilia } from "@/lib/billing/regras-reembolso";
@@ -10,6 +11,7 @@ const ATOR: Record<string, string> = { aluno: "Aluno", admin: "Admin", webhook: 
 // Pedidos de reembolso (política: docs/refund-policy.md). Histórico só
 // cresce: nada aqui altera eventos anteriores. "Reembolsado" só vem do Asaas.
 export default async function ReembolsosAdmin({ searchParams }: { searchParams: Promise<{ ok?: string; erro?: string }> }) {
+  await requireArea("reembolsos");
   const aviso = await searchParams;
   const lista = await listarReembolsosParaAdmin();
 

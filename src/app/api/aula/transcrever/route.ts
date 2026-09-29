@@ -1,6 +1,6 @@
 import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
-import { recordAIUsage } from "@/lib/ai/usage";
+import { recordAIUsage, resumoDoErro } from "@/lib/ai/usage";
 import { bloqueioDeAula } from "@/lib/billing/acesso";
 
 export const runtime = "nodejs";
@@ -42,6 +42,12 @@ export async function POST(request: Request) {
   formulario.append("tag_audio_events", "false");
   formulario.append("num_speakers", "1");
 
+  const inicio = Date.now();
+  const falha = (erro: string) =>
+    recordAIUsage({
+      alunoId: sessao.userId, provider: "elevenlabs", service: "stt", model: "scribe_v2",
+      tutorId: perfil.tutorId, latenciaMs: Date.now() - inicio, status: "erro", erro,
+    });
   try {
     const resposta = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
       method: "POST",
@@ -52,6 +58,7 @@ export async function POST(request: Request) {
     const dados = (await resposta.json().catch(() => null)) as { text?: string } | null;
     if (!resposta.ok) {
       console.error("Falha na transcrição ElevenLabs:", resposta.status);
+      await falha(`HTTP ${resposta.status}`);
       return Response.json({ erro: "Não foi possível transcrever o áudio." }, { status: 502 });
     }
     await recordAIUsage({
@@ -60,10 +67,13 @@ export async function POST(request: Request) {
       service: "stt",
       model: "scribe_v2",
       audioSeconds: duracaoSegundos,
+      tutorId: perfil.tutorId,
+      latenciaMs: Date.now() - inicio,
     });
     return Response.json({ texto: dados?.text?.trim() ?? "" });
   } catch (erro) {
-    console.error("Falha ao transcrever voz:", erro);
+    await falha(resumoDoErro(erro));
+    console.error("Falha ao transcrever voz:", resumoDoErro(erro));
     return Response.json({ erro: "A transcrição está temporariamente indisponível." }, { status: 502 });
   }
 }

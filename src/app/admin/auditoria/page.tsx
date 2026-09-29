@@ -1,8 +1,10 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { getAuditoriaLgpd } from "@/lib/data/admin";
 
 // § 02, § 03: trilha de auditoria do consentimento — quando cada responsável
 // consentiu, e com o quê.
 export default async function AuditoriaLgpd() {
+  await requireArea("lgpd");
   const registros = await getAuditoriaLgpd();
 
   return (

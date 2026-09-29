@@ -143,7 +143,7 @@ describe("página de vendas (estático)", () => {
   });
 
   test("admin da página exige papel de admin e o banco confere de novo", () => {
-    assert.match(ler("src/app/admin/pagina-de-vendas/actions.ts"), /await requirePapel\("admin"\)/);
+    assert.match(ler("src/app/admin/pagina-de-vendas/actions.ts"), /await requireArea\("pagina-vendas"\)/);
     const sql = ler("supabase/migrations/0016_pagina_de_vendas_e_funil.sql");
     assert.match(sql, /for update using \(app\.is_admin\(\)\) with check \(app\.is_admin\(\)\)/);
     assert.match(sql, /on public\.eventos_funil for select using \(app\.is_admin\(\)\)/);

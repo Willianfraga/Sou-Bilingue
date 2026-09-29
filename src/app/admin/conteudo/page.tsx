@@ -1,8 +1,10 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { StatusChip } from "@/components/admin/StatusChip";
 import { getConteudo } from "@/lib/data/admin";
 import { NOME_DO_IDIOMA } from "@/lib/types";
 
 export default async function Conteudo() {
+  await requireArea("conteudos");
   const conteudo = await getConteudo();
 
   return (

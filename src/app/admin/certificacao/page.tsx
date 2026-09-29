@@ -1,9 +1,11 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { getRegrasCertificacao } from "@/lib/data/admin";
 import { NOME_DO_PLANO } from "@/lib/types";
 
 // § 04, § 05: nota mínima decide se a aula conta como cumprida — sempre
 // automática, nenhum plano tem revisão humana (inclusive o Avançado).
 export default async function MotorDeCertificacao() {
+  await requireArea("certificacao");
   const regras = await getRegrasCertificacao();
 
   return (

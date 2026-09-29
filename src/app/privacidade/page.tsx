@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Política de Privacidade — Sou Bil
 // mudar qualquer coleta). Texto preliminar — revisão jurídica pendente.
 export default function Privacidade() {
   return (
-    <PaginaLegal titulo="Política de Privacidade" atualizado="27 de setembro de 2026">
+    <PaginaLegal titulo="Política de Privacidade" atualizado="29 de setembro de 2026">
       <p>
         Esta política explica quais dados o Sou Bilíngue usa, para quê e com quem são compartilhados, nos termos da Lei
         Geral de Proteção de Dados (Lei 13.709/2018).
@@ -18,6 +18,8 @@ export default function Privacidade() {
         <li><strong>Conta:</strong> nome, e-mail e senha (a senha é guardada de forma criptografada pelo provedor de autenticação).</li>
         <li><strong>Preferências de aula:</strong> respostas da entrevista de boas-vindas — como prefere ser chamado, faixa etária (opcional), idioma, nível, objetivos, interesses, forma de correção e temas a evitar. Perguntas pessoais têm a opção &quot;Prefiro não responder&quot;.</li>
         <li><strong>Aulas:</strong> o que você fala e escreve na aula é enviado aos provedores de inteligência artificial para transcrever sua voz e gerar as respostas do professor. O app guarda fatos que você compartilhar (por exemplo, &quot;gosto de futebol&quot;) para personalizar aulas futuras, e o tempo de uso.</li>
+        <li><strong>Conversas das aulas:</strong> o texto das suas falas (já transcritas) e das respostas do professor fica guardado por <strong>90 dias</strong> e depois é apagado automaticamente. Depois disso ficam só dados técnicos, sem o conteúdo: data, professor, quantidade de mensagens, consumo e erros. O áudio não é guardado. As conversas só podem ser abertas por administradores autorizados, para suporte, segurança e melhoria da qualidade das aulas, e cada acesso fica registrado.</li>
+        <li><strong>Assistente de dúvidas da página de vendas:</strong> as perguntas são enviadas ao provedor de inteligência artificial para gerar a resposta e não são guardadas pelo Sou Bilíngue.</li>
         <li><strong>Pagamentos:</strong> processados pelo Asaas. Não recebemos nem guardamos dados de cartão; guardamos identificadores, valores e status das cobranças.</li>
         <li><strong>Página de vendas:</strong> métricas anônimas (páginas vistas, cliques e parâmetros de campanha como utm_source), sem nome, e-mail ou cookies de terceiros.</li>
       </ul>
@@ -26,6 +28,7 @@ export default function Privacidade() {
       <ul>
         <li>Prestar as aulas e personalizá-las ao seu perfil.</li>
         <li>Controlar plano, horas, pagamentos e certificados.</li>
+        <li>Suporte ao aluno e revisão da qualidade e da segurança das respostas do professor virtual (conversas das aulas, por até 90 dias).</li>
         <li>Segurança, prevenção de abuso e cumprimento de obrigações legais.</li>
         <li>Entender, de forma agregada, como as pessoas chegam ao Sou Bilíngue.</li>
       </ul>

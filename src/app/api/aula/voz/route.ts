@@ -1,7 +1,7 @@
 import { getSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
 import { sintetizarVoz } from "@/lib/voice/elevenlabs";
-import { recordAIUsage } from "@/lib/ai/usage";
+import { recordAIUsage, resumoDoErro } from "@/lib/ai/usage";
 import { alunoTemVozPremium } from "@/lib/billing/voz";
 import { bloqueioDeAula } from "@/lib/billing/acesso";
 
@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     return Response.json({ erro: "Texto inválido para sintetização." }, { status: 400 });
   }
 
+  const inicio = Date.now();
   try {
     const audio = await sintetizarVoz({ texto, tutorId: perfil.tutorId });
     await recordAIUsage({
@@ -41,6 +42,8 @@ export async function POST(request: Request) {
       service: "tts",
       model: "eleven_flash_v2_5",
       characters: Array.from(texto).length,
+      tutorId: perfil.tutorId,
+      latenciaMs: Date.now() - inicio,
     });
     return new Response(audio, {
       headers: {
@@ -49,7 +52,11 @@ export async function POST(request: Request) {
       },
     });
   } catch (erro) {
-    console.error("Falha ao sintetizar voz do tutor:", erro);
+    await recordAIUsage({
+      alunoId: sessao.userId, provider: "elevenlabs", service: "tts", model: "eleven_flash_v2_5",
+      tutorId: perfil.tutorId, latenciaMs: Date.now() - inicio, status: "erro", erro: resumoDoErro(erro),
+    });
+    console.error("Falha ao sintetizar voz do tutor:", resumoDoErro(erro));
     return Response.json({ erro: "A voz premium está temporariamente indisponível." }, { status: 502 });
   }
 }

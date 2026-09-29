@@ -1,8 +1,10 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { getCupons } from "@/lib/data/admin";
 
 // § 12: cupom por escola, válido só na primeira mensalidade — o link do QR
 // já carrega o código embutido, ninguém digita nada.
 export default async function CuponsEQrCodes() {
+  await requireArea("cupons");
   const cupons = await getCupons();
 
   return (

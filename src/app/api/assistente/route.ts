@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { getPlanos } from "@/lib/billing/subscription";
+import { recordAIUsage, resumoDoErro } from "@/lib/ai/usage";
 import { getConteudoVendas } from "@/lib/data/vendas";
 import { ipDoCliente, limitar } from "@/lib/seguranca/limite";
 import { LIMITES_ASSISTENTE, montarPromptDoAssistente, validarConversa } from "@/lib/vendas/assistente";
@@ -43,9 +44,11 @@ export async function POST(request: Request) {
   const planos = (await getPlanos()).map((p) => ({ nome: p.nome, preco: Number(p.preco), horas: Number(p.horas_mensais) }));
   const sistema = montarPromptDoAssistente({ planos, conteudo, pagina: conversa.pagina });
 
+  const modelo = process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001";
+  const inicio = Date.now();
   try {
     const resposta = await client.messages.create({
-      model: process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5-20251001",
+      model: modelo,
       max_tokens: LIMITES_ASSISTENTE.respostaTokens,
       system: [{ type: "text", text: sistema, cache_control: { type: "ephemeral" } }],
       messages: conversa.mensagens.map((m) => ({ role: m.papel === "cliente" ? ("user" as const) : ("assistant" as const), content: m.texto })),
@@ -55,11 +58,22 @@ export async function POST(request: Request) {
       .map((b) => b.text)
       .join("\n")
       .trim();
-    console.info("assistente:", conversa.pagina, "tokens", resposta.usage.input_tokens, resposta.usage.output_tokens);
-    if (!texto) throw new Error("resposta vazia");
+    // Custo do assistente entra no painel (origem "assistente_vendas", sem
+    // aluno e sem o texto da conversa).
+    await recordAIUsage({
+      alunoId: null, provider: "anthropic", service: "llm", model: resposta.model, origem: "assistente_vendas",
+      inputTokens: resposta.usage.input_tokens, outputTokens: resposta.usage.output_tokens,
+      cacheCreationTokens: resposta.usage.cache_creation_input_tokens ?? 0, cacheReadTokens: resposta.usage.cache_read_input_tokens ?? 0,
+      latenciaMs: Date.now() - inicio, metadata: { pagina: conversa.pagina },
+    });
+    if (!texto) return Response.json({ erro: "indisponivel" }, { status: 503 });
     return Response.json({ resposta: texto });
   } catch (e) {
-    console.error("Falha no assistente:", e instanceof Error ? e.message.slice(0, 200) : "erro");
+    await recordAIUsage({
+      alunoId: null, provider: "anthropic", service: "llm", model: modelo, origem: "assistente_vendas",
+      latenciaMs: Date.now() - inicio, status: "erro", erro: resumoDoErro(e), metadata: { pagina: conversa.pagina },
+    });
+    console.error("Falha no assistente:", resumoDoErro(e));
     return Response.json({ erro: "indisponivel" }, { status: 503 });
   }
 }

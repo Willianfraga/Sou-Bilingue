@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { getConteudoVendas, getResumoFunil } from "@/lib/data/vendas";
 import { depoimentosParaTexto, perguntasParaTexto } from "@/lib/vendas/conteudo";
 import { restaurarTextosPadrao, salvarPaginaDeVendas } from "./actions";
@@ -40,6 +41,7 @@ export default async function PaginaDeVendasAdmin({
 }: {
   searchParams: Promise<{ salvo?: string; erro?: string; restaurado?: string }>;
 }) {
+  await requireArea("pagina-vendas");
   const [c, funil, aviso] = await Promise.all([getConteudoVendas(), getResumoFunil(30), searchParams]);
   const visitas = funil.pagina_vista ?? 0;
   const compras = funil.compra_confirmada ?? 0;

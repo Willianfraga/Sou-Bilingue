@@ -1,3 +1,4 @@
+import { requireArea } from "@/lib/admin/sessao";
 import { StatusChip } from "@/components/admin/StatusChip";
 import { getParceriasEscolas } from "@/lib/data/admin";
 
@@ -5,6 +6,7 @@ import { getParceriasEscolas } from "@/lib/data/admin";
 // crédito extracurricular — começa já na Fase 1, em paralelo. Comissão de
 // afiliado é ideia em aberto, ainda não decidida (ver CLAUDE.md).
 export default async function ParceriasComEscolas() {
+  await requireArea("escolas");
   const parcerias = await getParceriasEscolas();
 
   return (

@@ -1,6 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
-  Assinatura,
   ConteudoPorNivel,
   Cupom,
   OrigemCadastro,
@@ -12,32 +11,6 @@ import type {
 // Interface do criador é só acompanhamento (§ 03) — todas as consultas aqui
 // são leitura, via cliente de sessão (RLS: app.is_admin()). Poucas linhas
 // hoje, então N+1 pra pegar nome de aluno é aceitável; revisitar se crescer.
-
-export async function getAssinaturas(): Promise<Assinatura[]> {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("assinaturas")
-    .select("id, aluno_id, plano, status, proxima_cobranca")
-    .order("proxima_cobranca");
-  if (error) throw new Error(`Falha ao buscar assinaturas: ${error.message}`);
-
-  const resultado: Assinatura[] = [];
-  for (const a of data ?? []) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("nome")
-      .eq("id", a.aluno_id)
-      .single();
-    resultado.push({
-      id: a.id,
-      alunoNome: profile?.nome ?? "—",
-      plano: a.plano,
-      status: a.status,
-      proximaCobranca: a.proxima_cobranca ?? "—",
-    });
-  }
-  return resultado;
-}
 
 export async function getConteudo(): Promise<ConteudoPorNivel[]> {
   const supabase = await createSupabaseServerClient();

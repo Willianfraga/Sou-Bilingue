@@ -1,30 +1,20 @@
-import { SideNav } from "@/components/SideNav";
-import { requirePapel } from "@/lib/auth/guards";
+import { EstruturaAdmin } from "@/components/admin/EstruturaAdmin";
+import { getSessaoAdmin } from "@/lib/admin/sessao";
+import { AREAS_ADMIN, ROTULO_FUNCAO, podeAcessar } from "@/lib/admin/permissoes";
 
-const items = [
-  { href: "/admin", label: "Assinaturas" },
-  { href: "/admin/pagina-de-vendas", label: "Página de vendas" },
-  { href: "/admin/depoimentos", label: "Depoimentos" },
-  { href: "/admin/reembolsos", label: "Reembolsos" },
-  { href: "/admin/conteudo", label: "Conteúdo (CMS)" },
-  { href: "/admin/certificacao", label: "Motor de certificação" },
-  { href: "/admin/cupons", label: "Cupons e QR Codes" },
-  { href: "/admin/origem", label: "Origem dos cadastros" },
-  { href: "/admin/auditoria", label: "Auditoria LGPD" },
-  { href: "/admin/escolas", label: "Parcerias com escolas" },
-];
+export const dynamic = "force-dynamic";
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const sessao = await requirePapel("admin");
+// Painel administrativo (docs/admin-painel.md). O layout só monta o menu com
+// as áreas que a função permite; cada página e cada ação confere de novo com
+// requireArea, e o banco confere com RLS/service role.
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const sessao = await getSessaoAdmin();
+  const areas = AREAS_ADMIN.filter((a) => podeAcessar(sessao.funcoes, a)).map((a) => a.id);
+  const funcoes = sessao.funcoes.length ? sessao.funcoes.map((f) => ROTULO_FUNCAO[f]).join(", ") : "Sem função atribuída";
 
   return (
-    <div className="flex min-h-screen">
-      <SideNav title="Interface do criador" items={items} nome={sessao.nome} />
-      <div className="flex-1 px-10 py-10">{children}</div>
-    </div>
+    <EstruturaAdmin areasPermitidas={areas} nome={sessao.nome} funcoes={funcoes}>
+      {children}
+    </EstruturaAdmin>
   );
 }
