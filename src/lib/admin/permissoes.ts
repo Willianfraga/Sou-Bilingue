@@ -37,7 +37,8 @@ export const AREAS_ADMIN: AreaAdmin[] = [
   { id: "assinaturas", rotulo: "Assinaturas", href: "/admin/assinaturas", grupo: "Dinheiro", funcoes: ["financeiro", "suporte", "analista"], pronta: true },
   { id: "reembolsos", rotulo: "Reembolsos", href: "/admin/reembolsos", grupo: "Dinheiro", funcoes: ["financeiro", "suporte"], pronta: true },
   { id: "custos", rotulo: "Custos de IA", href: "/admin/dashboard", grupo: "Dinheiro", funcoes: ["financeiro", "analista"], pronta: true },
-  { id: "financeiro", rotulo: "Financeiro", href: "/admin/financeiro", grupo: "Dinheiro", funcoes: ["financeiro"], pronta: false },
+  { id: "ferramentas", rotulo: "Custos e ferramentas", href: "/admin/custos", grupo: "Dinheiro", funcoes: ["financeiro", "analista"], pronta: true },
+  { id: "financeiro", rotulo: "Financeiro", href: "/admin/financeiro", grupo: "Dinheiro", funcoes: ["financeiro", "analista"], pronta: true },
   { id: "cupons", rotulo: "Cupons e QR Codes", href: "/admin/cupons", grupo: "Dinheiro", funcoes: ["financeiro"], pronta: true },
 
   { id: "suporte", rotulo: "Suporte", href: "/admin/suporte", grupo: "Cuidado", funcoes: ["suporte"], pronta: false },

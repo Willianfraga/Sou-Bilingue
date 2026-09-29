@@ -1,7 +1,10 @@
 import { Paginacao, numeroDaPagina } from "@/components/admin/Paginacao";
+import { ResumoAssinaturas } from "@/components/admin/ResumoAssinaturas";
 import { STATUS_ASSINATURA, listarAssinaturas } from "@/lib/admin/assinaturas";
 import { formatarData } from "@/lib/admin/formatar";
+import { podeAcessar } from "@/lib/admin/permissoes";
 import { requireArea } from "@/lib/admin/sessao";
+import { getResumoAssinaturas } from "@/lib/financeiro/dados";
 import { formatarPreco, nomeDeExibicao } from "@/lib/billing/planos";
 
 export const dynamic = "force-dynamic";
@@ -16,20 +19,24 @@ const COR: Record<string, string> = {
 // Assinaturas (tabela subscriptions). Só acompanhamento: cobrança e
 // cancelamento acontecem pelo Asaas e pelo próprio aluno (Minha assinatura).
 export default async function Assinaturas({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
-  await requireArea("assinaturas");
+  const sessao = await requireArea("assinaturas");
   const params = await searchParams;
   const pagina = numeroDaPagina(params.pagina);
   const porPagina = 25;
-  const { linhas, total } = await listarAssinaturas({ pagina, porPagina, status: params.status });
+  const [{ linhas, total }, resumo] = await Promise.all([listarAssinaturas({ pagina, porPagina, status: params.status }), getResumoAssinaturas()]);
+  const veDinheiro = podeAcessar(sessao.funcoes, "financeiro") || podeAcessar(sessao.funcoes, "custos");
 
   return (
-    <div className="mx-auto flex max-w-6xl flex-col gap-5">
+    <div className="mx-auto flex max-w-7xl flex-col gap-5">
       <div>
         <p className="text-xs font-bold uppercase tracking-widest text-violet-700">Dinheiro</p>
-        <h1 className="mt-1 text-2xl font-black text-slate-950">Assinaturas</h1>
+        <h1 className="mt-1 text-2xl font-black text-slate-950">Assinaturas e receitas</h1>
         <p className="mt-1 text-sm text-slate-500">Cobrança pelo Asaas. Cancelamento e reembolso são feitos pelo aluno em Minha assinatura.</p>
       </div>
 
+      <ResumoAssinaturas r={resumo} veDinheiro={veDinheiro} />
+
+      <h2 className="text-lg font-black text-slate-900">Todas as assinaturas</h2>
       <form method="get" className="flex flex-wrap items-end gap-3">
         <label className="text-xs font-semibold text-slate-600">
           Status

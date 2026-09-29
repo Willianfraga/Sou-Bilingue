@@ -1,5 +1,20 @@
 # Histórico de mudanças
 
+## 29 set 2026 — painel administrativo: custos, financeiro e receitas (Fase C)
+
+- **Custos e ferramentas:**
+  - cadastro de fornecedores;
+  - lançamentos com moeda, câmbio e natureza (estimado/confirmado),
+    cancelados com motivo em vez de apagados;
+  - alertas de custo e de orçamento.
+- **Financeiro:**
+  - demonstrativo mensal sem contagem dupla (fatura > previsto > consumo);
+  - orçamento × realizado, ponto de equilíbrio, margens por plano e idioma;
+  - exportação CSV.
+- **Assinaturas e receitas:** planos, status, inadimplência, receita
+  recorrente, ticket médio, cancelamento, LTV e motivos.
+- Migration 0024 (aplicada). Testes de integração rodam um arquivo por vez.
+
 ## 29 set 2026 — painel administrativo: alunos e tutores
 
 - Alunos:

@@ -120,6 +120,81 @@ em andamento. As decisões do dono estão no fim deste documento.
   - todos usam o mesmo prompt (versão em `src/lib/ai/tutor.ts`). Versões
     por tutor e playground ficam para a Fase E.
 
+## Custos, financeiro e assinaturas (Fase C)
+
+Tabelas `fornecedores`, `lancamentos_custo` e `orcamentos` (migration
+0024). Sem policy de escrita: grava só o servidor, e só a função geral ou
+financeiro. Analista só lê.
+
+### Ferramentas e lançamentos
+
+- **Ferramentas / fornecedores:**
+  - cadastro com categoria (26, conforme a especificação), plano, tipo de
+    cobrança, moeda, valor fixo mensal, custo variável e franquia (em
+    texto), vencimento, início da cobrança, centro de custo, responsável,
+    status, link do painel (só https) e provedor de IA ligado;
+  - o histórico de valores fica na auditoria (antes/depois, com motivo).
+- **Lançamentos:**
+  - valor original + moeda + taxa + data + fonte do câmbio + valor em
+    reais + natureza (estimado/confirmado) + link do comprovante;
+  - dólar sem taxa informada usa a PTAX do dia; euro exige a taxa;
+  - **não se apagam:** são cancelados com motivo;
+  - em categorias de IA só entra fatura (confirmado), porque a estimativa
+    já vem do consumo.
+- **Valores digitados:** aceitam "1.234,56" ou "1234.56". Valores
+  ambíguos, como "1,234", são recusados.
+
+### Regra que evita contar duas vezes
+
+1. **IA, por provedor:**
+   - fatura confirmada lançada no mês;
+   - senão, o valor fixo previsto no cadastro do provedor (ex.: plano da
+     ElevenLabs), como estimado;
+   - senão, a estimativa pelo consumo × PTAX.
+2. **Ferramenta com valor fixo e sem lançamento no mês** entra como
+   PREVISTO (estimado), a partir do início da cobrança. Com lançamento, vale
+   o lançamento. Ferramenta cancelada não entra.
+3. **Mês sem nenhum dado** aparece como "sem dados", e não como confirmado.
+
+### Financeiro (`/admin/financeiro`)
+
+- **Demonstrativo mensal** (3, 6 ou 12 meses):
+  - mensalidades, horas extras, reembolsos, taxas do gateway (valor líquido
+    do Asaas), receita líquida;
+  - IA, fixos e variáveis (confirmados e estimados), impostos lançados;
+  - custo total, resultado e margem;
+  - alunos ativos e pagantes, custo por ativo e por pagante;
+  - a natureza de cada mês aparece no cabeçalho;
+  - exportação CSV.
+- **Orçamento × realizado** por categoria e total, com alertas em 80% e
+  100%.
+- **Ponto de equilíbrio** (estimado): custos fixos ÷ margem de contribuição
+  por pagante do mês.
+- **Margem por plano e por idioma** (90 dias). Margem por tutor não existe:
+  o aluno paga o plano, não o tutor.
+
+### Alertas e assinaturas
+
+- **Alertas** (`admin_alertas_custos`), sempre pistas para revisão:
+  - gasto de IA do dia acima de 2× a média de 7 dias;
+  - projeção do mês acima de 1,5× o mês anterior;
+  - aluno com custo de IA em 30 dias acima de 50% do plano;
+  - provedor com 20% ou mais de falhas em 24 horas;
+  - consumo sem receita (contas de teste);
+  - orçamento em 80% e 100%.
+  - Franquia de ferramentas não é medida: o app não recebe o consumo desses
+    fornecedores.
+- **Assinaturas e receitas:**
+  - planos (preço, periodicidade, limite, assinantes e cancelamentos);
+  - status, pagamentos de 90 dias, inadimplência (recusados + checkout
+    pendente há mais de 3 dias);
+  - receita recorrente mensal e anual, ticket médio;
+  - cancelamento mensal aproximado e LTV (só quando há cancelamentos:
+    nunca inventa);
+  - motivos de cancelamento e de reembolso, cupons.
+- **Impostos:** lançados manualmente (categoria Impostos). Não há cálculo
+  automático.
+
 ## Achados que não são do painel
 
 - `subscriptions.horas_utilizadas` não é atualizado com o uso real. A conta
@@ -151,7 +226,7 @@ em andamento. As decisões do dono estão no fim deste documento.
 |---|---|---|
 | A | Funções, auditoria, layout, preços de IA, instrumentação (falhas, tutor, latência, conversas), valor líquido, correções | Feita |
 | B | Visão geral, Alunos, Tutores | Feita |
-| C | Custos e ferramentas, Assinaturas e receitas, Financeiro (demonstrativo mensal, margens, ponto de equilíbrio), alertas de orçamento | A fazer |
+| C | Custos e ferramentas, Assinaturas e receitas, Financeiro (demonstrativo mensal, margens, ponto de equilíbrio), alertas de orçamento | Feita |
 | D | Conversas (central e visualização auditada), sinalizações, moderação, suporte, avaliação da aula | A fazer |
 | E | Versões do prompt no banco + playground, Aprendizagem, Configurações | A fazer |
 
