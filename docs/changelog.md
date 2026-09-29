@@ -1,5 +1,11 @@
 # Histórico de mudanças
 
+## 29 set 2026 — agente de manutenção
+
+- `npm run saude`: verificador que só lê (site, avisos do Asaas, IA e créditos da Anthropic, reembolsos, retenção, alertas de custo, contas de teste, Git, testes). Sai com código 1 se houver problema.
+- `.claude/agents/manutencao.md`: agente do Claude Code com as regras do projeto (repositório público, aprovação antes de publicar, nada de ações destrutivas).
+- Guia em `docs/agente-manutencao.md`; testes em `test/saude.test.mjs`.
+
 ## 29 set 2026 — documentação consolidada
 
 - `docs/ESTADO_ATUAL.md`: documento principal com tudo o que está pronto, arquitetura, migrations, testes, cuidados, pendências e decisões. Os arquivos antigos da raiz e o `CLAUDE.md` apontam para ele.

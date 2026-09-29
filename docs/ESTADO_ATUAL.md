@@ -160,6 +160,7 @@ Para aplicar uma migration nova: API de gerenciamento do Supabase
 | `docs/CUSTOS_IA.md` | Custos de IA e simulações |
 | `docs/PROMPT_PROFESSOR.md` | Prompt do professor (referência para agentes) |
 | `docs/deployment.md` | Como publicar |
+| `docs/agente-manutencao.md` | Agente de manutenção e verificador de saúde (`npm run saude`) |
 | `CLAUDE.md` | Regras para agentes de IA que mexem no projeto |
 
 Os demais `.md` da raiz e os `docs/FASE*.md` são histórico de agosto.
@@ -172,8 +173,12 @@ Os demais `.md` da raiz e os `docs/FASE*.md` são histórico de agosto.
 | `npm run test:integracao` | Banco real, com usuários descartáveis apagados no fim; roda um arquivo por vez | 37/37 |
 | `TEST_BASE_URL=https://app.soubilingue.com.br npm run test:e2e` | Contra o site | 37 ok, 1 pulado |
 | `npx tsc --noEmit` e `npx next lint` | Tipos e lint | Sem erros |
+| `npm run saude` | Saúde do sistema em produção (só lê) | Em 29/09: 1 problema (Anthropic sem créditos) |
 
 ## 7. Cuidados para quem continuar
+
+Para manutenção, use o agente `.claude/agents/manutencao.md`, que segue estas
+regras, e comece com `npm run saude`. Guia em `docs/agente-manutencao.md`.
 
 1. **O repositório é público.** Antes de cada commit, varrer segredos. Nunca
    colocar senha, token ou chave em arquivo (nem em documentação).
