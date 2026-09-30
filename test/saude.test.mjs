@@ -62,6 +62,16 @@ describe("regras de saúde", () => {
     assert.ok(avaliarIa(poucos, null, agora).some((i) => i.nivel === "aviso"));
   });
 
+  test("erros antigos viram aviso quando a chamada mais recente funcionou", () => {
+    const itens = avaliarIa(
+      [{ provider: "anthropic", status: "ok" }, ...Array.from({ length: 8 }, () => ({ provider: "anthropic", status: "erro", erro: "Your credit balance is too low" }))],
+      null,
+      agora,
+    );
+    assert.equal(itens.some((i) => i.nivel === "problema"), false);
+    assert.ok(itens.some((i) => i.nivel === "aviso" && /mais recente funcionou/.test(i.texto)));
+  });
+
   test("IA parada há 7+ dias gera aviso", () => {
     assert.equal(avaliarIa([], atras(24 * 8), agora)[0].nivel, "aviso");
     assert.equal(avaliarIa([], atras(24 * 2), agora)[0].nivel, "ok");

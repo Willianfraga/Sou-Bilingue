@@ -79,7 +79,7 @@ async function verificarBanco(e) {
   const webhooks = await db.from("webhook_events").select("event_type, status, atualizado_em, tentativas").gte("recebido_em", desde(7 * 86_400_000));
   webhooks.error ? falhou("pagamentos", webhooks.error) : itens.push(...avaliarWebhooks(webhooks.data ?? [], agora));
 
-  const ia = await db.from("ai_usage_events").select("provider, status, erro").gte("created_at", desde(86_400_000)).limit(5000);
+  const ia = await db.from("ai_usage_events").select("provider, status, erro").gte("created_at", desde(86_400_000)).order("created_at", { ascending: false }).limit(5000);
   const ultima = await db.from("ai_usage_events").select("created_at").order("created_at", { ascending: false }).limit(1).maybeSingle();
   ia.error ? falhou("ia", ia.error) : itens.push(...avaliarIa(ia.data ?? [], ultima.data?.created_at ?? null, agora));
 

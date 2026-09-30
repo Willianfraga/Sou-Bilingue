@@ -33,10 +33,14 @@ export function avaliarWebhooks(eventos, agora = new Date()) {
 }
 
 export function avaliarIa(chamadas24h, ultimaChamada, agora = new Date()) {
-  // chamadas24h: [{ provider, status, erro }]
+  // chamadas24h: [{ provider, status, erro }], da MAIS RECENTE para a mais antiga.
+  // Se a chamada mais recente funcionou, erros anteriores viram só aviso
+  // (o problema já foi resolvido, ex.: créditos recarregados).
   const itens = [];
+  const recuperada = chamadas24h.length > 0 && chamadas24h[0].status === "ok";
   const semCredito = chamadas24h.some((c) => c.status === "erro" && /credit balance/i.test(c.erro ?? ""));
-  if (semCredito) itens.push(item("problema", "ia", "Anthropic sem créditos: a tutora e o assistente de vendas não estão respondendo — recarregar em console.anthropic.com"));
+  if (semCredito && !recuperada) itens.push(item("problema", "ia", "Anthropic sem créditos: a tutora e o assistente de vendas não estão respondendo — recarregar em console.anthropic.com"));
+  else if (semCredito) itens.push(item("aviso", "ia", "houve falta de créditos na Anthropic nas últimas 24 h, mas a chamada mais recente funcionou"));
   const porProvedor = new Map();
   for (const c of chamadas24h) {
     const p = porProvedor.get(c.provider) ?? { total: 0, erros: 0 };
@@ -46,7 +50,7 @@ export function avaliarIa(chamadas24h, ultimaChamada, agora = new Date()) {
   }
   for (const [provedor, p] of porProvedor) {
     const taxa = p.erros / p.total;
-    if (p.total >= 5 && taxa >= 0.2) itens.push(item("problema", "ia", `${provedor}: ${p.erros} de ${p.total} chamadas com erro nas últimas 24 h`));
+    if (p.total >= 5 && taxa >= 0.2) itens.push(item(recuperada ? "aviso" : "problema", "ia", `${provedor}: ${p.erros} de ${p.total} chamadas com erro nas últimas 24 h`));
     else if (p.erros > 0) itens.push(item("aviso", "ia", `${provedor}: ${p.erros} erro(s) em ${p.total} chamadas nas últimas 24 h`));
     else itens.push(item("ok", "ia", `${provedor}: ${p.total} chamadas sem erro nas últimas 24 h`));
   }
