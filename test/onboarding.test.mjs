@@ -306,7 +306,8 @@ describe("prompt do professor (docs/PROMPT_PROFESSOR.md)", () => {
 describe("segurança e persistência (estático)", () => {
   test("layout do aluno redireciona quem não concluiu", () => {
     const layout = ler("src/app/aluno/layout.tsx");
-    assert.match(layout, /redirecionamentoDaAreaDoAluno\(await getOnboardingDoAluno\(sessao\.userId\)\)/);
+    assert.match(layout, /getOnboardingDoAluno\(sessao\.userId\)/);
+    assert.match(layout, /redirecionamentoDaAreaDoAluno\(onboarding\)/);
     assert.match(layout, /if \(destino\) redirect\(destino\)/);
   });
 

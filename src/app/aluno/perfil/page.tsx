@@ -78,7 +78,7 @@ export default async function Perfil({
         <CampoPerfil label="Objetivo pessoal" valor={perfil.objetivoPessoal} />
       </div>
 
-      <section id="preferencias" aria-labelledby="titulo-preferencias" className="scroll-mt-8">
+      <section id="preferencias" aria-labelledby="titulo-preferencias" className="scroll-mt-24">
         <h2 id="titulo-preferencias" className="text-lg font-bold">
           Preferências das aulas
         </h2>

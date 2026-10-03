@@ -1,5 +1,12 @@
 # Histórico de mudanças
 
+## 3 out 2026 — nova tela inicial do aluno
+
+- Tela inicial (`/aluno`) em tela cheia, com a mesma cor do painel da tutora na aula: menu bento, o tutor escolhido e o botão grande "Iniciar minha aula".
+- Personalizada pela entrevista de boas-vindas: nome preferido, idioma atual, nível, objetivo e um tema de conversa do dia.
+- Menu bento (grade ▦) no lugar da barra lateral em toda a área do aluno; "Meu progresso" passou para `/aluno/progresso`.
+- Atalho "Meu tutor" agora leva direto ao seletor de tutor na aula.
+
 ## 29 set 2026 — agente de manutenção
 
 - `npm run saude`: verificador que só lê (site, avisos do Asaas, IA e créditos da Anthropic, reembolsos, retenção, alertas de custo, contas de teste, Git, testes). Sai com código 1 se houver problema.

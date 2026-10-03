@@ -79,7 +79,7 @@ export default async function Licoes() {
         </form>
 
         {perfil && (
-          <div id="escolher-idioma" className="mt-6 scroll-mt-8">
+          <div id="escolher-idioma" className="mt-6 scroll-mt-24">
             <SeletorIdioma atual={perfil.idioma} destino="/aluno/licoes" />
           </div>
         )}

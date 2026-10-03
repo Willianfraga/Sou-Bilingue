@@ -1,56 +1,19 @@
 import { redirect } from "next/navigation";
-import { SideNav } from "@/components/SideNav";
+import { EstruturaAluno } from "@/components/aluno/EstruturaAluno";
 import { requirePapel } from "@/lib/auth/guards";
 import { getOnboardingDoAluno } from "@/lib/data/onboarding";
+import { nomeParaOTutor } from "@/lib/onboarding/contexto";
 import { redirecionamentoDaAreaDoAluno } from "@/lib/onboarding/fluxo";
 
-const items = [
-  { href: "/aluno/aula", label: "Iniciar aula" },
-  { href: "/aluno/aula#escolher-tutor", label: "Escolher meu tutor" },
-  { href: "/aluno", label: "Meu progresso" },
-  { href: "/aluno/perfil", label: "Meu perfil" },
-  { href: "/aluno/perfil#preferencias", label: "Minhas preferências" },
-  { href: "/assinatura", label: "Minha assinatura" },
-  { href: "/aluno/licoes#escolher-idioma", label: "Escolher meu idioma" },
-  { href: "/aluno/certificados", label: "Meus certificados" },
-  { href: "/aluno/licoes", label: "Minhas lições" },
-];
-
-export default async function AlunoLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// Área do aluno: menu bento (grade de atalhos) em vez de barra lateral —
+// atalhos em src/lib/aluno/inicio.ts.
+export default async function AlunoLayout({ children }: { children: React.ReactNode }) {
   const sessao = await requirePapel("aluno");
 
   // Entrevista de boas-vindas é obrigatória antes das aulas.
-  const destino = redirecionamentoDaAreaDoAluno(await getOnboardingDoAluno(sessao.userId));
+  const onboarding = await getOnboardingDoAluno(sessao.userId);
+  const destino = redirecionamentoDaAreaDoAluno(onboarding);
   if (destino) redirect(destino);
 
-  return (
-    <div className="min-h-screen bg-[#f8f9ff]">
-      <div className="hidden min-h-screen md:flex">
-        <SideNav title="Sou Bilíngue" items={items} nome={sessao.nome} tone="purple" />
-        <div className="flex-1 px-10 py-10">{children}</div>
-      </div>
-
-      <div className="mx-auto min-h-screen max-w-md px-5 pb-8 pt-7 md:hidden">
-        <header className="mb-7 flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-400">Sou Bilíngue</p>
-            <p className="text-xl font-bold tracking-tight text-slate-900">Olá, {sessao.nome}!</p>
-          </div>
-          <a
-            href="/aluno/perfil"
-            aria-label="Abrir perfil"
-            className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-lg font-bold text-white shadow-lg shadow-indigo-200"
-          >
-            {sessao.nome.slice(0, 1).toUpperCase()}
-          </a>
-        </header>
-        {children}
-      </div>
-
-    </div>
-  );
+  return <EstruturaAluno nome={nomeParaOTutor(onboarding?.respostas, sessao.nome).split(/\s+/)[0]}>{children}</EstruturaAluno>;
 }

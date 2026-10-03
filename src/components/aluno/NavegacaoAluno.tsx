@@ -3,7 +3,7 @@ import Link from "next/link";
 const itens = [
   { href: "/aluno/licoes", numero: "01", label: "Licoes" },
   { href: "/aluno/aula", numero: "02", label: "Praticar" },
-  { href: "/aluno", numero: "03", label: "Progresso" },
+  { href: "/aluno/progresso", numero: "03", label: "Progresso" },
   { href: "/aluno/perfil", numero: "04", label: "Perfil" },
 ];
 

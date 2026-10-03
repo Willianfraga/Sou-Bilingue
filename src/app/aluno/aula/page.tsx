@@ -47,7 +47,7 @@ export default async function Aula({
     <div className="space-y-4">
       <div className="px-4 pt-4">
         <SeletorIdioma atual={perfil.idioma} destino="/aluno/aula" />
-        <div className="mt-3"><SeletorTutor tutores={tutores} atualId={perfil.tutorId} /></div>
+        <div id="escolher-tutor" className="mt-3 scroll-mt-24"><SeletorTutor tutores={tutores} atualId={perfil.tutorId} /></div>
       </div>
       <AulaChatComHoras
         tituloTutor={tituloTutor}

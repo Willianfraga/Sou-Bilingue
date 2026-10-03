@@ -61,7 +61,8 @@ virtuais de IA**:
   - prompt do professor v2 (`docs/PROMPT_PROFESSOR.md`);
   - memória de fatos do aluno;
   - voz premium, ou voz do navegador no plano Essencial.
-- **Área do aluno:** progresso, lições, certificados mensais verificáveis
+- **Tela inicial do aluno:** tutor + botão "Iniciar minha aula" + menu bento (grade de atalhos), personalizada pela entrevista.
+- **Área do aluno:** progresso (`/aluno/progresso`), lições, certificados mensais verificáveis
   (`/verificar/[código]`) e horas extras compráveis.
 - **Minha assinatura** (`/assinatura`):
   - **cancelar a renovação** a qualquer momento;
