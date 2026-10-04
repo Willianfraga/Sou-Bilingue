@@ -5,7 +5,12 @@ import Image from "next/image";
 import { dividirFalaPorIdioma } from "@/lib/voice/navegador";
 
 type Mensagem = { role: "user" | "assistant"; content: string; lida?: boolean };
-type Estado = "pronta" | "falando" | "ouvindo" | "pensando" | "pausada" | "erro";
+export type Estado = "pronta" | "falando" | "ouvindo" | "pensando" | "pausada" | "erro";
+
+// Tempo máximo esperando a transcrição antes de desistir e reabrir o microfone.
+const LIMITE_TRANSCRICAO_MS = 30_000;
+// Falhas seguidas de transcrição antes de usar o reconhecimento do navegador.
+const FALHAS_PARA_PLANO_B = 2;
 type GestoTutor = "neutro" | "aceno" | "legal" | "comemoracao";
 
 // O navegador pede acesso ao microfone apenas na primeira aula. Depois de
@@ -16,6 +21,7 @@ export function AulaChat({
   fotoTutor,
   temaInicial,
   vozPremium = true,
+  onEstadoMudou,
 }: {
   tituloTutor: string;
   idiomaDaVoz: string;
@@ -23,11 +29,19 @@ export function AulaChat({
   temaInicial?: string;
   // false = voz gratuita do navegador (plano sem voz premium)
   vozPremium?: boolean;
+  // Avisa quem está fora (relógio da sessão) quando a conversa pausa/retoma.
+  onEstadoMudou?: (estado: Estado) => void;
 }) {
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
   const [estado, setEstado] = useState<Estado>("pronta");
   const [erro, setErro] = useState("");
   const [gestoTutor, setGestoTutor] = useState<GestoTutor>("neutro");
+  const falhasTranscricaoRef = useRef(0);
+  const usarReconhecimentoNativoRef = useRef(false);
+
+  useEffect(() => {
+    onEstadoMudou?.(estado);
+  }, [estado, onEstadoMudou]);
   const [piscando, setPiscando] = useState(false);
   const mensagensRef = useRef<Mensagem[]>([]);
   const recognitionRef = useRef<any>(null);
@@ -170,7 +184,9 @@ export function AulaChat({
     recognition.onend = () => {
       recognitionRef.current = null;
       setErro("");
-      if (ativaRef.current && textoFinal.trim()) void responder(textoFinal.trim());
+      if (!ativaRef.current) return;
+      if (textoFinal.trim()) void responder(textoFinal.trim());
+      else window.setTimeout(() => ouvirComReconhecimentoNativo(), 500); // silêncio: escuta de novo
     };
     recognition.start();
   }
@@ -192,9 +208,12 @@ export function AulaChat({
       const formulario = new FormData();
       formulario.append("audio", blob, blob.type.includes("mp4") ? "resposta.mp4" : "resposta.webm");
       formulario.append("duration_seconds", duracaoSegundos.toFixed(3));
-      const resposta = await fetch("/api/aula/transcrever", { method: "POST", body: formulario });
+      // Sem limite, uma resposta que não volta deixava a aula presa em
+      // "Transcrevendo..." para sempre.
+      const resposta = await fetch("/api/aula/transcrever", { method: "POST", body: formulario, signal: AbortSignal.timeout(LIMITE_TRANSCRICAO_MS) });
       const dados = (await resposta.json()) as { texto?: string; erro?: string };
       if (!resposta.ok) throw new Error(dados.erro || "Falha na transcrição");
+      falhasTranscricaoRef.current = 0;
       const texto = dados.texto?.trim();
       if (!texto) {
         setErro("Não ouvi uma frase completa. Pode falar novamente.");
@@ -204,14 +223,22 @@ export function AulaChat({
       setErro("");
       await responder(texto);
     } catch {
-      setErro("Não consegui transcrever agora. Vou abrir o microfone novamente.");
+      falhasTranscricaoRef.current += 1;
+      const temNativo = typeof window !== "undefined" && Boolean((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+      if (falhasTranscricaoRef.current >= FALHAS_PARA_PLANO_B && temNativo) {
+        // Plano B: reconhecimento de voz do próprio navegador até o fim da aula.
+        usarReconhecimentoNativoRef.current = true;
+        setErro("A transcrição falhou de novo. Vou usar o reconhecimento de voz do navegador — pode falar.");
+      } else {
+        setErro("Não consegui transcrever agora. Vou abrir o microfone novamente.");
+      }
       window.setTimeout(() => void ouvir(), 900);
     }
   }
 
   async function ouvir() {
     if (!ativaRef.current) return;
-    if (typeof MediaRecorder === "undefined") {
+    if (typeof MediaRecorder === "undefined" || usarReconhecimentoNativoRef.current) {
       ouvirComReconhecimentoNativo();
       return;
     }

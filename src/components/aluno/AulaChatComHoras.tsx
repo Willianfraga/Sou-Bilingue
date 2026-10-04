@@ -1,9 +1,9 @@
 "use client";
 
-import { AulaChat } from "./AulaChat";
+import { AulaChat, type Estado } from "./AulaChat";
 import { HourUsageTracker } from "./HourUsageTracker";
 import { TavusAula } from "./TavusAula";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 interface AulaChatComHorasProps {
   tituloTutor: string;
@@ -33,6 +33,9 @@ export function AulaChatComHoras({
   vozPremium = true,
 }: AulaChatComHorasProps) {
   const [modo, setModo] = useState<"video" | "leve">(tavusDisponivel ? "video" : "leve");
+  // O relógio só corre com a conversa em andamento (para ao pausar/encerrar).
+  const [conversaAtiva, setConversaAtiva] = useState(false);
+  const aoMudarEstado = useCallback((e: Estado) => setConversaAtiva(e === "falando" || e === "ouvindo" || e === "pensando"), []);
   return (
     <div className="flex flex-col gap-3">
       {/* Relógio da sessão no topo; saldo de horas fica em "Minhas horas" */}
@@ -41,6 +44,7 @@ export function AulaChatComHoras({
         horasRestantes={horasRestantes}
         horasTotal={horasTotal}
         maxIdleSeconds={3600} // 1 hora
+        contando={conversaAtiva}
       />
 
       {/* Chat Principal */}
@@ -54,7 +58,7 @@ export function AulaChatComHoras({
         {modo === "video" && tavusDisponivel ? (
           <TavusAula tituloTutor={tituloTutor} />
         ) : (
-          <AulaChat tituloTutor={tituloTutor} idiomaDaVoz={idiomaDaVoz} fotoTutor={fotoTutor} temaInicial={temaInicial} vozPremium={vozPremium} />
+          <AulaChat tituloTutor={tituloTutor} idiomaDaVoz={idiomaDaVoz} fotoTutor={fotoTutor} temaInicial={temaInicial} vozPremium={vozPremium} onEstadoMudou={aoMudarEstado} />
         )}
       </main>
     </div>

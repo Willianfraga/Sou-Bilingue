@@ -1,5 +1,11 @@
 # Histórico de mudanças
 
+## 3 out 2026 — aula não trava na transcrição; relógio pausa
+
+- Transcrição com limite de 30 s: se não voltar, a aula avisa e reabre o microfone (antes ficava presa em "Transcrevendo...").
+- Plano B: após 2 falhas seguidas, a aula usa o reconhecimento de voz do navegador até o fim; em silêncio, o microfone reabre.
+- Relógio "Tempo de aula" só corre com a conversa ativa e para ao pausar ou encerrar.
+
 ## 3 out 2026 — tela da aula mais limpa
 
 - Aula sem os seletores de idioma e de professor (vão pelo menu: "Meu idioma" e a nova página "Meu tutor", `/aluno/tutor`). Trocar de tutor volta para a tela inicial.

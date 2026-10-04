@@ -106,3 +106,21 @@ describe("menu bento e tela inicial", () => {
     assert.ok(existsSync(path.join(RAIZ, "src/app/aluno/progresso/page.tsx")), "progresso continua acessível");
   });
 });
+
+describe("aula resistente a falhas e relógio", () => {
+  const aula = () => ler("src/components/aluno/AulaChat.tsx");
+  test("transcrição tem limite de tempo (não trava em 'Transcrevendo...')", () => {
+    assert.match(aula(), /fetch\("\/api\/aula\/transcrever", \{[^}]*signal: AbortSignal\.timeout\(LIMITE_TRANSCRICAO_MS\)/);
+  });
+  test("depois de falhas seguidas usa o reconhecimento do navegador", () => {
+    assert.match(aula(), /falhasTranscricaoRef\.current >= FALHAS_PARA_PLANO_B/);
+    assert.match(aula(), /usarReconhecimentoNativoRef\.current\) \{\s*ouvirComReconhecimentoNativo\(\)/);
+  });
+  test("relógio só corre com a conversa ativa (para ao pausar)", () => {
+    const wrapper = ler("src/components/aluno/AulaChatComHoras.tsx");
+    assert.match(wrapper, /e === "falando" \|\| e === "ouvindo" \|\| e === "pensando"/);
+    assert.match(wrapper, /contando=\{conversaAtiva\}/);
+    const tracker = ler("src/components/aluno/HourUsageTracker.tsx");
+    assert.match(tracker, /if \(!contando\) return;/);
+  });
+});
