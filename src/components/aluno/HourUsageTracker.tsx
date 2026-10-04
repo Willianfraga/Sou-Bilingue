@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useUsageSession } from "@/hooks/useUsageSession";
+import { relogio } from "@/lib/aluno/inicio";
 import { HourWarningAlert } from "./HourWarningAlert";
 
 interface HourUsageTrackerProps {
@@ -11,26 +13,15 @@ interface HourUsageTrackerProps {
   maxIdleSeconds?: number;
 }
 
-export function HourUsageTracker({
-  alunoId,
-  horasRestantes,
-  horasTotal,
-  maxIdleSeconds = 3600,
-}: HourUsageTrackerProps) {
+// Na tela da aula, só o relógio da sessão. O saldo de horas fica em
+// "Minhas horas" (menu bento). A contagem de uso (useUsageSession: início
+// automático, sinal periódico, encerramento por inatividade) não mudou.
+export function HourUsageTracker({ alunoId: _alunoId, horasRestantes, maxIdleSeconds = 3600 }: HourUsageTrackerProps) {
   const [alertLevel, setAlertLevel] = useState<"warning" | "critical" | "exhausted" | null>(null);
   const [showAlert, setShowAlert] = useState(false);
   const [remainingMinutes, setRemainingMinutes] = useState(0);
 
-  const {
-    sessionId,
-    isActive,
-    elapsedTime,
-    elapsedTimeFormatted,
-    loading,
-    error,
-    startSession,
-    endSession,
-  } = useUsageSession({
+  const { isActive, elapsedTime, loading, error, startSession } = useUsageSession({
     autoStart: true,
     maxIdleSeconds,
     onTimeWarning: (remaining) => {
@@ -43,13 +34,7 @@ export function HourUsageTracker({
       setRemainingMinutes(Math.floor(remaining / 60));
       setShowAlert(true);
     },
-    onSessionEnded: (horasConsumidas) => {
-      console.log(`Sessão encerrada. Horas consumidas: ${horasConsumidas}`);
-    },
   });
-
-  const percentualUsado = Math.round((elapsedTime / (horasTotal * 3600)) * 100);
-  const percentualRestante = 100 - percentualUsado;
 
   useEffect(() => {
     if (horasRestantes <= 0) {
@@ -59,105 +44,40 @@ export function HourUsageTracker({
   }, [horasRestantes]);
 
   return (
-    <div className="space-y-4">
-      {/* Status Card */}
-      <div className="bg-white border border-neutral-200 rounded-lg p-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="font-semibold text-neutral-900">Horas de Conversação</h3>
-            <p className="text-sm text-neutral-600">
-              {horasRestantes} de {horasTotal} horas disponíveis
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-600">{horasRestantes}h</div>
-            <div className="text-xs text-neutral-500">Restantes</div>
-          </div>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs text-neutral-600">
-            <span>Uso este mês</span>
-            <span>{percentualUsado}%</span>
-          </div>
-          <div className="w-full bg-neutral-200 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all ${
-                percentualUsado > 90
-                  ? "bg-red-500"
-                  : percentualUsado > 75
-                  ? "bg-yellow-500"
-                  : "bg-green-500"
-              }`}
-              style={{ width: `${percentualUsado}%` }}
-            />
-          </div>
-        </div>
+    <div className="flex flex-col items-end gap-2">
+      <div
+        role="timer"
+        aria-label={`Tempo desta aula: ${relogio(elapsedTime)}`}
+        className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-md ring-1 ring-[#dfe4fa]"
+      >
+        <span aria-hidden className="text-lg">⏱️</span>
+        <span className="text-xs font-semibold text-slate-500">Tempo de aula</span>
+        <span className="font-mono text-lg font-black tabular-nums text-[#3a4f9e]">{relogio(elapsedTime)}</span>
+        <span aria-hidden className={`h-2 w-2 rounded-full ${isActive ? "animate-pulse bg-emerald-500" : "bg-slate-300"}`} />
       </div>
 
-      {/* Session Status */}
-      {isActive && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="font-semibold text-blue-900">Sessão Ativa</h4>
-              <p className="text-sm text-blue-700">
-                Tempo decorrido: {elapsedTimeFormatted}
-              </p>
-            </div>
-            <button
-              onClick={() => endSession()}
-              disabled={loading}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition text-sm font-medium"
-            >
-              {loading ? "Encerrando..." : "Encerrar"}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Start Session Button */}
-      {!isActive && horasRestantes > 0 && (
-        <button
-          onClick={() => startSession()}
-          disabled={loading}
-          className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 transition font-medium"
-        >
-          {loading ? "Iniciando..." : "Começar Conversação"}
-        </button>
-      )}
-
-      {/* No Hours Available */}
-      {horasRestantes <= 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-red-900 font-semibold">Sem horas disponíveis</p>
-          <p className="text-sm text-red-700 mt-1">
-            Recarregue seu plano para continuar conversando.
-          </p>
-          <button className="mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium">
-            Recarregar Horas
-          </button>
-        </div>
-      )}
-
-      {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-800">
-          {error}
-        </div>
+        <p className="text-right text-xs text-red-700">
+          Não foi possível contar o tempo desta aula.{" "}
+          <button type="button" onClick={() => startSession()} disabled={loading} className="font-bold underline">
+            Tentar de novo
+          </button>
+        </p>
       )}
 
-      {/* Alerts */}
+      {horasRestantes <= 0 && (
+        <p className="rounded-xl bg-red-50 px-3 py-2 text-right text-sm text-red-800">
+          Suas horas deste ciclo acabaram. <Link href="/aluno/horas" className="font-bold underline">Ver minhas horas</Link>
+        </p>
+      )}
+
       <HourWarningAlert
         isVisible={showAlert}
         level={alertLevel || "warning"}
         remainingMinutes={remainingMinutes}
         onDismiss={() => setShowAlert(false)}
         onRecharge={() => {
-          // TODO: Abrir modal de recarga
-          console.log("Recarregar horas");
+          window.location.href = "/aluno/horas";
         }}
       />
     </div>

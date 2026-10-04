@@ -7,10 +7,10 @@ import { nomeParaOTutor } from "@/lib/onboarding/contexto";
 
 export type ItemMenu = { href: string; rotulo: string; icone: string; descricao: string };
 
-// Atalhos do menu bento (grade). "Iniciar aula" também fica no botão grande.
+// Atalhos do menu bento (grade). A aula começa pelo botão grande da tela inicial.
 export const ITENS_DO_MENU: ItemMenu[] = [
-  { href: "/aluno/aula", rotulo: "Iniciar aula", icone: "🎙️", descricao: "Conversar com o tutor" },
-  { href: "/aluno/aula#escolher-tutor", rotulo: "Meu tutor", icone: "🧑‍🏫", descricao: "Trocar de professor" },
+  { href: "/aluno/horas", rotulo: "Minhas horas", icone: "⏱️", descricao: "Saldo de horas de conversa" },
+  { href: "/aluno/tutor", rotulo: "Meu tutor", icone: "🧑‍🏫", descricao: "Trocar de professor" },
   { href: "/aluno/progresso", rotulo: "Meu progresso", icone: "📈", descricao: "Metas da semana e do mês" },
   { href: "/aluno/licoes", rotulo: "Minhas lições", icone: "📚", descricao: "Temas e trilhas" },
   { href: "/aluno/licoes#escolher-idioma", rotulo: "Meu idioma", icone: "🌎", descricao: "Idioma e sotaque" },
@@ -50,4 +50,13 @@ export function resumirEntrevista(respostas: Respostas | null | undefined, nomeD
     objetivo: objetivos.length ? rotuloDaOpcao("objetivos", objetivos[0]) : null,
     temaDoDia: temaDoDia(respostas, hoje),
   };
+}
+
+// Relógio da sessão de aula: 12:34 ou 1:02:45 (função pura, testada).
+export function relogio(segundos: number): string {
+  const s = Math.max(0, Math.floor(segundos));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = String(s % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${ss}` : `${String(m).padStart(2, "0")}:${ss}`;
 }

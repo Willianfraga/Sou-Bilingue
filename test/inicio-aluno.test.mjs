@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { ITENS_DO_MENU, resumirEntrevista, temaDoDia } from "../src/lib/aluno/inicio.ts";
+import { ITENS_DO_MENU, relogio, resumirEntrevista, temaDoDia } from "../src/lib/aluno/inicio.ts";
 
 const RAIZ = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ler = (rel) => readFileSync(path.join(RAIZ, rel), "utf8");
@@ -49,6 +49,31 @@ describe("personalização pela entrevista", () => {
   });
 });
 
+describe("tela da aula", () => {
+  test("relógio da sessão", () => {
+    assert.equal(relogio(0), "00:00");
+    assert.equal(relogio(754), "12:34");
+    assert.equal(relogio(3765), "1:02:45");
+    assert.equal(relogio(-5), "00:00");
+  });
+
+  test("aula sem seletor de idioma/tutor e sem cartão de horas; relógio no lugar", () => {
+    const aula = ler("src/app/aluno/aula/page.tsx");
+    assert.equal(/SeletorIdioma|SeletorTutor/.test(aula), false);
+    const tracker = ler("src/components/aluno/HourUsageTracker.tsx");
+    assert.match(tracker, /role="timer"/);
+    assert.equal(tracker.includes("Horas de Conversação"), false);
+    assert.match(tracker, /useUsageSession\(/, "a contagem de uso continua");
+  });
+
+  test("tutor e horas ficam no menu", () => {
+    const hrefs = ITENS_DO_MENU.map((i) => i.href);
+    assert.ok(hrefs.includes("/aluno/tutor"));
+    assert.ok(hrefs.includes("/aluno/horas"));
+    assert.match(ler("src/app/aluno/tutor/actions.ts"), /redirect\("\/aluno"\)/);
+  });
+});
+
 describe("menu bento e tela inicial", () => {
   test("todo atalho do menu leva a uma página que existe", () => {
     for (const item of ITENS_DO_MENU) {
@@ -59,7 +84,6 @@ describe("menu bento e tela inicial", () => {
   });
 
   test("âncoras usadas pelo menu existem nas páginas", () => {
-    assert.match(ler("src/app/aluno/aula/page.tsx"), /id="escolher-tutor"/);
     assert.match(ler("src/app/aluno/licoes/page.tsx"), /id="escolher-idioma"/);
     assert.match(ler("src/app/aluno/perfil/page.tsx"), /id="preferencias"/);
   });

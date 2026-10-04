@@ -1,5 +1,11 @@
 # Histórico de mudanças
 
+## 3 out 2026 — tela da aula mais limpa
+
+- Aula sem os seletores de idioma e de professor (vão pelo menu: "Meu idioma" e a nova página "Meu tutor", `/aluno/tutor`). Trocar de tutor volta para a tela inicial.
+- Cartão "Horas de Conversação" saiu da aula: virou a página "Minhas horas" (`/aluno/horas`, no menu). No lugar, um relógio com o tempo da sessão; a contagem de uso das horas não mudou.
+- Achado (a corrigir na Fase 3): sessões de uso ficam abertas quando o aluno sai da aula (uma durou 44 h), inflando o tempo registrado; e a compra de horas extras não está acessível (seletor sem uso, com textos enganosos).
+
 ## 3 out 2026 — nova tela inicial do aluno
 
 - Tela inicial (`/aluno`) em tela cheia, com a mesma cor do painel da tutora na aula: menu bento, o tutor escolhido e o botão grande "Iniciar minha aula".

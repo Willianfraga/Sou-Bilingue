@@ -18,5 +18,6 @@ export async function alterarTutor(formData: FormData) {
   if (error) throw new Error("Não foi possível trocar o tutor.");
 
   revalidatePath("/aluno", "layout");
-  redirect("/aluno/aula");
+  // Volta para a tela inicial, que já mostra o tutor novo.
+  redirect("/aluno");
 }

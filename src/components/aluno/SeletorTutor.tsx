@@ -2,9 +2,9 @@ import Image from "next/image";
 import { alterarTutor } from "@/app/aluno/tutor/actions";
 import type { Tutor } from "@/lib/types";
 
-export function SeletorTutor({ tutores, atualId }: { tutores: Tutor[]; atualId: string }) {
+export function SeletorTutor({ tutores, atualId, aberto = false }: { tutores: Tutor[]; atualId: string; aberto?: boolean }) {
   return (
-    <details className="group rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+    <details open={aberto} className="group rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
       <summary className="flex cursor-pointer list-none items-center justify-between px-2 py-1 text-sm font-bold text-slate-800 [&::-webkit-details-marker]:hidden">
         Escolher meu professor
         <span className="text-indigo-600 transition group-open:rotate-45">+</span>

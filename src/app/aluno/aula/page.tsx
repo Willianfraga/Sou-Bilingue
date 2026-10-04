@@ -1,12 +1,10 @@
 import { AulaChatComHoras } from "@/components/aluno/AulaChatComHoras";
 import { requireSessao } from "@/lib/auth/guards";
 import { getPerfilDoAluno } from "@/lib/data/alunos";
-import { getTutorPorId, getTutores } from "@/lib/data/tutores";
+import { getTutorPorId } from "@/lib/data/tutores";
 import { NOME_DO_IDIOMA } from "@/lib/types";
 import { getActiveSubscription } from "@/lib/billing/subscription";
 import { alunoTemVozPremium } from "@/lib/billing/voz";
-import { SeletorIdioma } from "@/components/aluno/SeletorIdioma";
-import { SeletorTutor } from "@/components/aluno/SeletorTutor";
 
 const IDIOMA_DA_VOZ = {
   espanhol: "es-ES",
@@ -27,7 +25,6 @@ export default async function Aula({
   if (!perfil) return <p className="text-neutral-500">Perfil nao encontrado.</p>;
 
   const tutor = await getTutorPorId(perfil.tutorId);
-  const tutores = await getTutores();
   const assinatura = await getActiveSubscription(sessao.userId);
   const tituloTutor = `${tutor?.nome ?? "Tutor"} - ${NOME_DO_IDIOMA[perfil.idioma]}`;
 
@@ -45,10 +42,6 @@ export default async function Aula({
 
   return (
     <div className="space-y-4">
-      <div className="px-4 pt-4">
-        <SeletorIdioma atual={perfil.idioma} destino="/aluno/aula" />
-        <div id="escolher-tutor" className="mt-3 scroll-mt-24"><SeletorTutor tutores={tutores} atualId={perfil.tutorId} /></div>
-      </div>
       <AulaChatComHoras
         tituloTutor={tituloTutor}
         idiomaDaVoz={IDIOMA_DA_VOZ[perfil.idioma]}
