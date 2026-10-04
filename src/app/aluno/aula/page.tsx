@@ -47,9 +47,7 @@ export default async function Aula({
         idiomaDaVoz={IDIOMA_DA_VOZ[perfil.idioma]}
         fotoTutor={tutor?.foto_url}
         temaInicial={tema?.trim().slice(0, 180)}
-        alunoId={sessao.userId}
-        horasRestantes={assinatura.horas_restantes}
-        horasTotal={assinatura.horas_total}
+        horasRestantes={Number(assinatura.horas_restantes) || 0}
         vozPremium={await alunoTemVozPremium(sessao.userId)}
         tavusDisponivel={process.env.TAVUS_ENABLED === "true" && Boolean(process.env.TAVUS_API_KEY && process.env.TAVUS_PERSONA_ID && process.env.TAVUS_REPLICA_ID)}
       />

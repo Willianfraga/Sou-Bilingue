@@ -2,55 +2,34 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useUsageSession } from "@/hooks/useUsageSession";
+import { useSessaoDeAula } from "@/hooks/useSessaoDeAula";
 import { relogio } from "@/lib/aluno/inicio";
-import { HourWarningAlert } from "./HourWarningAlert";
+import { formatarHoras } from "@/lib/billing/horas";
 
 interface HourUsageTrackerProps {
-  alunoId: string;
   horasRestantes: number;
-  horasTotal: number;
-  maxIdleSeconds?: number;
-  // true = conversa em andamento; o relógio para quando a conversa pausa.
+  // true = conversa em andamento; o relógio e a contagem param na pausa.
   contando?: boolean;
 }
 
-// Na tela da aula, só o relógio da sessão. O saldo de horas fica em
-// "Minhas horas" (menu bento). A contagem de uso (useUsageSession: início
-// automático, sinal periódico, encerramento por inatividade) não mudou.
-export function HourUsageTracker({ alunoId: _alunoId, horasRestantes, maxIdleSeconds = 3600, contando = false }: HourUsageTrackerProps) {
-  // Tempo de conversa desta aula: só avança enquanto a conversa está ativa.
+// Avisa quando faltar pouco (em horas: 15 min).
+const POUCO_SALDO = 0.25;
+
+// Na tela da aula, só o relógio da sessão. O saldo e o extrato ficam em
+// "Minhas horas" (menu bento). A contagem de horas (useSessaoDeAula) usa o
+// mesmo critério do relógio: só conversa ativa.
+export function HourUsageTracker({ horasRestantes, contando = false }: HourUsageTrackerProps) {
   const [segundosDeAula, setSegundosDeAula] = useState(0);
   useEffect(() => {
     if (!contando) return;
     const id = window.setInterval(() => setSegundosDeAula((s) => s + 1), 1000);
     return () => window.clearInterval(id);
   }, [contando]);
-  const [alertLevel, setAlertLevel] = useState<"warning" | "critical" | "exhausted" | null>(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [remainingMinutes, setRemainingMinutes] = useState(0);
 
-  const { loading, error, startSession } = useUsageSession({
-    autoStart: true,
-    maxIdleSeconds,
-    onTimeWarning: (remaining) => {
-      setAlertLevel("warning");
-      setRemainingMinutes(Math.floor(remaining / 60));
-      setShowAlert(true);
-    },
-    onTimeAlertCritical: (remaining) => {
-      setAlertLevel("critical");
-      setRemainingMinutes(Math.floor(remaining / 60));
-      setShowAlert(true);
-    },
-  });
-
-  useEffect(() => {
-    if (horasRestantes <= 0) {
-      setAlertLevel("exhausted");
-      setShowAlert(true);
-    }
-  }, [horasRestantes]);
+  const sessao = useSessaoDeAula(contando);
+  // Saldo ao vivo: o do último sinal (já desconta o tempo desta sessão).
+  const saldo = sessao.horasRestantes ?? horasRestantes;
+  const semHoras = sessao.esgotou || horasRestantes <= 0;
 
   return (
     <div className="flex flex-col items-end gap-2">
@@ -65,30 +44,24 @@ export function HourUsageTracker({ alunoId: _alunoId, horasRestantes, maxIdleSec
         <span aria-hidden className={`h-2 w-2 rounded-full ${contando ? "animate-pulse bg-emerald-500" : "bg-slate-300"}`} />
       </div>
 
-      {error && (
+      {semHoras ? (
+        <p role="alert" className="rounded-xl bg-red-50 px-3 py-2 text-right text-sm text-red-800">
+          Suas horas acabaram. <Link href="/aluno/horas" className="font-bold underline">Comprar horas extras</Link>
+        </p>
+      ) : saldo > 0 && saldo <= POUCO_SALDO ? (
+        <p role="status" className="rounded-xl bg-amber-50 px-3 py-2 text-right text-sm text-amber-900">
+          Restam {formatarHoras(saldo)} de conversa. <Link href="/aluno/horas" className="font-bold underline">Minhas horas</Link>
+        </p>
+      ) : null}
+
+      {sessao.erro === "falha" && (
         <p className="text-right text-xs text-red-700">
           Não foi possível contar o tempo desta aula.{" "}
-          <button type="button" onClick={() => startSession()} disabled={loading} className="font-bold underline">
+          <button type="button" onClick={sessao.tentarDeNovo} className="font-bold underline">
             Tentar de novo
           </button>
         </p>
       )}
-
-      {horasRestantes <= 0 && (
-        <p className="rounded-xl bg-red-50 px-3 py-2 text-right text-sm text-red-800">
-          Suas horas deste ciclo acabaram. <Link href="/aluno/horas" className="font-bold underline">Ver minhas horas</Link>
-        </p>
-      )}
-
-      <HourWarningAlert
-        isVisible={showAlert}
-        level={alertLevel || "warning"}
-        remainingMinutes={remainingMinutes}
-        onDismiss={() => setShowAlert(false)}
-        onRecharge={() => {
-          window.location.href = "/aluno/horas";
-        }}
-      />
     </div>
   );
 }

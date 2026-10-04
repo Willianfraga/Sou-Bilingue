@@ -124,3 +124,19 @@ export async function exportarDadosDoAluno(adminId: string, alunoId: string) {
     certificados: certificados.data ?? [],
   };
 }
+
+// Reposição de horas (Fase 3): soma ao ciclo atual com motivo, pela função
+// horas_conceder (valida 0,25–100 h e assinatura ativa). Auditada.
+export async function concederReposicao(adminId: string, alunoId: string, horas: number, motivo: string): Promise<Resultado> {
+  const texto = motivo.trim();
+  if (texto.length < 5) return { ok: false, erro: "Escreva o motivo (mínimo 5 caracteres)." };
+  if (!Number.isFinite(horas) || horas < 0.25 || horas > 100) return { ok: false, erro: "Informe de 0,25 a 100 horas." };
+  const { data, error } = await createSupabaseAdminClient().rpc("horas_conceder", { p_aluno: alunoId, p_horas: horas, p_motivo: texto, p_admin: adminId });
+  if (error || !data?.ok) {
+    const erro = data?.erro ?? "Não foi possível conceder agora.";
+    await registrarAuditoria({ adminId, acao: "aluno.conceder_horas", entidade: "aluno", entidadeId: alunoId, motivo: texto, resultado: "erro", depois: { horas, erro: error?.message ?? erro } });
+    return { ok: false, erro };
+  }
+  await registrarAuditoria({ adminId, acao: "aluno.conceder_horas", entidade: "aluno", entidadeId: alunoId, depois: { horas }, motivo: texto, resultado: "ok" });
+  return { ok: true };
+}

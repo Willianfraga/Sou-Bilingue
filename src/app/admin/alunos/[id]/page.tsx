@@ -6,6 +6,8 @@ import { formatarData, formatarDataHora, formatarValor } from "@/lib/admin/forma
 import { centavos, reaisDe, usdParaCentavos } from "@/lib/admin/indicadores";
 import { podeAcessar } from "@/lib/admin/permissoes";
 import { requireArea } from "@/lib/admin/sessao";
+import { extratoDeHoras } from "@/lib/billing/extrato";
+import { rotuloDoExtrato, valorDoExtrato } from "@/lib/billing/horas";
 import { nomeDeExibicao } from "@/lib/billing/planos";
 import { getCambioUsdBrl } from "@/lib/financeiro/cambio";
 import { NOME_DO_IDIOMA } from "@/lib/types";
@@ -53,6 +55,7 @@ export default async function FichaDoAluno({ params, searchParams }: { params: P
   const podeSuspender = sessao.funcoes.some((f) => f === "geral" || f === "suporte");
   const podeAnonimizar = sessao.funcoes.includes("geral");
   const cambio = veDinheiro ? await getCambioUsdBrl() : null;
+  const extrato = await extratoDeHoras(id, 30);
 
   const p = d.perfil;
   const entrevista = (d.entrevista ?? null) as J | null;
@@ -174,7 +177,7 @@ export default async function FichaDoAluno({ params, searchParams }: { params: P
                 <li key={String(s.id)} className="rounded-lg bg-slate-50 p-3">
                   <strong>{s.plano ? nomeDeExibicao(String(s.plano)) : "—"}</strong> · {String(s.status)} · desde {formatarData(String(s.criada_em))}
                   <span className="block text-xs text-slate-500">
-                    Horas do ciclo: {n(s.horas_utilizadas).toFixed(1)} de {n(s.horas_total)}
+                    Horas do ciclo: {n(s.horas_utilizadas).toFixed(2).replace(".", ",")} de {n(s.horas_total).toFixed(2).replace(".", ",")}
                     {s.cancelamento_solicitado_em ? ` · cancelamento pedido em ${formatarData(String(s.cancelamento_solicitado_em))}, acesso até ${texto(s.acesso_ate)}` : ""}
                     {!s.asaas && s.status === "ativa" ? " · sem assinatura no Asaas" : ""}
                   </span>
@@ -201,6 +204,42 @@ export default async function FichaDoAluno({ params, searchParams }: { params: P
               </ul>
             )}
           </div>
+        )}
+      </Bloco>
+
+      <Bloco titulo="Extrato de horas" nota="Lançamentos válidos (a contagem antiga, de antes de 04/10/2026, foi invalidada). Aula conta só conversa ativa, por minuto.">
+        {extrato.length === 0 ? (
+          <p className="text-sm text-slate-500">Nenhum lançamento.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100 text-sm">
+            {extrato.map((l) => (
+              <li key={l.id} className="flex justify-between gap-3 py-1.5">
+                <span>
+                  {formatarDataHora(l.criada_em)} · <strong>{rotuloDoExtrato(l.tipo)}</strong> {l.descricao ? `— ${l.descricao}` : ""}
+                  {l.motivo && <span className="block text-xs text-slate-500">{l.motivo}</span>}
+                </span>
+                <span className={`shrink-0 tabular-nums font-semibold ${l.segundos < 0 ? "text-red-700" : l.segundos > 0 ? "text-emerald-700" : "text-slate-400"}`}>{valorDoExtrato(l.segundos)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {podeSuspender && !anonimizado && (
+          <form action={agirNoAluno} className="mt-4 flex flex-col gap-2 rounded-xl border border-slate-200 p-4">
+            <input type="hidden" name="id" value={id} />
+            <input type="hidden" name="acao" value="conceder_horas" />
+            <h3 className="font-bold">Conceder reposição</h3>
+            <p className="text-xs text-slate-500">Soma horas ao ciclo atual (ex.: falha do sistema). Fica no extrato do aluno e na auditoria.</p>
+            <label className="text-xs font-semibold text-slate-700">
+              Horas (0,25 a 100)
+              <input name="horas" required inputMode="decimal" pattern="[0-9]+([,.][0-9]{1,2})?" placeholder="1" className="mt-1 block w-32 rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+            </label>
+            <label htmlFor="motivo-horas" className="sr-only">Motivo</label>
+            <textarea id="motivo-horas" name="motivo" required minLength={5} maxLength={500} rows={2} placeholder="Motivo (aparece para o aluno no extrato)" className="rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+            <label className="flex items-start gap-2 text-sm">
+              <input type="checkbox" required className="mt-1" /> Confirmo esta reposição.
+            </label>
+            <button type="submit" className="w-fit rounded-lg bg-violet-700 px-4 py-2 text-sm font-bold text-white hover:bg-violet-800">Conceder</button>
+          </form>
         )}
       </Bloco>
 

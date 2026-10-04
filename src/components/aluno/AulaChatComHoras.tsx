@@ -10,9 +10,7 @@ interface AulaChatComHorasProps {
   idiomaDaVoz: string;
   fotoTutor?: string;
   temaInicial?: string;
-  alunoId: string;
   horasRestantes: number;
-  horasTotal: number;
   tavusDisponivel?: boolean;
   vozPremium?: boolean;
 }
@@ -26,9 +24,7 @@ export function AulaChatComHoras({
   idiomaDaVoz,
   fotoTutor,
   temaInicial,
-  alunoId,
   horasRestantes,
-  horasTotal,
   tavusDisponivel = false,
   vozPremium = true,
 }: AulaChatComHorasProps) {
@@ -39,13 +35,7 @@ export function AulaChatComHoras({
   return (
     <div className="flex flex-col gap-3">
       {/* Relógio da sessão no topo; saldo de horas fica em "Minhas horas" */}
-      <HourUsageTracker
-        alunoId={alunoId}
-        horasRestantes={horasRestantes}
-        horasTotal={horasTotal}
-        maxIdleSeconds={3600} // 1 hora
-        contando={conversaAtiva}
-      />
+      <HourUsageTracker horasRestantes={horasRestantes} contando={conversaAtiva} />
 
       {/* Chat Principal */}
       <main className="min-w-0">

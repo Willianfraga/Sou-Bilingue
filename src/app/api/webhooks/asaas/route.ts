@@ -62,6 +62,13 @@ async function registrarPagamento(
   return true;
 }
 
+// Pagamento confirmado da mensalidade abre um ciclo novo de horas (1ª
+// mensalidade e cada renovação). O banco não repete para o mesmo pagamento.
+async function renovarCicloDeHoras(supabase: ReturnType<typeof createSupabaseAdminClient>, subscriptionId: string, asaasPaymentId: string) {
+  const { error } = await supabase.rpc("horas_renovar_ciclo", { p_sub: subscriptionId, p_pagamento: asaasPaymentId });
+  if (error) throw error;
+}
+
 export async function POST(request: Request) {
   const token = request.headers.get("asaas-access-token") || undefined;
   if (!validateWebhookSignature(token)) {
@@ -148,6 +155,7 @@ export async function POST(request: Request) {
       });
 
       if (aprovado && vigente) {
+        await renovarCicloDeHoras(supabase, assinatura.id, payment.id);
         const plano = Array.isArray(assinatura.planos) ? assinatura.planos[0] : assinatura.planos;
         if (assinatura.status !== "ativa") {
           const { error: activeError } = await supabase.from("subscriptions")
@@ -196,6 +204,7 @@ export async function POST(request: Request) {
         subscriptionId: subscription.id, valor: payment.value ?? 0, valorLiquido: payment.netValue, aprovado,
       });
 
+      if (aprovado && vigente) await renovarCicloDeHoras(supabase, subscription.id, payment.id);
       if (aprovado && vigente && subscription.status !== "ativa") {
         const { error: activeError } = await supabase.from("subscriptions")
           .update({ status: "ativa", atualizada_em: new Date().toISOString() }).eq("id", subscription.id);

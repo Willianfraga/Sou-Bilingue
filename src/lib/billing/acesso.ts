@@ -20,7 +20,7 @@ export async function bloqueioDeAula(alunoId: string, rota: RotaDeAula): Promise
         erro: semHoras
           ? "Suas horas deste ciclo acabaram. Você pode comprar horas extras para continuar."
           : "Você precisa de um plano ativo para conversar com o tutor.",
-        destino: semHoras ? "/aluno/dashboard" : "/checkout",
+        destino: semHoras ? "/aluno/horas" : "/checkout",
       },
       { status: 402 },
     );

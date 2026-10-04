@@ -63,7 +63,7 @@ describe("tela da aula", () => {
     const tracker = ler("src/components/aluno/HourUsageTracker.tsx");
     assert.match(tracker, /role="timer"/);
     assert.equal(tracker.includes("Horas de Conversação"), false);
-    assert.match(tracker, /useUsageSession\(/, "a contagem de uso continua");
+    assert.match(tracker, /useSessaoDeAula\(contando\)/, "a contagem de horas segue o relógio");
   });
 
   test("tutor e horas ficam no menu", () => {
