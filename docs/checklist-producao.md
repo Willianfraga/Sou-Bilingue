@@ -109,6 +109,34 @@ Como conferir: chega um relatório diário, ou um aviso quando algo quebrar.
 
 Como conferir: margem positiva em todos os planos.
 
+### 9b. Revisar os planos com o custo real da turma piloto (Juntos)
+
+A conta de agosto (`docs/CUSTOS_IA.md`) é a referência: ~R$ 7,81/h com a
+voz ElevenLabs e ~R$ 1,37/h com a voz do navegador.
+
+| Plano | Preço | Horas | Por hora | Voz | Situação (conta de agosto) |
+|---|---|---|---|---|---|
+| Teste 7 dias | R$ 9,90 | 5 h | R$ 1,98 | ElevenLabs | Custa até ~R$ 39 |
+| Essencial | R$ 59,80 | 12 h | R$ 4,98 | Navegador | ✅ Lucro de ~R$ 43 |
+| Fluência ⭐ | R$ 109,80 | 20 h | R$ 5,49 | ElevenLabs | ❌ Prejuízo acima de ~70% de uso |
+| Premium | R$ 169,80 | 30 h | R$ 5,66 | ElevenLabs | ❌ Prejuízo acima de ~70% de uso |
+| Horas extras | R$ 9,90/h | 5/10/20 h | R$ 9,90 | A do plano | ⚠️ ~R$ 2/h com ElevenLabs |
+
+- [ ] Depois de 1 a 2 semanas de turma piloto, o Claude tira do Admin → Custos:
+  - [ ] o custo real por hora (com cache e a contagem nova por conversa ativa);
+  - [ ] a média de horas usadas por aluno em cada plano.
+- [ ] Refazer a tabela acima com os números reais, incluindo a taxa do Asaas e os impostos
+- [ ] Decidir sobre o **Fluência** e o **Premium**, se ainda derem prejuízo:
+  - [ ] a) menos horas pelo mesmo preço (ex.: 15 h e 22 h); ou
+  - [ ] b) preço maior; ou
+  - [ ] c) voz premium em parte das horas e, depois, a do navegador.
+- [ ] Decidir sobre o **Teste 7 dias**: 2 a 3 horas, ou a voz do navegador
+- [ ] Conferir se as **horas extras** dão margem depois das taxas
+- [ ] Atualizar `docs/CUSTOS_IA.md`, a página de vendas e a tabela `planos`, e avisar os assinantes atuais antes de qualquer mudança de preço
+
+Como conferir: todos os planos com margem positiva mesmo com uso alto
+(80% das horas).
+
 ### 10. Estorno e contestação (Claude)
 
 - [ ] Tratar a contestação no cartão (chargeback) no webhook do Asaas
