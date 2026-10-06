@@ -115,9 +115,14 @@
   - `test/integracao.horas.test.mjs` (banco real), que só roda depois da
     migration.
 
-**Falta:**
+**Publicado em 06/10/2026:**
 
-1. Aplicar a migration 0025 no banco.
-   - Foi bloqueada pela permissão automática: precisa do dono.
-2. `npm run test:integracao`.
-3. Publicar (o código depende da migration, então aplicar ANTES do deploy).
+- **Migration 0025:** aplicada pelo dono no SQL Editor, em 4 partes.
+  - Colar o arquivo inteiro de uma vez deu o erro "unterminated
+    dollar-quoted string". Por isso as partes usam `$fn$`.
+  - Também foram invalidados 2 lançamentos da contagem antiga feitos depois
+    de 04/10.
+- **Testes:** os de integração passaram (51/51, incluindo
+  `integracao.horas`).
+- **Deploy:** Coolify, commit d916396, verificado em produção com aluno
+  temporário (Minhas horas, pacotes, saldo em h/min e `/api/aula/sessao`).
