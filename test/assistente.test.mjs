@@ -27,7 +27,7 @@ describe("conhecimento do assistente", () => {
     const p = prompt();
     assert.match(p, /Essencial: R\$ 59,80\/mês; 1º mês por R\$ 29,90/);
     assert.match(p, /Fluência \(o recomendado na página\): R\$ 109,80/);
-    assert.match(p, /30 horas de conversa por mês/);
+    assert.match(p, /30 aulas de 1 hora por mês \(~7 por semana\)/);
   });
 
   test("plano de teste fica de fora (não está à venda na vitrine)", () => {

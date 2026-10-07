@@ -10,6 +10,8 @@ import {
   DESCONTO_PRIMEIRA_MENSALIDADE,
   formatarPreco,
   horasPorSemana,
+  aulasDoPlano,
+  aulasPorSemana,
   nomeDeExibicao,
   planoTemVozPremium,
   temDescontoNaPrimeira,
@@ -101,6 +103,10 @@ describe("voz do navegador: português e idioma estudado", () => {
 
 describe("texto dos planos", () => {
   test("horas por semana aproximadas em 15 min", () => {
+    assert.equal(aulasDoPlano(12), "12 aulas de 1 hora por mês");
+    assert.equal(aulasPorSemana(12), "~3 por semana");
+    assert.equal(aulasPorSemana(20), "~5 por semana");
+    assert.equal(aulasPorSemana(30), "~7 por semana");
     assert.equal(horasPorSemana(12), "~2h45/semana");
     assert.equal(horasPorSemana(20), "~4h30/semana");
     assert.equal(horasPorSemana(30), "~7h/semana");

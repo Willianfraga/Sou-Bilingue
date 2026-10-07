@@ -29,7 +29,7 @@ export const BENEFICIOS = [
   { icone: "⏱️", titulo: "No seu horário", texto: "Sem agenda fixa: pratique de manhã, no almoço ou à noite, no celular ou no computador." },
   { icone: "📈", titulo: "Evolução acompanhada", texto: "Horas praticadas, constância semanal e dificuldade que sobe aos poucos." },
   { icone: "🏅", titulo: "Certificado mensal", texto: "Cumpriu a meta de todas as semanas do mês? Ganha um certificado com código de verificação." },
-  { icone: "➕", titulo: "Horas extras quando quiser", texto: "Precisa praticar mais num mês? Compre horas extras direto no app." },
+  { icone: "➕", titulo: "Aulas extras quando quiser", texto: "Precisa praticar mais num mês? Compre aulas extras direto no app." },
 ];
 
 export const COMPARACAO: Array<{ item: string; sb: string; curso: string; app: string }> = [

@@ -13,7 +13,8 @@ import {
   PLANO_RECOMENDADO,
   PLANOS_DE_TESTE,
   formatarPreco,
-  horasPorSemana,
+  aulasDoPlano,
+  aulasPorSemana,
   nomeDeExibicao,
   planoTemVozPremium,
   publicoDoPlano,
@@ -82,7 +83,7 @@ function blocoDePlanos(planos: PlanoParaAssistente[]): string {
       return [
         `- ${nomeDeExibicao(p.nome)}${p.nome === PLANO_RECOMENDADO ? " (o recomendado na página)" : ""}: ${formatarPreco(p.preco)}/mês;`,
         `1º mês por ${formatarPreco(primeira)} (${DESCONTO_PRIMEIRA_MENSALIDADE}% de desconto);`,
-        `${p.horas} horas de conversa por mês (${horasPorSemana(p.horas)});`,
+        `${aulasDoPlano(p.horas)} (${aulasPorSemana(p.horas)});`,
         planoTemVozPremium(p.nome) ? "voz premium do professor (mais natural)." : "voz padrão do navegador (mais simples, gratuita).",
         publicoDoPlano(p.nome),
       ].join(" ");
@@ -136,8 +137,10 @@ Menores de 18 anos só podem usar com consentimento do responsável legal. Luna 
 
 # Planos (valores atuais do sistema)
 ${blocoDePlanos(p.planos)}
-Cobrança mensal automática. O 1º mês tem ${DESCONTO_PRIMEIRA_MENSALIDADE}% de desconto; do 2º mês em diante vale o preço cheio. Horas extras podem ser compradas dentro do app quando quiser. Não existe teste grátis nem cupom público.
-Informações que você NÃO tem (responda que não sabe e indique /contato): se horas não usadas passam para o mês seguinte, planos para empresas ou escolas, nota fiscal, pagamento anual.
+Fale do tempo de cada plano em aulas de 1 hora (ex.: "12 aulas de 1 hora por mês"), não em "horas". Se perguntarem como conta: o tempo é contado por minuto de conversa com o professor; pausas não contam e o aluno pode dividir em aulas mais curtas (por exemplo, duas de 30 minutos valem uma aula de 1 hora).
+Cobrança mensal automática. O 1º mês tem ${DESCONTO_PRIMEIRA_MENSALIDADE}% de desconto; do 2º mês em diante vale o preço cheio. Aulas extras (horas extras) podem ser compradas dentro do app quando quiser. Não existe teste grátis nem cupom público.
+As aulas do plano que não forem usadas no mês não passam para o mês seguinte; as aulas extras compradas e não usadas passam.
+Informações que você NÃO tem (responda que não sabe e indique /contato): planos para empresas ou escolas, nota fiscal, pagamento anual.
 
 # Pagamento
 Na página segura do Asaas: Pix, cartão ou boleto. O Sou Bilíngue não recebe nem guarda dados de cartão. O acesso é liberado quando o pagamento é confirmado (no boleto, depende da compensação bancária). Caminho: criar a conta em /cadastro → escolher o plano e pagar no /checkout → entrevista de boas-vindas → primeira aula.

@@ -6,7 +6,9 @@ import { CHAVE_PLANO, enviarEvento } from "@/components/vendas/Rastreador";
 import {
   DESCONTO_PRIMEIRA_MENSALIDADE,
   formatarPreco,
-  horasPorSemana,
+  aulasDoPlano,
+  publicoDoPlano,
+  aulasPorSemana,
   nomeDeExibicao,
   valorPrimeiraMensalidade,
 } from "@/lib/billing/planos";
@@ -154,12 +156,12 @@ export default function CheckoutPage() {
             {/* Hours */}
             <div className="mb-6 rounded-lg bg-blue-50 px-3 py-2">
               <p className="text-sm font-semibold text-blue-900">
-                {plan.horas_mensais}h de conversação por mês ({horasPorSemana(plan.horas_mensais)})
+                {aulasDoPlano(plan.horas_mensais)} ({aulasPorSemana(plan.horas_mensais)})
               </p>
             </div>
 
-            {/* Description */}
-            <p className="text-sm text-neutral-600">{plan.descricao}</p>
+            {/* Para quem é o plano (a descrição do banco repetia as horas) */}
+            <p className="text-sm text-neutral-600">{publicoDoPlano(plan.nome)}</p>
 
             {/* Button */}
             <button
@@ -193,8 +195,8 @@ export default function CheckoutPage() {
                     <span className="font-semibold">{formatarPreco(plan.preco)}/mês</span>
                   </div>
                   <div className="flex justify-between text-sm text-neutral-600">
-                    <span>Horas mensais</span>
-                    <span>{plan.horas_mensais}h</span>
+                    <span>Aulas por mês</span>
+                    <span>{plan.horas_mensais} aulas de 1 h</span>
                   </div>
                 </div>
 

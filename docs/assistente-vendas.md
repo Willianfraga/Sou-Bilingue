@@ -36,8 +36,16 @@ conversa continua de uma página para a outra, porque fica guardada no
 - Se alguém muda um preço no banco ou uma pergunta no admin, a resposta muda
   junto.
 - O que não está nas fontes, o assistente diz que não sabe e indica
-  `/contato`. Alguns exemplos: se as horas não usadas acumulam, planos para
-  empresas, nota fiscal.
+  `/contato`. Alguns exemplos: planos para empresas, nota fiscal.
+- Desde 07/10/2026, o assistente apresenta o tempo dos planos como **aulas
+  de 1 hora** ("12 aulas de 1 hora por mês, ~3 por semana"). Se o cliente
+  perguntar, ele explica:
+  - o tempo conta por minuto de conversa;
+  - pausas não contam;
+  - as aulas do plano não acumulam de um mês para o outro;
+  - as aulas extras compradas acumulam.
+  Mesmo texto da página de vendas e do checkout (`aulasDoPlano` e
+  `aulasPorSemana` em `src/lib/billing/planos.ts`).
 
 ## Segurança e custo
 

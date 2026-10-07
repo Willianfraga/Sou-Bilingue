@@ -72,6 +72,18 @@ export function formatarPreco(valor: number): string {
   return `R$ ${valor.toFixed(2).replace(".", ",")}`;
 }
 
+// Como o cliente vê as horas do plano: em aulas de 1 hora (o tempo é contado
+// por minuto de conversa; o aluno pode dividir em aulas mais curtas).
+// Ex.: 12 → "12 aulas de 1 hora por mês".
+export function aulasDoPlano(horasMensais: number): string {
+  return `${horasMensais} ${horasMensais === 1 ? "aula" : "aulas"} de 1 hora por mês`;
+}
+
+// Aulas de 1 hora por semana, aproximado (mês ≈ 4,33 semanas). 12 → "~3 por semana".
+export function aulasPorSemana(horasMensais: number): string {
+  return `~${Math.max(1, Math.round(horasMensais / 4.33))} por semana`;
+}
+
 // Horas mensais → texto aproximado por semana (mês ≈ 4,33 semanas),
 // arredondado para 15 min. Ex.: 12 h/mês → "~2h45/semana".
 export function horasPorSemana(horasMensais: number): string {

@@ -16,7 +16,8 @@ import {
   PLANO_RECOMENDADO,
   PLANOS_DE_TESTE,
   formatarPreco,
-  horasPorSemana,
+  aulasDoPlano,
+  aulasPorSemana,
   nomeDeExibicao,
   planoTemVozPremium,
   publicoDoPlano,
@@ -420,12 +421,12 @@ export default async function PaginaDeVendas() {
                       <p className={`mt-1 text-sm ${p.recomendado ? "text-violet-200" : "text-slate-500"}`}>depois {formatarPreco(p.preco)}/mês</p>
                     </div>
                     <ul className={`mt-6 flex-1 space-y-2 text-sm ${p.recomendado ? "text-slate-100" : "text-slate-700"}`}>
-                      <li>✓ {p.horas} horas de conversa por mês ({horasPorSemana(p.horas)})</li>
+                      <li>✓ {aulasDoPlano(p.horas)} ({aulasPorSemana(p.horas)})</li>
                       <li>✓ {p.voz}</li>
                       <li>✓ Perfil personalizado e 6 professores virtuais</li>
                       <li>✓ 5 idiomas para escolher</li>
                       <li>✓ Certificado mensal verificável</li>
-                      <li>✓ Horas extras disponíveis para compra</li>
+                      <li>✓ Aulas extras disponíveis para compra</li>
                     </ul>
                     <a
                       href={`${CADASTRO}?plano=${p.id}`}
