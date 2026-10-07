@@ -44,6 +44,8 @@ Como conferir: tudo marcado acima, e `webhook_events` sem eventos com
 
 ### 3. E-mails de cadastro e senha (Juntos)
 
+Passo a passo detalhado: `docs/plano-acao-email-e-voz.md` (Plano A).
+
 O envio padrão do Supabase manda poucos e-mails por hora. Com vários
 cadastros, a confirmação e o "esqueci a senha" param de chegar.
 
@@ -110,6 +112,9 @@ Como conferir: chega um relatório diário, ou um aviso quando algo quebrar.
 Como conferir: margem positiva em todos os planos.
 
 ### 9b. Revisar os planos com o custo real da turma piloto (Juntos)
+
+Para reduzir o custo da voz (Google TTS com o ElevenLabs de reserva), ver
+`docs/plano-acao-email-e-voz.md` (Plano B).
 
 A conta de agosto (`docs/CUSTOS_IA.md`) é a referência: ~R$ 7,81/h com a
 voz ElevenLabs e ~R$ 1,37/h com a voz do navegador.
