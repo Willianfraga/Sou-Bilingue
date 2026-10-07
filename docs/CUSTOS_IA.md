@@ -49,6 +49,31 @@ Uso a partir do qual o plano dá prejuízo (voz ElevenLabs):
 
 Fora da conta: taxa do Asaas, impostos, servidor (Coolify) e Supabase.
 
+## Atualização de 07/10/2026: todos os planos com voz ElevenLabs
+
+O dono achou a voz do navegador robotizada, e o **Essencial passou a usar a
+voz ElevenLabs** (`PLANOS_COM_VOZ_DO_NAVEGADOR` vazio). A voz do navegador
+ficou só como reserva quando a ElevenLabs falha.
+
+**Medição real (aulas de 27/09 a 07/10)**, por resposta da tutora:
+
+| Serviço | Custo por resposta | Parte do custo |
+|---|---|---|
+| Voz ElevenLabs | US$ 0,014 | 79% |
+| Claude Haiku | US$ 0,0036 | 20% |
+| Transcrição | US$ 0,0004 | 1% |
+
+O cache segue sem efeito: as chamadas têm ~3,1 mil tokens, abaixo do mínimo
+de 4.096.
+
+Com ~120 respostas por hora, a hora sai por ~R$ 9,70 (câmbio de R$ 5,22).
+Com isso, o **Essencial** (R$ 59,80, 12 h) dá prejuízo a partir de ~6 h
+usadas no mês (~50% das horas).
+
+Alternativa avaliada e ainda não adotada: Google Text-to-Speech (Neural2:
+US$ 16 por milhão de caracteres, com 1 milhão grátis por mês) deixaria a
+hora em ~R$ 5,40. Revisar junto com o item 9b de `docs/checklist-producao.md`.
+
 ## Pendências de decisão
 
 - Fluência e Premium dão prejuízo se o aluno usar mais de ~70% das horas.

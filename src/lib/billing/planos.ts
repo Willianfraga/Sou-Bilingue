@@ -9,8 +9,11 @@ export const DESCONTO_PRIMEIRA_MENSALIDADE = 50; // %
 // Plano de teste: cobrança única, sem desconto e fora da vitrine de planos.
 export const PLANOS_DE_TESTE = new Set(["teste_7dias"]);
 
-// Planos que usam a voz gratuita do navegador em vez da ElevenLabs.
-export const PLANOS_COM_VOZ_DO_NAVEGADOR = new Set(["essencial"]);
+// Planos que usam a voz gratuita do navegador em vez da ElevenLabs. Vazio
+// desde 07/10/2026: o dono achou a voz do navegador robotizada e todos os
+// planos passaram à voz ElevenLabs (impacto no custo: docs/CUSTOS_IA.md).
+// A voz do navegador continua só como reserva quando a ElevenLabs falha.
+export const PLANOS_COM_VOZ_DO_NAVEGADOR = new Set<string>();
 
 const NOME_DE_EXIBICAO: Record<string, string> = {
   teste_7dias: "Teste 7 dias",

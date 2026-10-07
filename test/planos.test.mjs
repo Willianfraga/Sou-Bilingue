@@ -49,8 +49,9 @@ describe("preço da 1ª mensalidade", () => {
 });
 
 describe("voz por plano", () => {
-  test("essencial usa a voz do navegador; os outros, a premium", () => {
-    assert.equal(planoTemVozPremium("essencial"), false);
+  test("todos os planos usam a voz premium (ElevenLabs)", () => {
+    assert.equal(planoTemVozPremium("essencial"), true);
+    assert.equal(planoTemVozPremium("teste_7dias"), true);
     assert.equal(planoTemVozPremium("fluencia"), true);
     assert.equal(planoTemVozPremium("premium"), true);
   });
