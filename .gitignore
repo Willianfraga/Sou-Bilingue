@@ -40,6 +40,9 @@ GUIA_DOMINIO_HOSTINGER.md
 PAINEL_CONTROLE.html
 deploy.sh
 
+# amostras do teste de vozes (scripts/amostras-voz.mjs)
+amostras-voz/
+
 # backups do banco (dados de usuarios, nunca no Git)
 backups/
 *.backup

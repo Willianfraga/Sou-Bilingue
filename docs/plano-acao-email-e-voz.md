@@ -90,38 +90,47 @@ volta para o padrão na hora.
 reprovada por soar robotizada. Por isso a comparação é com o ElevenLabs,
 não com ela.
 
-### B1. Conta no Google Cloud (Você, ~15 min, com o Claude guiando)
+> **Revisto em 27/10/2026:** o Google Cloud Text-to-Speech (Neural2/Chirp)
+> saiu do teste, porque soa robotizado. Entraram vozes novas que aparecem perto
+> ou acima da ElevenLabs no ranking às cegas da Artificial Analysis.
+> Preços das páginas oficiais em 27/10, só da voz, por hora de aula
+> (~34 mil caracteres, US$ 1 = R$ 5,22):
+>
+> | Voz | US$ por milhão de caracteres | Voz por hora |
+> |---|---|---|
+> | ElevenLabs Flash (hoje) | 40 | ~R$ 7,10 |
+> | Google **Gemini 3.8 Flash TTS** | ~19 (cobra por token de áudio; preço dobra em 01/01/2027) | ~R$ 3,40 |
+> | Inworld TTS-2 | 25 (15 no TTS-2 Flash) | ~R$ 4,40 |
+> | Speechify Simba 3.5 | 10 (6 no plano Scale) | ~R$ 1,80 |
 
-- [ ] Criar o projeto **"sou-bilingue"** em console.cloud.google.com
-- [ ] Ativar o faturamento com cartão. Não cobra dentro da cota grátis.
-- [ ] Criar o **alerta de orçamento**: Billing → Budgets, US$ 10/mês, aviso
-  em 50% e 90%
-- [ ] Ativar a API **Cloud Text-to-Speech**
-- [ ] Criar uma **chave de API** restrita **só** ao Text-to-Speech
-- [ ] Colocar no `.env.local` como `GOOGLE_TTS_API_KEY=...`, sem colar na
-  conversa
+### B1. Contas grátis para o teste (Você, ~15 min, com o Claude guiando)
 
-### B2. Amostras para ouvir (Claude, ~1 h)
+Cada chave vai só no `.env.local`, nunca na conversa.
 
-- [ ] O Claude gera a **mesma frase** de cada tutor, no idioma e sotaque
-  dele, em 3 versões:
-  1. ElevenLabs (a de hoje)
-  2. Google **Chirp 3 HD** (mais natural, ~R$ 7,90/h)
-  3. Google **Neural2/WaveNet** (mais barata, ~R$ 5,40/h)
-- [ ] Uma página simples para ouvir lado a lado, com os nomes escondidos
-  (teste "às cegas")
-- [ ] Testar também uma frase longa e uma com nome próprio em português,
-  porque o aluno às vezes mistura os idiomas
+- [ ] **Gemini:** aistudio.google.com → Get API key → `GEMINI_API_KEY=...`
+  (a cota grátis basta para as amostras; não precisa de cartão)
+- [ ] **Inworld:** platform.inworld.ai → API Keys → copiar a chave "Basic"
+  como está → `INWORLD_API_KEY=...`
+- [ ] **Speechify:** platform.speechify.ai/api-keys → `SPEECHIFY_API_KEY=...`
+
+### B2. Amostras para ouvir (Claude)
+
+- [x] Gerador pronto: `node scripts/amostras-voz.mjs` cria
+  `amostras-voz/index.html` (fora do Git), com 3 tutores (adulta, jovem,
+  criança) × 3 falas que misturam português com inglês e espanhol, em ordem
+  sorteada e com os nomes escondidos. Notas de 1 a 5 e, no fim, o botão
+  "Revelar" mostra cada voz e o custo da hora.
+- [x] Testado com a ElevenLabs em 27/10.
+- [ ] Rodar de novo com as 3 chaves novas e ajustar as vozes de cada
+  fornecedor (no topo do script) para ficarem parecidas com cada tutor
 
 ### B3. Decisão (Você)
 
-- [ ] Ouvir as amostras e escolher uma das opções:
-  - [ ] **Chirp 3 HD** para todos;
-  - [ ] **Neural2** para todos;
-  - [ ] **misto**: Chirp 3 HD no Fluência e no Premium, Neural2 no
-    Essencial e no Teste;
-  - [ ] **manter o ElevenLabs** (o plano B para aqui e a margem é resolvida
-    pelo preço ou pelas horas; ver o item 9b da checklist).
+- [ ] Ouvir as amostras e escolher a voz pela nota, comparando com o custo;
+  ou **manter o ElevenLabs** (o plano B para aqui e a margem é resolvida
+  pelo preço ou pelas horas; ver o item 9b da checklist).
+- [ ] Antes de implementar, o Claude mede a **demora para começar a falar**
+  de cada voz: na aula por voz, mais de ~1 s de espera incomoda.
 
 ### B4. Implementação (Claude, ~1 dia)
 
