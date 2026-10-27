@@ -56,13 +56,14 @@ Como conferir: o domínio aparece **"Verified"** no Resend.
 
 ### A4. Textos dos e-mails em português (Claude escreve, Você cola, ~15 min)
 
-- [ ] O Claude prepara os modelos com a cor e o nome do app:
-  - [ ] Confirmação de cadastro
-  - [ ] Esqueci a senha
-  - [ ] Troca de e-mail
-  - [ ] Link mágico e convite (se usados)
+- [x] O Claude prepara os modelos com a cor e o nome do app
+  (`supabase/templates/`, 27/10/2026):
+  - [x] Confirmação de cadastro
+  - [x] Esqueci a senha
+  - [x] Troca de e-mail
+  - [x] Link mágico e convite: não são usados (login por senha)
 - [ ] Você cola cada um em **Authentication → Emails → Templates**, com o
-  assunto
+  assunto (tabela em `supabase/templates/README.md`)
 
 ### A5. Teste (Juntos, ~10 min)
 
